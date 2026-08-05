@@ -523,7 +523,7 @@ def main():
                     "notified",
                     []
                 ),
-                artists
+                artist
             )
 
 
