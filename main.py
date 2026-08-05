@@ -285,22 +285,28 @@ def main():
             title = info["title"]
 
 
+            is_new = video_id not in data
+
             old_views = data.get(
                 video_id,
                 {}
             ).get(
                 "views",
-                0
+                views
             )
-
-
-            messages = check_milestone(
-                old_views,
-                views,
-                title
-            )
-
-
+            
+            
+            if is_new:
+                messages = []
+            
+            else:
+                messages = check_milestone(
+                    old_views,
+                    views,
+                    title
+                )
+                
+           
             for msg in messages:
                 send_telegram(msg)
 
