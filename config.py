@@ -7,9 +7,9 @@ CHANNELS = {
 
 
 # 아티스트별 유튜브 플레이리스트
-ARTISTS = {
+UNITS = {
 
-    "1기생": {
+    "에버리스": {
        "아야츠노 유니": {
             "channel": "@ayatsunoyuni",
             "display": "아야츠노 유니",
@@ -33,7 +33,7 @@ ARTISTS = {
         }
     },
     
-    "2기생": {
+    "유니버스": {
         "시라유키 히나": {
                     "channel": "@shirayukihina",
                     "display": "시라유키 히나",
@@ -83,7 +83,7 @@ ARTISTS = {
         }
     },
 
-    "3기생": {
+    "클리셰": {
         "텐코 시부키": {
             "channel": "@tenkoshibuki",
             "display": "텐코 시부키",
