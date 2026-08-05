@@ -56,7 +56,7 @@ def send_telegram(message):
         f"bot{TELEGRAM_TOKEN}/sendMessage"
     )
 
-    requests.post(
+    response = requests.post(
         url,
         json={
             "chat_id": TELEGRAM_CHAT_ID,
@@ -64,6 +64,11 @@ def send_telegram(message):
         },
         timeout=10
     )
+
+    print("===== Telegram 결과 =====")
+    print(response.status_code)
+    print(response.text)
+    print("========================")
 
 
 # ======================
