@@ -159,7 +159,6 @@ def get_playlist_videos():
     
             for playlist_id in info["playlists"]:
         
-            for playlist_id in artist_data["playlists"]:
                 try:
                     next_page = None
     
