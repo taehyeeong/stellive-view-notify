@@ -10,7 +10,7 @@ from config import (
     MILESTONES,
     EXCLUDE_KEYWORDS,
     INITIAL_SETUP,
-    PLAYLISTS
+    ARTISTS
 )
 
 
@@ -144,114 +144,6 @@ def get_channel_id(handle):
 
 
 
-# 최근 영상 가져오기
-
-def get_videos(channel_id):
-
-    # 채널 업로드 목록 가져오기
-    channel_data = youtube_get(
-        "https://www.googleapis.com/youtube/v3/channels",
-        {
-            "part": "contentDetails",
-            "id": channel_id,
-            "key": YOUTUBE_API_KEY
-        }
-    )
-
-    uploads_playlist = (
-        channel_data["items"][0]
-        ["contentDetails"]
-        ["relatedPlaylists"]
-        ["uploads"]
-    )
-
-
-    videos = []
-
-    next_page = None
-
-
-    while True:
-
-        params = {
-            "part": "snippet",
-            "playlistId": uploads_playlist,
-            "maxResults": 50,
-            "key": YOUTUBE_API_KEY
-        }
-
-        if next_page:
-            params["pageToken"] = next_page
-
-
-        data = youtube_get(
-            "https://www.googleapis.com/youtube/v3/playlistItems",
-            params
-        )
-
-
-        for item in data.get("items", []):
-
-            title = item["snippet"]["title"]
-
-            video_id = (
-                item["snippet"]
-                ["resourceId"]
-                ["videoId"]
-            )
-
-
-            if is_music(title):
-
-                videos.append({
-                    "id": video_id,
-                    "title": title
-                })
-
-
-        next_page = data.get("nextPageToken")
-
-        
-
-        if not next_page:
-            break
-
-
-    print("===== 전체 음악 영상 =====")
-
-    for video in videos:
-        print(video["title"])
-
-    print(
-        "총",
-        len(videos),
-        "개"
-    )
-
-    print("========================")
-
-
-    return videos
-
-
-
-    
-    # 🔍 확인용 로그 추가
-    print("===== 찾은 음악 영상 =====")
-
-    if videos:
-        for video in videos:
-            print(video["title"])
-    else:
-        print("음악 영상 없음")
-
-    print("========================")
-
-    
-    return videos
-
-
-
 # 플레이리스트 
 
 def get_playlist_videos():
@@ -261,7 +153,10 @@ def get_playlist_videos():
     seen = set()
 
 
-    for playlist_id in PLAYLISTS:
+    for artist_name, playlists in ARTISTS.items():
+
+        
+        for playlist_id in playlists:
 
         next_page = None
 
@@ -309,8 +204,13 @@ def get_playlist_videos():
                 if is_music(title):
 
                     videos.append({
+
                         "id": video_id,
-                        "title": title
+                    
+                        "title": title,
+                    
+                        "artist": artist_name
+                    
                     })
 
                     seen.add(video_id)
@@ -513,25 +413,17 @@ def check_milestone(
 # ======================
 
 def main():
-    
+
     data = load_data()
 
 
-    for channel, channel_name in CHANNELS.items():
-
-        channel_id = get_channel_id(channel)
-
-        if not channel_id:
-            continue
+    videos = get_playlist_videos()
 
 
-        videos = get_playlist_videos()
-
-        video_ids = [
-            video["id"]
-            for video in videos
-        ]
-
+    video_ids = [
+        video["id"]
+        for video in videos
+    ]
 
         view_data = get_view_counts(
             video_ids
@@ -550,6 +442,7 @@ def main():
 
             title = info["title"]
 
+            artist = video["artist"]
 
             url = (
                 f"https://www.youtube.com/watch?v={video_id}"
@@ -567,7 +460,7 @@ def main():
                     info["thumb"],
             
                     f"🆕 새로운 음악 영상 발견!\n\n"
-                    f"👤 {channel_name}\n\n"
+                    f"👤 {artist}\n\n"
                     f"🎵 {title}\n\n"
                     f"📊 현재 조회수: {views:,}회\n\n"
                     f"🔗 {url}"
