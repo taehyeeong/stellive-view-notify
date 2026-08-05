@@ -455,21 +455,21 @@ def main():
     for video in videos:
         checked_videos += 1
 
-            video_id = video["id"]
+        video_id = video["id"]
 
 
-            info = view_data[video_id]
+        info = view_data[video_id]
 
 
-            views = info["views"]
+        views = info["views"]
 
-            title = info["title"]
+        title = info["title"]
 
-            artist = video["artist"]
+        artist = video["artist"]
 
-            url = (
-                f"https://www.youtube.com/watch?v={video_id}"
-            )
+        url = (
+            f"https://www.youtube.com/watch?v={video_id}"
+        )
 
 
             # 새 영상인지 확인
