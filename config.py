@@ -2,17 +2,7 @@
 
 # YouTube 채널 핸들
 CHANNELS = [
-    "@shirayukihina",
-    "@stellive_official",
-    "@ayatsunoyuni",
-    "＠Sakihanechannel",
-    "@neneko_mashiro",
-    "@akanelize",
-    "@arahashitabi",
-    "@tenkoshibuki",
-    "@aokumorin",
-    "@hanako_nana",
-    "@yuzuhariko"
+    "@shirayukihina"
 ]
 
 # 조회수 알림 단위
