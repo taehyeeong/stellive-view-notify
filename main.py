@@ -138,6 +138,21 @@ def get_videos(channel_id):
                 "title": title
             })
 
+
+
+    
+    # 🔍 확인용 로그 추가
+    print("===== 찾은 음악 영상 =====")
+
+    if videos:
+        for video in videos:
+            print(video["title"])
+    else:
+        print("음악 영상 없음")
+
+    print("========================")
+
+    
     return videos
 
 
