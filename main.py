@@ -270,7 +270,7 @@ def check_milestone(
         old,
         new,
         title,
-        f"🔗 {url}"
+        url
 ):
 
     alerts = []
