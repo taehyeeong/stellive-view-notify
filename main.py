@@ -152,6 +152,7 @@ def get_playlist_videos():
 
     seen = set()
 
+    checked_playlists = 0
 
     for generation, artists in ARTISTS.items():
 
@@ -260,7 +261,7 @@ def get_playlist_videos():
         print("============================")
 
 
-    return videos
+    return videos, checked_playlists
 
 
 
@@ -423,7 +424,7 @@ def main():
     data = load_data()
     checked_videos = 0
 
-    videos = get_playlist_videos()
+    videos, checked_playlists = get_playlist_videos()
 
 
     video_ids = [
