@@ -158,6 +158,7 @@ def get_playlist_videos():
         for artist_name, info in artists.items():
     
             for playlist_id in info["playlists"]:
+                checked_playlists += 1
         
                 try:
                     next_page = None
@@ -230,27 +231,18 @@ def get_playlist_videos():
                         if not next_page:
                             break
     
-                except Exception as e:
-    
-                    print(
-                        "⚠️ 플레이리스트 오류:",
-                        artist_name,
-                        playlist_id,
-                        e
-                    )
+            except Exception as e:
+
+                error_playlists += 1
             
-                    send_telegram(
-                        f"""
-                    ⚠️ YouTube Notify 오류
-                    
-                    ❌ {type(e).__name__}
-                    
-                    메시지:
-                    {str(e)[:500]}
-                    """
-                    )
-    
-            continue
+                send_telegram(
+                    f"⚠️ 플레이리스트 오류\n\n"
+                    f"🎤 아티스트: {artist_name}\n"
+                    f"📁 Playlist ID: {playlist_id}\n\n"
+                    f"❌ 내용:\n{e}"
+                )
+            
+                continue
     
     
         print("===== Playlist 음악 영상 =====")
@@ -424,6 +416,10 @@ def check_milestone(
 
 def main():
 
+    checked_playlists = 0
+    error_playlists = 0
+    new_videos = 0
+
     data = load_data()
     checked_videos = 0
 
@@ -464,6 +460,10 @@ def main():
 
 
         # 새 음악 영상 알림
+
+        if is_new:
+            new_videos += 1
+        
         if is_new and not INITIAL_SETUP:
 
             send_photo(
@@ -522,13 +522,23 @@ def main():
         }
 
 
-    send_telegram(
-        f"✅ YouTube Notify 정상 작동\n\n"
-        f"⏰ 실행 시간: {datetime.now()}\n"
-        f"🎵 확인 영상: {checked_videos}개\n"
-        f"상태: 이상 없음"
-    )
-
+    status = (
+            "✅ 이상 없음"
+            if error_playlists == 0
+            else
+            f"⚠️ 오류 {error_playlists}개 있음"
+        )
+        
+        
+        send_telegram(
+            f"✅ YouTube Notify 실행 완료\n\n"
+            f"⏰ 실행 시간: {datetime.now()}\n\n"
+            f"👥 확인 아티스트: {len(ARTISTS)}세대\n"
+            f"📁 확인 플레이리스트: {checked_playlists}개\n"
+            f"🎵 확인 영상: {checked_videos}개\n"
+            f"🆕 새 영상: {new_videos}개\n\n"
+            f"상태: {status}"
+        )
 
     save_data(data)
 
