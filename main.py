@@ -270,10 +270,12 @@ def check_milestone(
         old,
         new,
         title,
-        url
+        url,
+        notified
 ):
 
     alerts = []
+    new_notified = []
 
 
     old_step = old // VIEW_STEP
@@ -282,19 +284,23 @@ def check_milestone(
 
     if new_step > old_step:
 
-        for i in range(
-            old_step + 1,
-            new_step + 1
-        ):
+    for i in range(
+        old_step + 1,
+        new_step + 1
+    ):
 
-            count = i * VIEW_STEP
+        count = i * VIEW_STEP
+
+        if count not in notified:
 
             alerts.append(
                 f"🎉 조회수 달성!\n\n"
                 f"🎵 {title}\n\n"
-                f"📈 {old:,} → {count:,}\n\n"
+                f"📈 {count:,}회 돌파!\n\n"
                 f"🔗 {url}"
             )
+
+            new_notified.append(count)
 
     for milestone in MILESTONES:
 
@@ -388,7 +394,12 @@ def main():
                 messages = check_milestone(
                     old_views,
                     views,
-                    title
+                    title,
+                    url,
+                    data.get(video_id, {}).get(
+                        "notified",
+                        []
+                    )
                 )
 
 
@@ -400,13 +411,13 @@ def main():
             # 데이터 저장
 
             data[video_id] = {
-
                 "title": title,
-
                 "views": views,
-
+                "notified": data.get(video_id, {}).get(
+                    "notified",
+                    []
+                ),
                 "updated": str(datetime.now())
-
             }
 
 
