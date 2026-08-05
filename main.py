@@ -304,6 +304,45 @@ def get_view_count(video_id):
 }
 
 
+def get_view_counts(video_ids):
+
+    data = youtube_get(
+        "https://www.googleapis.com/youtube/v3/videos",
+        {
+            "part": "statistics,snippet",
+            "id": ",".join(video_ids),
+            "key": YOUTUBE_API_KEY
+        }
+    )
+
+
+    result = {}
+
+
+    for item in data.get("items", []):
+
+        video_id = item["id"]
+
+        result[video_id] = {
+
+            "views": int(
+                item["statistics"]
+                ["viewCount"]
+            ),
+
+            "title": item["snippet"]["title"],
+
+            "thumb": item["snippet"]
+                ["thumbnails"]
+                ["high"]
+                ["url"]
+
+        }
+
+
+    return result
+
+
 
 # ======================
 # 알림 계산
@@ -381,12 +420,23 @@ def main():
         videos = get_videos(channel_id)
 
 
+        video_ids = [
+            video["id"]
+            for video in videos
+        ]
+
+
+        view_data = get_view_counts(
+            video_ids
+        )
+
+
         for video in videos:
 
             video_id = video["id"]
 
 
-            info = get_view_count(video_id)
+            info = view_data[video_id]
 
 
             views = info["views"]
