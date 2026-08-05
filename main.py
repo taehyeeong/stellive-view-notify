@@ -314,7 +314,7 @@ def check_milestone(
             )
 
 
-    return alerts
+    return alerts, new_notified
 
 
 
@@ -416,7 +416,7 @@ def main():
                 "notified": data.get(video_id, {}).get(
                     "notified",
                     []
-                ),
+                ) + new_notified,
                 "updated": str(datetime.now())
             }
 
