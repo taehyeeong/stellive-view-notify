@@ -13,11 +13,11 @@ ARTISTS = {
 
         "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 히나 오리곡
 
-        "PLzdLDJsHzzzniuwjyW6QgSck4PrwLSy0c", # 히나 커버곡
+        "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc", # 히나 커버곡
 
-        "PLzdLDJSHZz2N496_83u_ug3LWa7HHWx2W", # 히나 '히나의 Playlist'
+        "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 '히나의 Playlist'
 
-        "PLzdLDJSHZz2NJ0hog7PBLepqAs5sb0410" # 히나 3D Live
+        "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO"  # 히나 3D Live
 
     ]
 
