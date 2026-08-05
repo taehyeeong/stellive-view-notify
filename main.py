@@ -429,12 +429,12 @@ def main():
         for video in videos
     ]
 
-        view_data = get_view_counts(
+    view_data = get_view_counts(
             video_ids
         )
 
 
-        for video in videos:
+    for video in videos:
 
             video_id = video["id"]
 
