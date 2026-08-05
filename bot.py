@@ -20,19 +20,19 @@ TELEGRAM_TOKEN = os.environ.get(
 
 
 UNITS = {
-    "unit_Everys": [
+    "unit_everys": [
         "아야츠노 유니": "yuni",
         "사키하네 후야": "huya"
     ],
 
-    "unit_Universe": [
+    "unit_universe": [
         "시라유키 히나": "hina",
         "네네코 마시로": "mashiro",
         "아카네 리제": "lize",
         "아라하시 타비": "tabi"
     ],
 
-    "unit_Cliché": [
+    "unit_cliché": [
         "텐코 시부키": "shibuki",
         "아오쿠모 린": "rin",
         "하나코 나나": "nana",
@@ -66,7 +66,7 @@ async def start(update: Update, context):
         [
             InlineKeyboardButton(
                 "🌸 에버리스",
-                callback_data="unit_everies"
+                callback_data="unit_everys"
             )
         ],
         [
@@ -78,7 +78,7 @@ async def start(update: Update, context):
         [
             InlineKeyboardButton(
                 "✨ 클리셰",
-                callback_data="unit_cliche"
+                callback_data="unit_cliché"
             )
         ]
     ]
@@ -109,13 +109,13 @@ async def button_handler(
 
         keyboard = []
 
-        for artist in UNITS[unit]:
+        for artist, artist_id in UNITS[unit].items():
 
             keyboard.append(
                 [
                     InlineKeyboardButton(
                         artist,
-                        callback_data=f"artist_{artist}"
+                        callback_data=f"artist_{artist_id}"
                     )
                 ]
             )
