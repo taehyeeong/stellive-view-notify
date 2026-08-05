@@ -72,6 +72,24 @@ def send_telegram(message):
     print("========================")
 
 
+def send_photo(photo, caption):
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{TELEGRAM_TOKEN}/sendPhoto"
+    )
+
+    requests.post(
+        url,
+        json={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "photo": photo,
+            "caption": caption
+        },
+        timeout=10
+    )
+
+
 # ======================
 # YouTube API
 # ======================
@@ -270,9 +288,19 @@ def get_view_count(video_id):
 
     return {
     "views": views,
+
     "title": item["snippet"]["title"],
-    "thumb": item["snippet"]["thumbnails"]["default"]["url"],
-    "url": f"https://www.youtube.com/watch?v={video_id}"
+
+    "thumb": item["snippet"]["thumbnails"]["high"]["url"],
+
+    "published": item["snippet"]["publishedAt"],
+
+    "likes": int(
+        item["statistics"].get(
+            "likeCount",
+            0
+        )
+    )
 }
 
 
@@ -378,11 +406,13 @@ def main():
             # 새 음악 영상 알림
             if is_new:
 
-                send_telegram(
+                send_photo(
+                    info["thumb"],
+                
                     f"🆕 새로운 음악 영상 발견!\n\n"
                     f"🎵 {title}\n\n"
                     f"📊 현재 조회수: {views:,}회\n\n"
-                    f"🔗 https://www.youtube.com/watch?v={video_id}"
+                    f"🔗 {url}"
                 )
 
 
