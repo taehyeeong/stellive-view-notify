@@ -320,73 +320,56 @@ def check_milestone(
 
 def main():
 
-    data = load_data()
+ for video in videos:
+
+    video_id = video["id"]
+
+    info = get_view_count(video_id)
+
+    views = info["views"]
+
+    title = info["title"]
+
+    url = info["url"]
+
+    is_new = video_id not in data
+
+    if is_new:
+        send_telegram(
+            f"🆕 새로운 음악 영상 발견!\n\n"
+            f"🎵 {title}\n\n"
+            f"📊 현재 조회수: {views:,}회"
+        )
+
+    old_views = data.get(
+        video_id,
+        {}
+    ).get(
+        "views",
+        views
+    )
 
 
-    for channel in CHANNELS:
+    if is_new:
+        messages = []
 
-        channel_id = get_channel_id(channel)
-
-        if not channel_id:
-            continue
-
-
-        videos = get_videos(channel_id)
-
-
-        for video in videos:
-
-            video_id = video["id"]
-
-            info = get_view_count(video_id)
-
-            views = info["views"]
-
-            title = info["title"]
-            
-            url = info["url"]
-
-            is_new = video_id not in data
-
-                if is_new:
-                    send_telegram(
-                        f"🆕 새로운 음악 영상 발견!\n\n"
-                        f"🎵 {title}\n\n"
-                        f"📊 현재 조회수: {views:,}회\n\n"
-                        f"🔗 {url}"
-                    )
-
-            old_views = data.get(
-                video_id,
-                {}
-            ).get(
-                "views",
-                views
-            )
-            
-            
-                if is_new:
-                    print("새 영상 여부:", is_new, title)
-                    messages = []
-
-                else:
-                    messages = check_milestone(
-                        old_views,
-                        views,
-                        title,
-                        url
-                    )
-                
-           
-            for msg in messages:
-                send_telegram(msg)
+    else:
+        messages = check_milestone(
+            old_views,
+            views,
+            title
+        )
 
 
-            data[video_id] = {
-                "title": title,
-                "views": views,
-                "updated": str(datetime.now())
-            }
+    for msg in messages:
+        send_telegram(msg)
+
+
+    data[video_id] = {
+        "title": title,
+        "views": views,
+        "updated": str(datetime.now())
+    }
 
 
     save_data(data)
