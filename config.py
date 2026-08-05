@@ -26,6 +26,16 @@ MUSIC_KEYWORDS = [
     "Live"
 ]
 
+EXCLUDE_KEYWORDS = [
+    "shorts",
+    "#shorts",
+    "쇼츠",
+    "clip",
+    "클립",
+    "雑談",
+    "잡담"
+]
+
 
 # 특별 알림 기준
 MILESTONES = [
