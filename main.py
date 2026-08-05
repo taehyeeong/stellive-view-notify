@@ -9,7 +9,8 @@ from config import (
     MUSIC_KEYWORDS,
     MILESTONES,
     EXCLUDE_KEYWORDS,
-    INITIAL_SETUP
+    INITIAL_SETUP,
+    PLAYLISTS
 )
 
 
@@ -251,6 +252,99 @@ def get_videos(channel_id):
 
 
 
+# 플레이리스트 
+
+def get_playlist_videos():
+
+    videos = []
+
+    seen = set()
+
+
+    for playlist_id in PLAYLISTS:
+
+        next_page = None
+
+
+        while True:
+
+            params = {
+                "part": "snippet",
+                "playlistId": playlist_id,
+                "maxResults": 50,
+                "key": YOUTUBE_API_KEY
+            }
+
+
+            if next_page:
+                params["pageToken"] = next_page
+
+
+            data = youtube_get(
+                "https://www.googleapis.com/youtube/v3/playlistItems",
+                params
+            )
+
+
+            for item in data.get("items", []):
+
+                video_id = (
+                    item["snippet"]
+                    ["resourceId"]
+                    ["videoId"]
+                )
+
+                title = (
+                    item["snippet"]
+                    ["title"]
+                )
+
+
+                # 중복 제거
+                if video_id in seen:
+                    continue
+
+
+                # 음악 키워드 확인
+                if is_music(title):
+
+                    videos.append({
+                        "id": video_id,
+                        "title": title
+                    })
+
+                    seen.add(video_id)
+
+
+            next_page = data.get(
+                "nextPageToken"
+            )
+
+
+            if not next_page:
+                break
+
+
+    print("===== Playlist 음악 영상 =====")
+
+    for video in videos:
+        print(video["title"])
+
+
+    print(
+        "총",
+        len(videos),
+        "개"
+    )
+
+    print("============================")
+
+
+    return videos
+
+
+
+
 # 음악 영상 판단
 
 def is_music(title):
@@ -431,8 +525,7 @@ def main():
             continue
 
 
-        videos = get_videos(channel_id)
-
+        videos = get_playlist_videos()
 
         video_ids = [
             video["id"]
