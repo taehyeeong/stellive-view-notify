@@ -101,20 +101,17 @@ async def button_handler(
 
     query = update.callback_query
 
-    print("🔥 버튼 눌림:", query.data)
+    print("1. 버튼:", query.data)
 
     await query.answer()
 
+    print("2. answer 완료")
+
     unit = query.data
 
-    
-    if query.data == "home":
-
-        await start(update, context)
-        return
-
-
     if unit in UNITS:
+
+        print("3. 유닛 찾음")
 
         keyboard = []
 
@@ -129,24 +126,14 @@ async def button_handler(
                 ]
             )
 
+        print("4. 버튼 생성 완료")
 
-        keyboard.append(
-            [
-                InlineKeyboardButton(
-                    "⬅️ 처음으로",
-                    callback_data="home"
-                )
-            ]
-        )
-
-        print("메뉴 생성 완료")
         await query.edit_message_text(
             "🎤 멤버를 선택하세요.",
-            reply_markup=InlineKeyboardMarkup(
-                keyboard
-            )
+            reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
+        print("5. 화면 변경 완료")
 
 
 
