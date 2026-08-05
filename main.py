@@ -270,7 +270,7 @@ def check_milestone(
         old,
         new,
         title,
-        f"https://www.youtube.com/watch?v={video_id}"
+        f"🔗 {url}"
 ):
 
     alerts = []
@@ -295,7 +295,6 @@ def check_milestone(
                 f"📈 {old:,} → {count:,}\n\n"
                 f"🔗 {url}"
             )
-
 
     for milestone in MILESTONES:
 
