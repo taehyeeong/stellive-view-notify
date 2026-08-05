@@ -11,8 +11,6 @@ TELEGRAM_TOKEN = os.environ.get(
     "TELEGRAM_TOKEN"
 )
 
-from config import TELEGRAM_TOKEN
-
 
 async def start(update: Update, context):
 
