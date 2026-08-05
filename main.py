@@ -10,7 +10,7 @@ from config import (
     MILESTONES,
     EXCLUDE_KEYWORDS,
     INITIAL_SETUP,
-    ARTISTS
+    UNITS
 )
 
 
@@ -155,7 +155,7 @@ def get_playlist_videos():
     checked_artists = []
     checked_playlists = 0
 
-    for unit, artists in ARTISTS.items():
+    for unit, artists in UNITS.items():
 
         for artist_name, info in artists.items():
             checked_artists.append(artist_name)
@@ -537,7 +537,7 @@ def main():
     send_telegram(
             f"✅ YouTube Notify 실행 완료\n\n"
             f"⏰ 실행 시간: {datetime.now()}\n\n"
-            f"👥 확인 아티스트: {len(ARTISTS)}세대\n"
+            f"👥 확인 아티스트: {len(UNITS)}세대\n"
             f"📁 확인 플레이리스트: {checked_playlists}개\n"
             f"🎵 확인 영상: {checked_videos}개\n"
             f"🆕 새 영상: {new_videos}개\n\n"
