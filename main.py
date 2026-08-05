@@ -158,71 +158,71 @@ def get_playlist_videos():
         
         for playlist_id in playlists:
 
-        next_page = None
+            next_page = None
 
 
-        while True:
-
-            params = {
-                "part": "snippet",
-                "playlistId": playlist_id,
-                "maxResults": 50,
-                "key": YOUTUBE_API_KEY
-            }
-
-
-            if next_page:
-                params["pageToken"] = next_page
+                while True:
+        
+                    params = {
+                        "part": "snippet",
+                        "playlistId": playlist_id,
+                        "maxResults": 50,
+                        "key": YOUTUBE_API_KEY
+                    }
 
 
-            data = youtube_get(
-                "https://www.googleapis.com/youtube/v3/playlistItems",
-                params
-            )
+                    if next_page:
+                        params["pageToken"] = next_page
+        
+        
+                    data = youtube_get(
+                        "https://www.googleapis.com/youtube/v3/playlistItems",
+                        params
+                    )
 
 
-            for item in data.get("items", []):
+                    for item in data.get("items", []):
+        
+                        video_id = (
+                            item["snippet"]
+                            ["resourceId"]
+                            ["videoId"]
+                        )
+        
+                        title = (
+                            item["snippet"]
+                            ["title"]
+                        )
+        
+        
+                        # 중복 제거
+                        if video_id in seen:
+                            continue
+        
+        
+                        # 음악 키워드 확인
+                        if is_music(title):
+        
+                            videos.append({
+        
+                                "id": video_id,
+                            
+                                "title": title,
+                            
+                                "artist": artist_name
+                            
+                            })
+        
+                            seen.add(video_id)
 
-                video_id = (
-                    item["snippet"]
-                    ["resourceId"]
-                    ["videoId"]
+
+                next_page = data.get(
+                    "nextPageToken"
                 )
 
-                title = (
-                    item["snippet"]
-                    ["title"]
-                )
 
-
-                # 중복 제거
-                if video_id in seen:
-                    continue
-
-
-                # 음악 키워드 확인
-                if is_music(title):
-
-                    videos.append({
-
-                        "id": video_id,
-                    
-                        "title": title,
-                    
-                        "artist": artist_name
-                    
-                    })
-
-                    seen.add(video_id)
-
-
-            next_page = data.get(
-                "nextPageToken"
-            )
-
-
-            if not next_page:
-                break
+                if not next_page:
+                    break
 
 
     print("===== Playlist 음악 영상 =====")
