@@ -45,3 +45,5 @@ MILESTONES = [
     5000000,    # 500만
     10000000,   # 1000만
 ]
+
+INITIAL_SETUP = True
