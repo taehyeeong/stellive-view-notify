@@ -154,6 +154,7 @@ def get_playlist_videos():
 
     checked_artists = []
     checked_playlists = 0
+    error_playlists = 0
 
     for unit, artists in UNITS.items():
 
@@ -267,6 +268,15 @@ def get_playlist_videos():
     f"👥 확인 아티스트: {len(checked_artists)}명"
 )
 
+print(
+    f"📁 확인 플레이리스트: {checked_playlists}개"
+)
+
+print(
+    f"⚠️ 오류 플레이리스트: {error_playlists}개"
+)
+
+return videos, checked_playlists, checked_units
 
 
 # 음악 영상 판단
