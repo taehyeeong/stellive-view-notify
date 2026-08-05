@@ -343,7 +343,9 @@ def main():
             views = info["views"]
 
             title = info["title"]
+            
             url = info["url"]
+
 
 
             is_new = video_id not in data
@@ -361,6 +363,13 @@ def main():
                 messages = []
             
             else:
+                if is_new:
+                    send_telegram(
+                        f"🆕 새로운 음악 영상 발견!\n\n"
+                        f"🎵 {title}\n\n"
+                        f"📊 현재 조회수: {views:,}회\n\n"
+                        f"🔗 {url}"
+                    )
                 messages = check_milestone(
                     old_views,
                     views,
