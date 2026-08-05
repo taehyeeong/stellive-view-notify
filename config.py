@@ -8,19 +8,19 @@ CHANNELS = {
 
 # 아티스트별 유튜브 플레이리스트
 ARTISTS = {
+    "시라유키 히나": {
+        "keyword": "#daily_hina", # 태그
+        "nickname": "히나", # 히나야
+        "playlists": [
+           "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 히나 오리곡
 
-    "시라유키 히나": [
-
-        "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 히나 오리곡
-
-        "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc", # 히나 커버곡
-
-        "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 '히나의 Playlist'
-
-        "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO"  # 히나 3D Live
-
-    ]
-
+            "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc", # 히나 커버곡
+    
+            "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 '히나의 Playlist'
+    
+            "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO"  # 히나 3D Live
+        ]
+    }
 }
 
 
