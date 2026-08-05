@@ -280,7 +280,7 @@ def get_playlist_videos():
         f"⚠️ 오류 플레이리스트: {error_playlists}개"
             )
 
-    return videos, checked_playlists, checked_units
+    return videos, checked_playlists, checked_units, checked_artists
 
 
 # 음악 영상 판단
@@ -441,7 +441,7 @@ def main():
     data = load_data()
     checked_videos = 0
 
-    videos, checked_playlists, checked_units = get_playlist_videos()
+    videos, checked_playlists, checked_units, checked_artists = get_playlist_videos()
 
 
     video_ids = [
