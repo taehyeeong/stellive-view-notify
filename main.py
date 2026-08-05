@@ -161,14 +161,14 @@ def get_playlist_videos():
             next_page = None
 
 
-                while True:
+            while True:
         
-                    params = {
-                        "part": "snippet",
-                        "playlistId": playlist_id,
-                        "maxResults": 50,
-                        "key": YOUTUBE_API_KEY
-                    }
+                params = {
+                    "part": "snippet",
+                    "playlistId": playlist_id,
+                    "maxResults": 50,
+                    "key": YOUTUBE_API_KEY
+                }
 
 
                     if next_page:
@@ -184,6 +184,10 @@ def get_playlist_videos():
                     for item in data.get("items", []):
         
                         video_id = (
+
+
+
+                            
                             item["snippet"]
                             ["resourceId"]
                             ["videoId"]
