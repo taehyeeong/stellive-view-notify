@@ -225,8 +225,8 @@ def get_playlist_videos():
                     )
 
 
-                        if not next_page:
-                            break
+                    if not next_page:
+                        break
 
             except Exception as e:
 
