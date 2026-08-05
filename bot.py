@@ -20,23 +20,23 @@ TELEGRAM_TOKEN = os.environ.get(
 
 
 UNITS = {
-    "unit_everies": [
-        "시라유키 히나",
-        "네네코 마시로",
-        "아카네 리제",
-        "아라하시 타비"
+    "unit_Everys": [
+        "아야츠노 유니": "yuni",
+        "사키하네 후야": "huya"
     ],
 
-    "unit_universe": [
-        "아오쿠모 린",
-        "하나코 나나",
-        "유즈하 리코"
+    "unit_Universe": [
+        "시라유키 히나": "hina",
+        "네네코 마시로": "mashiro",
+        "아카네 리제": "lize",
+        "아라하시 타비": "tabi"
     ],
 
-    "unit_cliche": [
-        "텐코 시부키",
-        "아야츠노 유니",
-        "사키하네 후야"
+    "unit_Cliché": [
+        "텐코 시부키": "shibuki",
+        "아오쿠모 린": "rin",
+        "하나코 나나": "nana",
+        "유즈하 리코": "riko"
     ]
 }
 
