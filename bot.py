@@ -101,6 +101,8 @@ async def button_handler(
 
     query = update.callback_query
 
+    print("🔥 버튼 눌림:", query.data)
+
     await query.answer()
 
     unit = query.data
@@ -137,7 +139,7 @@ async def button_handler(
             ]
         )
 
-
+        print("메뉴 생성 완료")
         await query.edit_message_text(
             "🎤 멤버를 선택하세요.",
             reply_markup=InlineKeyboardMarkup(
