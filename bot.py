@@ -6,7 +6,8 @@ from telegram import (
 from telegram.ext import (
     Application,
     CommandHandler,
-    ContextTypes
+    ContextTypes,
+    CallbackQueryHandler
 )
 
 import os
@@ -16,6 +17,29 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 TELEGRAM_TOKEN = os.environ.get(
     "TELEGRAM_TOKEN"
 )
+
+
+UNITS = {
+    "unit_everies": [
+        "시라유키 히나",
+        "네네코 마시로",
+        "아카네 리제",
+        "아라하시 타비"
+    ],
+
+    "unit_universe": [
+        "아오쿠모 린",
+        "하나코 나나",
+        "유즈하 리코"
+    ],
+
+    "unit_cliche": [
+        "텐코 시부키",
+        "아야츠노 유니",
+        "사키하네 후야"
+    ]
+}
+
 
 
 # --- Render 포트 감지용 간단한 헬스체크 서버 ---
@@ -70,6 +94,53 @@ async def start(update: Update, context):
     )
 
 
+async def button_handler(
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE
+):
+
+    query = update.callback_query
+
+    await query.answer()
+
+    unit = query.data
+
+    if unit in UNITS:
+
+        keyboard = []
+
+        for artist in UNITS[unit]:
+
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        artist,
+                        callback_data=f"artist_{artist}"
+                    )
+                ]
+            )
+
+
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    "⬅️ 처음으로",
+                    callback_data="home"
+                )
+            ]
+        )
+
+
+        await query.edit_message_text(
+            "🎤 멤버를 선택하세요.",
+            reply_markup=InlineKeyboardMarkup(
+                keyboard
+            )
+        )
+
+
+
+
 def main():
 
     # 봇 실행 전에 헬스체크 서버를 백그라운드로 띄운다
@@ -88,6 +159,13 @@ def main():
             start
         )
     )
+
+    app.add_handler(
+    CallbackQueryHandler(
+        button_handler
+    )
+)
+    
 
     app.run_polling()
 
