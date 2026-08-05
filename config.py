@@ -2,7 +2,7 @@
 
 # YouTube 채널 핸들
 CHANNELS = [
-    "@shirayukihina" : "시라유키 히나"
+    "@shirayukihina": "시라유키 히나"
 ]
 
 # 조회수 알림 단위
