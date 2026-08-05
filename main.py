@@ -158,7 +158,7 @@ def get_playlist_videos():
     for unit, artists in ARTISTS.items():
 
         for artist_name, info in artists.items():
-                    checked_artists.append(artist_name)
+            checked_artists.append(artist_name)
     
             for playlist_id in info["playlists"]:
                 checked_playlists += 1
