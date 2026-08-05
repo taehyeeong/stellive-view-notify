@@ -319,6 +319,17 @@ def check_milestone(
 
 
 def main():
+   
+    for channel in CHANNELS:
+
+    channel_id = get_channel_id(channel)
+
+    if not channel_id:
+        continue
+
+
+    videos = get_videos(channel_id)
+
 
  for video in videos:
 
