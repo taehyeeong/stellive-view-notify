@@ -20,24 +20,24 @@ TELEGRAM_TOKEN = os.environ.get(
 
 
 UNITS = {
-    "unit_everys": [
+    "unit_everys": {
         "아야츠노 유니": "yuni",
         "사키하네 후야": "huya"
-    ],
+    },
 
-    "unit_universe": [
+    "unit_universe": {
         "시라유키 히나": "hina",
         "네네코 마시로": "mashiro",
         "아카네 리제": "lize",
         "아라하시 타비": "tabi"
-    ],
+    },
 
-    "unit_cliché": [
+    "unit_cliche": {
         "텐코 시부키": "shibuki",
         "아오쿠모 린": "rin",
         "하나코 나나": "nana",
         "유즈하 리코": "riko"
-    ]
+    }
 }
 
 
@@ -78,7 +78,7 @@ async def start(update: Update, context):
         [
             InlineKeyboardButton(
                 "✨ 클리셰",
-                callback_data="unit_cliché"
+                callback_data="unit_cliche"
             )
         ]
     ]
@@ -101,11 +101,16 @@ async def button_handler(
 
     query = update.callback_query
 
-    print("버튼 클릭:", query.data)
-
     await query.answer()
 
     unit = query.data
+
+    
+    if query.data == "home":
+
+        await start(update, context)
+        return
+
 
     if unit in UNITS:
 
