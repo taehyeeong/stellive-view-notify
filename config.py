@@ -11,7 +11,7 @@ ARTISTS = {
 
     "시라유키 히나": [
 
-        "PLzdLDJSHZz20zXsHwt35PHjDq7r93xM1L", # 히나 오리곡
+        "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 히나 오리곡
 
         "PLzdLDJsHzzzniuwjyW6QgSck4PrwLSy0c", # 히나 커버곡
 
