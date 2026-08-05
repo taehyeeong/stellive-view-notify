@@ -452,7 +452,7 @@ def main():
         )
 
 
-        for video in videos:
+    for video in videos:
 
         checked_videos += 1
 
