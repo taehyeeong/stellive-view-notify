@@ -46,4 +46,4 @@ MILESTONES = [
     10000000,   # 1000만
 ]
 
-INITIAL_SETUP = True
+INITIAL_SETUP = False
