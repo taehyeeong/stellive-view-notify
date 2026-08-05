@@ -321,7 +321,14 @@ def get_view_count(video_id):
 
     "title": item["snippet"]["title"],
 
-    "thumb": item["snippet"]["thumbnails"]["high"]["url"],
+    "thumb": (
+        item["snippet"]["thumbnails"]
+        .get("maxres", {})
+        .get(
+            "url",
+            item["snippet"]["thumbnails"]["high"]["url"]
+        )
+    ),
 
     "published": item["snippet"]["publishedAt"],
 
@@ -383,7 +390,8 @@ def check_milestone(
         new,
         title,
         url,
-        notified
+        notified,
+        artist
 ):
 
     alerts = []
@@ -406,10 +414,10 @@ def check_milestone(
             if count not in notified:
     
                 alerts.append(
-                    f"🎉 조회수 달성!\n\n"
-                    f"🎵 {title}\n\n"
-                    f"📈 {count:,}회 돌파!\n\n"
-                    f"🔗 {url}"
+                    f"[{artist} 키워드]\n\n"
+                    f"{artist}아\n"
+                    f"『{title}』 {count / 10000:g}만 축하해 !!\n\n"
+                    f"{url}"
                 )
 
             new_notified.append(count)
@@ -419,10 +427,10 @@ def check_milestone(
         if old < milestone <= new:
 
            alerts.append(
-                f"🔥 특별 기록!\n\n"
-                f"🎵 {title}\n\n"
-                f"📈 {milestone:,}회 달성!\n\n"
-                f"🔗 {url}"
+                f"[{artist} 키워드]\n\n"
+                f"{artist}아\n"
+                f"『{title}』 {milestone / 10000:g}만 축하해 !!\n\n"
+                f"{url}"
             )
 
 
@@ -514,7 +522,8 @@ def main():
                 data.get(video_id, {}).get(
                     "notified",
                     []
-                )
+                ,
+                artists
             )
 
 
