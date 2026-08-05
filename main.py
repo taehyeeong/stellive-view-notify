@@ -437,7 +437,7 @@ def check_milestone(
 def main():
 
     data = load_data()
-
+    checked_videos = 0
 
     videos = get_playlist_videos()
 
@@ -453,6 +453,7 @@ def main():
 
 
     for video in videos:
+        checked_videos += 1
 
             video_id = video["id"]
 
@@ -541,6 +542,13 @@ def main():
 
 
     # 모든 영상 처리 후 한 번 저장
+
+    send_telegram(
+        f"✅ YouTube Notify 정상 작동\n\n"
+        f"⏰ 실행 시간: {datetime.now()}\n"
+        f"🎵 확인 영상: {checked_videos}개\n"
+        f"상태: 이상 없음"
+    )
 
     save_data(data)
 
