@@ -1,9 +1,9 @@
 # 감시할 유튜브 채널 설정 파일
 
 # YouTube 채널 핸들
-CHANNELS = [
+CHANNELS = {
     "@shirayukihina": "시라유키 히나"
-]
+}
 
 # 조회수 알림 단위
 # 50000 = 5만 조회수마다 알림
