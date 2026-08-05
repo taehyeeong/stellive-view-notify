@@ -116,7 +116,7 @@ def get_videos(channel_id):
             "part": "snippet",
             "channelId": channel_id,
             "order": "date",
-            "maxResults": 20,
+            "maxResults": 50,
             "type": "video",
             "key": YOUTUBE_API_KEY
         }
