@@ -7,7 +7,8 @@ from config import (
     CHANNELS,
     VIEW_STEP,
     MUSIC_KEYWORDS,
-    MILESTONES
+    MILESTONES,
+    EXCLUDE_KEYWORDS
 )
 
 
@@ -224,10 +225,24 @@ def is_music(title):
 
     title_lower = title.lower()
 
+
+    # 제외 키워드 검사
+
+    for word in EXCLUDE_KEYWORDS:
+
+        if word.lower() in title_lower:
+
+            return False
+
+
+    # 음악 키워드 검사
+
     for word in MUSIC_KEYWORDS:
 
         if word.lower() in title_lower:
+
             return True
+
 
     return False
 
