@@ -170,10 +170,10 @@ def main():
     )
 
     app.add_handler(
-    CallbackQueryHandler(
-        button_handler
+        CallbackQueryHandler(
+            button_handler
+        )
     )
-)
     
 
     app.run_polling()
