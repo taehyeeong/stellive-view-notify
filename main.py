@@ -153,10 +153,10 @@ def get_playlist_videos():
     seen = set()
 
 
-    for artist_name, playlists in ARTISTS.items():
+    for artist_name, artist_data in ARTISTS.items():
 
         
-        for playlist_id in playlists:
+        for playlist_id in artist_data["playlists"]:
             try:
                 next_page = None
 
