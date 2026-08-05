@@ -317,74 +317,106 @@ def check_milestone(
 # 실행
 # ======================
 
-
 def main():
-   
+
+    data = load_data()
+
+
     for channel in CHANNELS:
 
-    channel_id = get_channel_id(channel)
+        channel_id = get_channel_id(channel)
 
-    if not channel_id:
-        continue
-
-
-    videos = get_videos(channel_id)
+        if not channel_id:
+            continue
 
 
- for video in videos:
-
-    video_id = video["id"]
-
-    info = get_view_count(video_id)
-
-    views = info["views"]
-
-    title = info["title"]
-
-    url = info["url"]
-
-    is_new = video_id not in data
-
-    if is_new:
-        send_telegram(
-            f"🆕 새로운 음악 영상 발견!\n\n"
-            f"🎵 {title}\n\n"
-            f"📊 현재 조회수: {views:,}회"
-        )
-
-    old_views = data.get(
-        video_id,
-        {}
-    ).get(
-        "views",
-        views
-    )
+        videos = get_videos(channel_id)
 
 
-    if is_new:
-        messages = []
+        for video in videos:
 
-    else:
-        messages = check_milestone(
-            old_views,
-            views,
-            title
-        )
+            video_id = video["id"]
 
 
-    for msg in messages:
-        send_telegram(msg)
+            info = get_view_count(video_id)
 
 
-    data[video_id] = {
-        "title": title,
-        "views": views,
-        "updated": str(datetime.now())
-    }
+            views = info["views"]
 
+            title = info["title"]
+
+
+            url = (
+                f"https://www.youtube.com/watch?v={video_id}"
+            )
+
+
+            # 새 영상인지 확인
+            is_new = video_id not in data
+
+
+            # 새 음악 영상 알림
+            if is_new:
+
+                send_telegram(
+                    f"🆕 새로운 음악 영상 발견!\n\n"
+                    f"🎵 {title}\n\n"
+                    f"📊 현재 조회수: {views:,}회\n\n"
+                    f"🔗 {url}"
+                )
+
+
+            # 이전 조회수 가져오기
+
+            old_views = data.get(
+                video_id,
+                {}
+            ).get(
+                "views",
+                views
+            )
+
+
+            # 새 영상은 조회수 알림 제외
+            # 기존 영상만 조회수 증가 체크
+
+            if is_new:
+
+                messages = []
+
+            else:
+
+                messages = check_milestone(
+                    old_views,
+                    views,
+                    title
+                )
+
+
+            for msg in messages:
+
+                send_telegram(msg)
+
+
+            # 데이터 저장
+
+            data[video_id] = {
+
+                "title": title,
+
+                "views": views,
+
+                "updated": str(datetime.now())
+
+            }
+
+
+    # 모든 영상 처리 후 한 번 저장
 
     save_data(data)
 
 
+
 if __name__ == "__main__":
+
     main()
