@@ -153,10 +153,14 @@ def get_playlist_videos():
     seen = set()
 
     checked_artists = []
+    checked_units = []
     checked_playlists = 0
     error_playlists = 0
 
     for unit, artists in UNITS.items():
+
+        if unit not in checked_units:
+            checked_units.append(unit)
 
         for artist_name, info in artists.items():
             checked_artists.append(artist_name)
