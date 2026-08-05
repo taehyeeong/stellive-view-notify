@@ -5,6 +5,25 @@ CHANNELS = {
     "@shirayukihina": "시라유키 히나"
 }
 
+
+# 아티스트별 유튜브 플레이리스트
+ARTISTS = {
+
+    "시라유키 히나": [
+
+        "PLzdLDJSHZz20zXsHwt35PHjDq7r93xM1L", # 히나 오리곡
+
+        "PLzdLDJsHzzzniuwjyW6QgSck4PrwLSy0c", # 히나 커버곡
+
+        "PLzdLDJSHZz2N496_83u_ug3LWa7HHWx2W", # 히나 '히나의 Playlist'
+
+        "PLzdLDJSHZz2NJ0hog7PBLepqAs5sb0410" # 히나 3D Live
+
+    ]
+
+}
+
+
 # 조회수 알림 단위
 # 50000 = 5만 조회수마다 알림
 VIEW_STEP = 50000
@@ -45,18 +64,6 @@ MILESTONES = [
     5000000,    # 500만
     10000000,   # 1000만
 ]
-
-
-
-# 유튜브 재생목록  id
-PLAYLISTS = [
-    "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 히나 오리곡
-    "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc", # 히나 커버곡
-    "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 'Playlist'
-    "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO" # 히나 3D Live
-]
-
-
 
 
 INITIAL_SETUP = False
