@@ -264,19 +264,19 @@ def get_playlist_videos():
         print("============================")
 
 
+        print(
+        f"👥 확인 아티스트: {len(checked_artists)}명"
+            )
+    
     print(
-    f"👥 확인 아티스트: {len(checked_artists)}명"
-)
+        f"📁 확인 플레이리스트: {checked_playlists}개"
+            )
+    
+    print(
+        f"⚠️ 오류 플레이리스트: {error_playlists}개"
+            )
 
-print(
-    f"📁 확인 플레이리스트: {checked_playlists}개"
-)
-
-print(
-    f"⚠️ 오류 플레이리스트: {error_playlists}개"
-)
-
-return videos, checked_playlists, checked_units
+    return videos, checked_playlists, checked_units
 
 
 # 음악 영상 판단
@@ -437,7 +437,7 @@ def main():
     data = load_data()
     checked_videos = 0
 
-    videos, checked_playlists = get_playlist_videos()
+    videos, checked_playlists, checked_units = get_playlist_videos()
 
 
     video_ids = [
