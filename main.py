@@ -290,7 +290,7 @@ def main():
                 {}
             ).get(
                 "views",
-                views
+                0
             )
 
 
