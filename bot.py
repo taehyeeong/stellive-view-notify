@@ -2,6 +2,13 @@ from telegram import Update
 from telegram.ext import (
     Application,
     CommandHandler,
+    ContextTypes
+)
+
+import os
+
+TELEGRAM_TOKEN = os.environ.get(
+    "TELEGRAM_TOKEN"
 )
 
 from config import TELEGRAM_TOKEN
