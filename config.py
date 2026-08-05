@@ -46,4 +46,17 @@ MILESTONES = [
     10000000,   # 1000만
 ]
 
+
+
+# 유튜브 재생목록  id
+PLAYLISTS = [
+    "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 히나 오리곡
+    "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc", # 히나 커버곡
+    "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 'Playlist'
+    "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO" # 히나 3D Live
+]
+
+
+
+
 INITIAL_SETUP = False
