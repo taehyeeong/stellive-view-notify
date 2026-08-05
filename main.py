@@ -419,8 +419,6 @@ def check_milestone(
 # ======================
 
 def main():
-
-    raise Exception("테스트 오류")
     
     data = load_data()
 
