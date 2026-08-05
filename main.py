@@ -304,85 +304,57 @@ def is_music(title):
 
 # 조회수 가져오기
 
-def get_view_count(video_id):
-
-    print("조회할 영상 ID:", video_id)
-
-    data = youtube_get(
-        "https://www.googleapis.com/youtube/v3/videos",
-        {
-            "part": "statistics,snippet",
-            "id": video_id,
-            "key": YOUTUBE_API_KEY
-        }
-    )
-
-
-    item = data["items"][0]
-
-    views = int(
-        item["statistics"]["viewCount"]
-    )
-
-    return {
-    "views": views,
-
-    "title": item["snippet"]["title"],
-
-    "thumb": (
-        item["snippet"]["thumbnails"]
-        .get("maxres", {})
-        .get(
-            "url",
-            item["snippet"]["thumbnails"]["high"]["url"]
-        )
-    ),
-
-    "published": item["snippet"]["publishedAt"],
-
-    "likes": int(
-        item["statistics"].get(
-            "likeCount",
-            0
-        )
-    )
-}
-
-
 def get_view_counts(video_ids):
-
-    data = youtube_get(
-        "https://www.googleapis.com/youtube/v3/videos",
-        {
-            "part": "statistics,snippet",
-            "id": ",".join(video_ids),
-            "key": YOUTUBE_API_KEY
-        }
-    )
-
 
     result = {}
 
+    for i in range(0, len(video_ids), 50):
 
-    for item in data.get("items", []):
+        batch = video_ids[i:i+50]
 
-        video_id = item["id"]
+        data = youtube_get(
+            "https://www.googleapis.com/youtube/v3/videos",
+            {
+                "part": "statistics,snippet",
+                "id": ",".join(batch),
+                "key": YOUTUBE_API_KEY
+            }
+        )
 
-        result[video_id] = {
 
-            "views": int(
-                item["statistics"]
-                ["viewCount"]
-            ),
+        for item in data.get("items", []):
 
-            "title": item["snippet"]["title"],
+            video_id = item["id"]
 
-            "thumb": item["snippet"]
-                ["thumbnails"]
-                ["high"]
-                ["url"]
+            result[video_id] = {
 
-        }
+                "views": int(
+                    item["statistics"].get(
+                        "viewCount",
+                        0
+                    )
+                ),
+
+                "title": item["snippet"]["title"],
+
+                "thumb": (
+                    item["snippet"]["thumbnails"]
+                    .get("maxres", {})
+                    .get(
+                        "url",
+                        item["snippet"]["thumbnails"]["high"]["url"]
+                    )
+                ),
+
+                "published": item["snippet"]["publishedAt"],
+
+                "likes": int(
+                    item["statistics"].get(
+                        "likeCount",
+                        0
+                    )
+                )
+            }
 
 
     return result
