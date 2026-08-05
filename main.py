@@ -522,7 +522,7 @@ def main():
                 data.get(video_id, {}).get(
                     "notified",
                     []
-                ,
+                ),
                 artists
             )
 
