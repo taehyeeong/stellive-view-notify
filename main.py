@@ -73,6 +73,18 @@ def send_telegram(message):
     print("========================")
 
 
+def send_error(error):
+
+    message = (
+        "⚠️ YouTube Notify 오류 발생\n\n"
+        f"🕒 시간: {datetime.now()}\n\n"
+        f"❌ 내용:\n{error}"
+    )
+
+    send_telegram(message)
+
+
+
 def send_photo(photo, caption):
 
     url = (
@@ -408,6 +420,8 @@ def check_milestone(
 
 def main():
 
+    raise Exception("테스트 오류")
+    
     data = load_data()
 
 
@@ -528,4 +542,13 @@ def main():
 
 if __name__ == "__main__":
 
-    main()
+    try:
+        main()
+
+    except Exception as e:
+
+        send_error(
+            str(e)
+        )
+
+        raise
