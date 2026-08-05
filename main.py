@@ -530,7 +530,7 @@ def main():
         )
         
         
-        send_telegram(
+    send_telegram(
             f"✅ YouTube Notify 실행 완료\n\n"
             f"⏰ 실행 시간: {datetime.now()}\n\n"
             f"👥 확인 아티스트: {len(ARTISTS)}세대\n"
