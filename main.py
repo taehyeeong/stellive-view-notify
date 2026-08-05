@@ -163,7 +163,7 @@ def get_playlist_videos():
                     next_page = None
     
     
-                    while True:
+                    while True:    
             
                         params = {
                             "part": "snippet",
@@ -240,10 +240,14 @@ def get_playlist_videos():
                     )
             
                     send_telegram(
-                        f"⚠️ YouTube Notify 오류\n\n"
-                        f"🎤 아티스트: {artist_name}\n"
-                        f"📁 Playlist ID: {playlist_id}\n\n"
-                        f"{e}"
+                        f"""
+                    ⚠️ YouTube Notify 오류
+                    
+                    ❌ {type(e).__name__}
+                    
+                    메시지:
+                    {str(e)[:500]}
+                    """
                     )
     
             continue
@@ -301,6 +305,8 @@ def is_music(title):
 # 조회수 가져오기
 
 def get_view_count(video_id):
+
+    print("조회할 영상 ID:", video_id)
 
     data = youtube_get(
         "https://www.googleapis.com/youtube/v3/videos",
