@@ -366,6 +366,7 @@ def main():
             
             
                 if is_new:
+                    print("새 영상 여부:", is_new, title)
                     messages = []
 
                 else:
