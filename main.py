@@ -171,17 +171,17 @@ def get_playlist_videos():
                 }
 
 
-                    if next_page:
-                        params["pageToken"] = next_page
+                if next_page:
+                    params["pageToken"] = next_page
         
         
-                    data = youtube_get(
-                        "https://www.googleapis.com/youtube/v3/playlistItems",
-                        params
-                    )
+                data = youtube_get(
+                    "https://www.googleapis.com/youtube/v3/playlistItems",
+                    params
+                )
 
 
-                    for item in data.get("items", []):
+                for item in data.get("items", []):
         
                         video_id = (
 
