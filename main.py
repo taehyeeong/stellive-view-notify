@@ -314,7 +314,6 @@ def main():
 
     save_data(data)
 
-send_telegram("테스트 알림입니다")
 
 if __name__ == "__main__":
     main()
