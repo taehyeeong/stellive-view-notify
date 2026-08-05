@@ -104,6 +104,28 @@ def send_photo(photo, caption):
     )
 
 
+
+def get_reached_milestones(views):
+
+    reached = []
+
+    # 일반 조회수 단계
+    step = views // VIEW_STEP
+
+    for i in range(1, step + 1):
+        reached.append(i * VIEW_STEP)
+
+
+    # 특별 기록
+    for milestone in MILESTONES:
+        if views >= milestone:
+            reached.append(milestone)
+
+
+    return list(set(reached))
+
+
+
 # ======================
 # YouTube API
 # ======================
@@ -529,13 +551,23 @@ def main():
             send_telegram(msg)
 
 
+        if is_new and INITIAL_SETUP:
+
+            notified = get_reached_milestones(views)
+        
+        else:
+        
+            notified = (
+                data.get(video_id, {})
+                .get("notified", [])
+                + new_notified
+            )
+        
+        
         data[video_id] = {
             "title": title,
             "views": views,
-            "notified": data.get(video_id, {}).get(
-                "notified",
-                []
-            ) + new_notified,
+            "notified": list(set(notified)),
             "updated": str(datetime.now())
         }
 
