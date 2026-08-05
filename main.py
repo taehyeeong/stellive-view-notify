@@ -284,21 +284,21 @@ def check_milestone(
 
     if new_step > old_step:
 
-    for i in range(
-        old_step + 1,
-        new_step + 1
-    ):
-
-        count = i * VIEW_STEP
-
-        if count not in notified:
-
-            alerts.append(
-                f"🎉 조회수 달성!\n\n"
-                f"🎵 {title}\n\n"
-                f"📈 {count:,}회 돌파!\n\n"
-                f"🔗 {url}"
-            )
+        for i in range(
+            old_step + 1,
+            new_step + 1
+        ):
+    
+            count = i * VIEW_STEP
+    
+            if count not in notified:
+    
+                alerts.append(
+                    f"🎉 조회수 달성!\n\n"
+                    f"🎵 {title}\n\n"
+                    f"📈 {count:,}회 돌파!\n\n"
+                    f"🔗 {url}"
+                )
 
             new_notified.append(count)
 
