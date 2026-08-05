@@ -153,113 +153,116 @@ def get_playlist_videos():
     seen = set()
 
 
-    for artist_name, artist_data in ARTISTS.items():
+    for generation, artists in ARTISTS.items():
 
+        for artist_name, info in artists.items():
+    
+            for playlist_id in info["playlists"]:
         
-        for playlist_id in artist_data["playlists"]:
-            try:
-                next_page = None
-
-
-                while True:
+            for playlist_id in artist_data["playlists"]:
+                try:
+                    next_page = None
+    
+    
+                    while True:
+            
+                        params = {
+                            "part": "snippet",
+                            "playlistId": playlist_id,
+                            "maxResults": 50,
+                            "key": YOUTUBE_API_KEY
+                        }
+    
+    
+                        if next_page:
+                                params["pageToken"] = next_page
+                
+                
+                        data = youtube_get(
+                            "https://www.googleapis.com/youtube/v3/playlistItems",
+                            params
+                        )
+    
+    
+                        for item in data.get("items", []):
+                
+                                video_id = (
         
-                    params = {
-                        "part": "snippet",
-                        "playlistId": playlist_id,
-                        "maxResults": 50,
-                        "key": YOUTUBE_API_KEY
-                    }
-
-
-                    if next_page:
-                            params["pageToken"] = next_page
-            
-            
-                    data = youtube_get(
-                        "https://www.googleapis.com/youtube/v3/playlistItems",
-                        params
+        
+        
+                                    
+                                    item["snippet"]
+                                    ["resourceId"]
+                                    ["videoId"]
+                                )
+                
+                                title = (
+                                    item["snippet"]
+                                    ["title"]
+                                )
+                
+                
+                                # 중복 제거
+                                if video_id in seen:
+                                    continue
+                
+                
+                                # 음악 키워드 확인
+                                if is_music(title):
+                
+                                    videos.append({
+                
+                                        "id": video_id,
+                                    
+                                        "title": title,
+                                    
+                                        "artist": artist_name
+                                    
+                                    })
+                
+                                    seen.add(video_id)
+        
+        
+                        next_page = data.get(
+                            "nextPageToken"
+                        )
+    
+    
+                        if not next_page:
+                            break
+    
+                except Exception as e:
+    
+                    print(
+                        "⚠️ 플레이리스트 오류:",
+                        artist_name,
+                        playlist_id,
+                        e
                     )
-
-
-                    for item in data.get("items", []):
             
-                            video_id = (
-    
-    
-    
-                                
-                                item["snippet"]
-                                ["resourceId"]
-                                ["videoId"]
-                            )
-            
-                            title = (
-                                item["snippet"]
-                                ["title"]
-                            )
-            
-            
-                            # 중복 제거
-                            if video_id in seen:
-                                continue
-            
-            
-                            # 음악 키워드 확인
-                            if is_music(title):
-            
-                                videos.append({
-            
-                                    "id": video_id,
-                                
-                                    "title": title,
-                                
-                                    "artist": artist_name
-                                
-                                })
-            
-                                seen.add(video_id)
-    
-    
-                    next_page = data.get(
-                        "nextPageToken"
+                    send_telegram(
+                        f"⚠️ YouTube Notify 오류\n\n"
+                        f"🎤 아티스트: {artist_name}\n"
+                        f"📁 Playlist ID: {playlist_id}\n\n"
+                        f"{e}"
                     )
-
-
-                    if not next_page:
-                        break
-
-            except Exception as e:
-
-                print(
-                    "⚠️ 플레이리스트 오류:",
-                    artist_name,
-                    playlist_id,
-                    e
-                )
-        
-                send_telegram(
-                    f"⚠️ YouTube Notify 오류\n\n"
-                    f"🎤 아티스트: {artist_name}\n"
-                    f"📁 Playlist ID: {playlist_id}\n\n"
-                    f"{e}"
-                )
-
-        continue
-
-
-    print("===== Playlist 음악 영상 =====")
-
-    for video in videos:
-        print(video["title"])
-
-
-    print(
-        "총",
-        len(videos),
-        "개"
-    )
-
-    print("============================")
+    
+            continue
+    
+    
+        print("===== Playlist 음악 영상 =====")
+    
+        for video in videos:
+            print(video["title"])
+    
+    
+        print(
+            "총",
+            len(videos),
+            "개"
+        )
+    
+        print("============================")
 
 
     return videos
