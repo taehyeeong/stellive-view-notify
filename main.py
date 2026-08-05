@@ -452,14 +452,13 @@ def main():
         )
 
 
-    for video in videos:
+        for video in videos:
+
         checked_videos += 1
 
         video_id = video["id"]
 
-
         info = view_data[video_id]
-
 
         views = info["views"]
 
@@ -472,76 +471,67 @@ def main():
         )
 
 
-            # 새 영상인지 확인
-            is_new = video_id not in data
+        # 새 영상인지 확인
+        is_new = video_id not in data
 
 
-            # 새 음악 영상 알림
-            if is_new and not INITIAL_SETUP:
+        # 새 음악 영상 알림
+        if is_new and not INITIAL_SETUP:
 
-                send_photo(
-                    info["thumb"],
-            
-                    f"🆕 새로운 음악 영상 발견!\n\n"
-                    f"👤 {artist}\n\n"
-                    f"🎵 {title}\n\n"
-                    f"📊 현재 조회수: {views:,}회\n\n"
-                    f"🔗 {url}"
-                )
+            send_photo(
+                info["thumb"],
 
-
-            # 이전 조회수 가져오기
-
-            old_views = data.get(
-                video_id,
-                {}
-            ).get(
-                "views",
-                views
+                f"🆕 새로운 음악 영상 발견!\n\n"
+                f"👤 {artist}\n\n"
+                f"🎵 {title}\n\n"
+                f"📊 현재 조회수: {views:,}회\n\n"
+                f"🔗 {url}"
             )
 
 
-            # 새 영상은 조회수 알림 제외
-            # 기존 영상만 조회수 증가 체크
-
-            if is_new:
-
-                messages = []
-                new_notified = []
-
-            else:
-
-                messages, new_notified = check_milestone(
-                    old_views,
-                    views,
-                    title,
-                    url,
-                    data.get(video_id, {}).get(
-                        "notified",
-                        []
-                    )
-                )
+        # 이전 조회수 가져오기
+        old_views = data.get(
+            video_id,
+            {}
+        ).get(
+            "views",
+            views
+        )
 
 
-            for msg in messages:
+        if is_new:
 
-                send_telegram(msg)
+            messages = []
+            new_notified = []
 
+        else:
 
-            # 데이터 저장
-
-            data[video_id] = {
-                "title": title,
-                "views": views,
-                "notified": data.get(video_id, {}).get(
+            messages, new_notified = check_milestone(
+                old_views,
+                views,
+                title,
+                url,
+                data.get(video_id, {}).get(
                     "notified",
                     []
-                ) + new_notified,
-                "updated": str(datetime.now())
-            }
+                )
+            )
 
 
-    # 모든 영상 처리 후 한 번 저장
+        for msg in messages:
+            send_telegram(msg)
+
+
+        data[video_id] = {
+            "title": title,
+            "views": views,
+            "notified": data.get(video_id, {}).get(
+                "notified",
+                []
+            ) + new_notified,
+            "updated": str(datetime.now())
+        }
+
 
     send_telegram(
         f"✅ YouTube Notify 정상 작동\n\n"
@@ -549,6 +539,7 @@ def main():
         f"🎵 확인 영상: {checked_videos}개\n"
         f"상태: 이상 없음"
     )
+
 
     save_data(data)
 
