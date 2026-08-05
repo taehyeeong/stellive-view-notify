@@ -254,10 +254,11 @@ def get_view_count(video_id):
     )
 
     return {
-        "views": views,
-        "title": item["snippet"]["title"],
-        "thumb": item["snippet"]["thumbnails"]["default"]["url"]
-    }
+    "views": views,
+    "title": item["snippet"]["title"],
+    "thumb": item["snippet"]["thumbnails"]["default"]["url"],
+    "url": f"https://www.youtube.com/watch?v={video_id}"
+}
 
 
 
@@ -268,7 +269,8 @@ def get_view_count(video_id):
 def check_milestone(
         old,
         new,
-        title
+        title,
+        url
 ):
 
     alerts = []
@@ -289,8 +291,9 @@ def check_milestone(
 
             alerts.append(
                 f"🎉 조회수 달성!\n\n"
-                f"{title}\n\n"
-                f"현재 {count:,}회 돌파!"
+                f"🎵 {title}\n\n"
+                f"📈 {old:,} → {count:,}\n\n"
+                f"🔗 {url}"
             )
 
 
@@ -298,10 +301,11 @@ def check_milestone(
 
         if old < milestone <= new:
 
-            alerts.append(
+           alerts.append(
                 f"🔥 특별 기록!\n\n"
-                f"{title}\n\n"
-                f"{milestone:,}회 달성!"
+                f"🎵 {title}\n\n"
+                f"📈 {milestone:,}회 달성!\n\n"
+                f"🔗 {url}"
             )
 
 
@@ -339,6 +343,7 @@ def main():
             views = info["views"]
 
             title = info["title"]
+            url = info["url"]
 
 
             is_new = video_id not in data
@@ -359,7 +364,8 @@ def main():
                 messages = check_milestone(
                     old_views,
                     views,
-                    title
+                    title,
+                    url
                 )
                 
            
