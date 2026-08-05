@@ -388,10 +388,11 @@ def main():
             if is_new:
 
                 messages = []
+                new_notified = []
 
             else:
 
-                messages = check_milestone(
+                messages, new_notified = check_milestone(
                     old_views,
                     views,
                     title,
