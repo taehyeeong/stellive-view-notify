@@ -8,7 +8,8 @@ from config import (
     VIEW_STEP,
     MUSIC_KEYWORDS,
     MILESTONES,
-    EXCLUDE_KEYWORDS
+    EXCLUDE_KEYWORDS,
+    INITIAL_SETUP
 )
 
 
@@ -455,11 +456,11 @@ def main():
 
 
             # 새 음악 영상 알림
-            if is_new:
+            if is_new and not INITIAL_SETUP:
 
                 send_photo(
                     info["thumb"],
-                
+            
                     f"🆕 새로운 음악 영상 발견!\n\n"
                     f"👤 {channel_name}\n\n"
                     f"🎵 {title}\n\n"
