@@ -231,18 +231,18 @@ def get_playlist_videos():
                         if not next_page:
                             break
     
-            except Exception as e:
-
-                error_playlists += 1
-            
-                send_telegram(
-                    f"⚠️ 플레이리스트 오류\n\n"
-                    f"🎤 아티스트: {artist_name}\n"
-                    f"📁 Playlist ID: {playlist_id}\n\n"
-                    f"❌ 내용:\n{e}"
-                )
-            
-                continue
+                except Exception as e:
+    
+                    error_playlists += 1
+                
+                    send_telegram(
+                        f"⚠️ 플레이리스트 오류\n\n"
+                        f"🎤 아티스트: {artist_name}\n"
+                        f"📁 Playlist ID: {playlist_id}\n\n"
+                        f"❌ 내용:\n{e}"
+                    )
+                
+                    continue
     
     
         print("===== Playlist 음악 영상 =====")
