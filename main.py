@@ -270,7 +270,7 @@ def check_milestone(
         old,
         new,
         title,
-        url
+        f"https://www.youtube.com/watch?v={video_id}"
 ):
 
     alerts = []
@@ -362,7 +362,7 @@ def main():
                     f"🆕 새로운 음악 영상 발견!\n\n"
                     f"🎵 {title}\n\n"
                     f"📊 현재 조회수: {views:,}회\n\n"
-                    f"🔗 {url}"
+                    f"🔗 https://www.youtube.com/watch?v={video_id}"
                 )
 
 
