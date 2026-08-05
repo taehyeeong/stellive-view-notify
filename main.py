@@ -409,7 +409,7 @@ def main():
     data = load_data()
 
 
-    for channel in CHANNELS:
+    for channel, channel_name in CHANNELS.items():
 
         channel_id = get_channel_id(channel)
 
@@ -460,6 +460,7 @@ def main():
                     info["thumb"],
                 
                     f"🆕 새로운 음악 영상 발견!\n\n"
+                    f"👤 {channel_name}\n\n"
                     f"🎵 {title}\n\n"
                     f"📊 현재 조회수: {views:,}회\n\n"
                     f"🔗 {url}"
