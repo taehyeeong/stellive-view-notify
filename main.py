@@ -152,11 +152,13 @@ def get_playlist_videos():
 
     seen = set()
 
+    checked_artists = []
     checked_playlists = 0
 
-    for generation, artists in ARTISTS.items():
+    for unit, artists in ARTISTS.items():
 
         for artist_name, info in artists.items():
+                    checked_artists.append(artist_name)
     
             for playlist_id in info["playlists"]:
                 checked_playlists += 1
@@ -261,8 +263,9 @@ def get_playlist_videos():
         print("============================")
 
 
-    return videos, checked_playlists
-
+    print(
+    f"👥 확인 아티스트: {len(checked_artists)}명"
+)
 
 
 
