@@ -115,33 +115,89 @@ def get_channel_id(handle):
 
 def get_videos(channel_id):
 
-    data = youtube_get(
-        "https://www.googleapis.com/youtube/v3/search",
+    # 채널 업로드 목록 가져오기
+    channel_data = youtube_get(
+        "https://www.googleapis.com/youtube/v3/channels",
         {
-            "part": "snippet",
-            "channelId": channel_id,
-            "order": "date",
-            "maxResults": 50,
-            "type": "video",
+            "part": "contentDetails",
+            "id": channel_id,
             "key": YOUTUBE_API_KEY
         }
+    )
+
+    uploads_playlist = (
+        channel_data["items"][0]
+        ["contentDetails"]
+        ["relatedPlaylists"]
+        ["uploads"]
     )
 
 
     videos = []
 
-    for item in data.get("items", []):
+    next_page = None
 
-        title = item["snippet"]["title"]
 
-        video_id = item["id"]["videoId"]
+    while True:
 
-        if is_music(title):
+        params = {
+            "part": "snippet",
+            "playlistId": uploads_playlist,
+            "maxResults": 50,
+            "key": YOUTUBE_API_KEY
+        }
 
-            videos.append({
-                "id": video_id,
-                "title": title
-            })
+        if next_page:
+            params["pageToken"] = next_page
+
+
+        data = youtube_get(
+            "https://www.googleapis.com/youtube/v3/playlistItems",
+            params
+        )
+
+
+        for item in data.get("items", []):
+
+            title = item["snippet"]["title"]
+
+            video_id = (
+                item["snippet"]
+                ["resourceId"]
+                ["videoId"]
+            )
+
+
+            if is_music(title):
+
+                videos.append({
+                    "id": video_id,
+                    "title": title
+                })
+
+
+        next_page = data.get("nextPageToken")
+
+
+        if not next_page:
+            break
+
+
+    print("===== 전체 음악 영상 =====")
+
+    for video in videos:
+        print(video["title"])
+
+    print(
+        "총",
+        len(videos),
+        "개"
+    )
+
+    print("========================")
+
+
+    return videos
 
 
 
