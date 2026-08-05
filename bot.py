@@ -101,6 +101,8 @@ async def button_handler(
 
     query = update.callback_query
 
+    print("버튼 클릭:", query.data)
+
     await query.answer()
 
     unit = query.data
