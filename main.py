@@ -8,6 +8,7 @@ from config import (
     VIEW_STEP,
     MUSIC_KEYWORDS,
     MILESTONES,
+    MILESTONE_TEMPLATE,
     EXCLUDE_KEYWORDS,
     INITIAL_SETUP,
     UNITS
@@ -398,12 +399,12 @@ def get_view_counts(video_ids):
 # ======================
 
 def check_milestone(
-        old,
-        new,
-        title,
-        url,
-        notified,
-        artist
+    old_views,
+    views,
+    title,
+    url,
+    notified,
+    artist_info
 ):
 
     alerts = []
@@ -426,10 +427,13 @@ def check_milestone(
             if count not in notified:
     
                 alerts.append(
-                    f"[{artist} 키워드]\n\n"
-                    f"{artist}아\n"
-                    f"『{title}』 {count / 10000:g}만 축하해 !!\n\n"
-                    f"{url}"
+                    MILESTONE_TEMPLATE.format(
+                        keyword=artist_info["keyword"],
+                        nickname=artist_info["nickname"],
+                        title=title,
+                        views_text=f"{count / 10000:g}만",
+                        url=url
+                    )
                 )
 
             new_notified.append(count)
@@ -439,10 +443,13 @@ def check_milestone(
         if old < milestone <= new:
 
            alerts.append(
-                f"[{artist} 키워드]\n\n"
-                f"{artist}아\n"
-                f"『{title}』 {milestone / 10000:g}만 축하해 !!\n\n"
-                f"{url}"
+                MILESTONE_TEMPLATE.format(
+                    keyword=artist_info["keyword"],
+                    nickname=artist_info["nickname"],
+                    title=title,
+                    views_text=f"{milestone / 10000:g}만",
+                    url=url
+                )
             )
 
 
@@ -534,6 +541,14 @@ def main():
 
         else:
 
+
+            artist_info = None
+
+            for unit, artists in UNITS.items():
+                if artist in artists:
+                    artist_info = artists[artist]
+                    break
+            
             messages, new_notified = check_milestone(
                 old_views,
                 views,
@@ -543,7 +558,7 @@ def main():
                     "notified",
                     []
                 ),
-                artist
+                artist_info
             )
 
 
