@@ -77,6 +77,26 @@ def send_telegram(message):
 
 
 
+def send_notification(
+    message,
+    video_id=None
+):
+
+    if video_id:
+
+        send_telegram_photo(
+            message,
+            video_id
+        )
+
+    else:
+
+        send_telegram(
+            message
+        )
+
+
+
 def send_telegram_photo(message, video_id):
 
     url = (
@@ -609,7 +629,7 @@ def main():
 
 
         for alert in messages:
-            send_telegram_photo(
+            send_notification(
                 alert["message"],
                 alert["video_id"]
             )
