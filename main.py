@@ -411,8 +411,8 @@ def check_milestone(
     new_notified = []
 
 
-    old_step = old // VIEW_STEP
-    new_step = new // VIEW_STEP
+    old_step = old_views // VIEW_STEP
+    new_step = views // VIEW_STEP
 
 
     if new_step > old_step:
@@ -440,7 +440,7 @@ def check_milestone(
 
     for milestone in MILESTONES:
 
-        if old < milestone <= new:
+        if old_views < milestone <= views:
 
            alerts.append(
                 MILESTONE_TEMPLATE.format(
