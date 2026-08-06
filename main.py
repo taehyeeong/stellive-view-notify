@@ -4,7 +4,6 @@ import requests
 from datetime import datetime
 
 from config import (
-    CHANNELS,
     VIEW_STEP,
     MUSIC_KEYWORDS,
     MILESTONES,
