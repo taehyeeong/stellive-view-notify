@@ -294,13 +294,10 @@ def get_playlist_videos():
                                 if is_music(title):
                 
                                     videos.append({
-                
                                         "id": video_id,
-                                    
                                         "title": title,
-                                    
-                                        "artist": artist_name
-                                    
+                                        "artist": artist_name,
+                                        "unit": unit_name
                                     })
                 
                                     seen.add(video_id)
@@ -650,6 +647,7 @@ def main():
         data[video_id] = {
             "title": title,
             "artist": video.get("artist", ""),
+            "unit": video.get("unit", ""),
             "views": views,
             "notified": list(set(notified)),
             "updated": str(datetime.now())
