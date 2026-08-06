@@ -59,11 +59,6 @@ MILESTONE_TEMPLATE = """
 """
 
 
-# YouTube 채널 핸들
-CHANNELS = {
-    "@shirayukihina": "시라유키 히나"
-}
-
 
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
