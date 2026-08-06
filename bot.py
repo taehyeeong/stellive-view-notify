@@ -47,12 +47,12 @@ def run_health_server():
     server.serve_forever()
 
 
-async def start(update: Update, context):
 
+
+def create_unit_keyboard():
     keyboard = []
 
     for name, unit_id in UNIT_BUTTONS.items():
-    
         keyboard.append(
             [
                 InlineKeyboardButton(
@@ -61,9 +61,13 @@ async def start(update: Update, context):
                 )
             ]
         )
-    reply_markup = InlineKeyboardMarkup(
-        keyboard
-    )
+
+    return InlineKeyboardMarkup(keyboard)
+
+
+async def start(update: Update, context):
+
+    reply_markup = create_unit_keyboard()
 
     await update.message.reply_text(
         f"{BOT_TITLE}\n\n"
@@ -88,27 +92,17 @@ async def button_handler(
 
    if query.data == "back_units":
 
-    keyboard = []
-
-    for name, unit_id in UNIT_BUTTONS.items():
-
-        keyboard.append(
-            [
-                InlineKeyboardButton(
-                    name,
-                    callback_data=unit_id
-                )
-            ]
+        await query.edit_message_text(
+            f"{BOT_TITLE}\n\n"
+            f"{BOT_SELECT_UNIT_TEXT}",
+            reply_markup=create_unit_keyboard()
         )
+    
+        return
 
-    await query.edit_message_text(
-        f"{BOT_TITLE}\n\n"
-        f"{BOT_SELECT_UNIT_TEXT}",
-        reply_markup=InlineKeyboardMarkup(keyboard)
-    )
 
-    return
 
+       
     if query.data.startswith("unit_"):
 
         unit = query.data
