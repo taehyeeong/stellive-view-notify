@@ -64,9 +64,9 @@ MILESTONE_TEMPLATE = """
 # 텔레그램 봇 유닛 버튼 설정
 
 UNIT_BUTTONS = {
-    "🌸 에버리스": "unit_everys",
-    "☁️ 유니버스": "unit_universe",
-    "✨ 클리셰": "unit_cliche"
+    "🌸 에버리스": "에버리스",
+    "☁️ 유니버스": "유니버스",
+    "✨ 클리셰": "클리셰"
 }
 
 
