@@ -107,6 +107,38 @@ async def button_handler(
 
     print("2. answer 완료")
 
+
+    if query.data == "back_units":
+
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "🌸 에버리스",
+                callback_data="unit_everies"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "☁️ 유니버스",
+                callback_data="unit_universe"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "✨ 클리셰",
+                callback_data="unit_cliche"
+            )
+        ]
+    ]
+
+    await query.edit_message_text(
+        "🎤 YouTube Notify 봇입니다!\n\n"
+        "유닛을 선택하세요.",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
+
+    return
+
     unit = query.data
 
     if unit in UNITS:
@@ -125,6 +157,15 @@ async def button_handler(
                     )
                 ]
             )
+
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    "⬅️ 뒤로가기",
+                    callback_data="back_units"
+                )
+            ]
+        )
 
         print("4. 버튼 생성 완료")
 
