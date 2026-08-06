@@ -566,7 +566,7 @@ def main():
         
         data[video_id] = {
             "title": title,
-            "artist": artist_name,
+            "artist": video.get("artist", ""),
             "views": views,
             "notified": list(set(notified)),
             "updated": str(datetime.now())
