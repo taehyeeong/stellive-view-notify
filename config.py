@@ -70,6 +70,19 @@ UNIT_BUTTONS = {
 }
 
 
+BOT_TITLE = "✨ 스텔라이브 봇입니다!"
+
+BOT_SELECT_UNIT_TEXT = (
+    "유닛을 선택하세요."
+)
+
+BOT_SELECT_MEMBER_TEXT = (
+    "멤버를 선택하세요."
+)
+
+
+
+
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
 
