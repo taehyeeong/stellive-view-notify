@@ -90,22 +90,21 @@ async def button_handler(
     print("2. answer 완료")
 
 
-   if query.data == "back_units":
+    if query.data == "back_units":
 
         await query.edit_message_text(
             f"{BOT_TITLE}\n\n"
             f"{BOT_SELECT_UNIT_TEXT}",
             reply_markup=create_unit_keyboard()
         )
-    
+
         return
 
 
-
-       
-    if query.data.startswith("unit_"):
+    if query.data in UNITS:
 
         unit = query.data
+
         print("3. 유닛 찾음")
 
         keyboard = []
@@ -116,10 +115,11 @@ async def button_handler(
                 [
                     InlineKeyboardButton(
                         artist_info["display"],
-                        callback_data=f"artist_{unit}_{artist}"
+                        callback_data=f"artist_{artist}"
                     )
                 ]
             )
+
 
         keyboard.append(
             [
@@ -130,12 +130,16 @@ async def button_handler(
             ]
         )
 
+
         print("4. 버튼 생성 완료")
+
 
         await query.edit_message_text(
             BOT_SELECT_MEMBER_TEXT,
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
+
+
         print("5. 화면 변경 완료")
 
 
