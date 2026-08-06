@@ -13,7 +13,10 @@ from telegram.ext import (
 
 from config import (
     UNIT_BUTTONS,
-    UNITS
+    UNITS,
+    BOT_TITLE,
+    BOT_SELECT_UNIT_TEXT,
+    BOT_SELECT_MEMBER_TEXT
 )
 
 import os
@@ -63,8 +66,8 @@ async def start(update: Update, context):
     )
 
     await update.message.reply_text(
-        "🎤 YouTube Notify 봇입니다!\n\n"
-        "유닛을 선택하세요.",
+        f"{BOT_TITLE}\n\n"
+        f"{BOT_SELECT_UNIT_TEXT}",
         reply_markup=reply_markup
     )
 
@@ -83,24 +86,24 @@ async def button_handler(
     print("2. answer 완료")
 
 
-    if query.data == "back_units":
+   if query.data == "back_units":
 
-        keyboard = []
-    
-        for name, unit_id in UNIT_BUTTONS.items():
-    
-            keyboard.append(
-                [
-                    InlineKeyboardButton(
-                        name,
-                        callback_data=unit_id
-                    )
-                ]
-            )
+    keyboard = []
+
+    for name, unit_id in UNIT_BUTTONS.items():
+
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    name,
+                    callback_data=unit_id
+                )
+            ]
+        )
 
     await query.edit_message_text(
-        "🎤 YouTube Notify 봇입니다!\n\n"
-        "유닛을 선택하세요.",
+        f"{BOT_TITLE}\n\n"
+        f"{BOT_SELECT_UNIT_TEXT}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
@@ -136,10 +139,9 @@ async def button_handler(
         print("4. 버튼 생성 완료")
 
         await query.edit_message_text(
-            "🎤 멤버를 선택하세요.",
+            BOT_SELECT_MEMBER_TEXT,
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-
         print("5. 화면 변경 완료")
 
 
