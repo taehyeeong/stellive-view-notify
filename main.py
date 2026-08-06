@@ -426,6 +426,17 @@ def get_view_counts(video_ids):
 
 
 
+def get_artist_info(artist):
+
+    for unit, artists in UNITS.items():
+
+        if artist in artists:
+            return artists[artist]
+
+    return None
+
+
+
 # ======================
 # 알림 계산
 # ======================
@@ -460,13 +471,16 @@ def check_milestone(
             if count not in notified:
     
                 alerts.append(
-                    MILESTONE_TEMPLATE.format(
-                        keyword=artist_info["keyword"],
-                        nickname=artist_info["nickname"],
-                        title=title,
-                        views_text=f"{count / 10000:g}만",
-                        url=url
-                    )
+                    {
+                        "message": MILESTONE_TEMPLATE.format(
+                            keyword=artist_info["keyword"],
+                            nickname=artist_info["nickname"],
+                            title=title,
+                            views_text=f"{count / 10000:g}만",
+                            url=url
+                        ),
+                        "video_id": video_id
+                    }
                 )
 
             new_notified.append(count)
@@ -476,13 +490,16 @@ def check_milestone(
         if old_views < milestone <= views:
 
            alerts.append(
-                MILESTONE_TEMPLATE.format(
-                    keyword=artist_info["keyword"],
-                    nickname=artist_info["nickname"],
-                    title=title,
-                    views_text=f"{milestone / 10000:g}만",
-                    url=url
-                )
+                {
+                    "message": MILESTONE_TEMPLATE.format(
+                        keyword=artist_info["keyword"],
+                        nickname=artist_info["nickname"],
+                        title=title,
+                        views_text=f"{milestone / 10000:g}만",
+                        url=url
+                    ),
+                    "video_id": video_id
+                }
             )
 
 
@@ -575,12 +592,7 @@ def main():
         else:
 
 
-            artist_info = None
-
-            for unit, artists in UNITS.items():
-                if artist in artists:
-                    artist_info = artists[artist]
-                    break
+            artist_info = get_artist_info(artist)
             
             messages, new_notified = check_milestone(
                 old_views,
@@ -596,12 +608,11 @@ def main():
             )
 
 
-        for msg in messages:
+        for alert in messages:
             send_telegram_photo(
-                msg,
-                video_id
+                alert["message"],
+                alert["video_id"]
             )
-
 
         if is_new and INITIAL_SETUP:
 
