@@ -3,11 +3,17 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup
 )
+
 from telegram.ext import (
     Application,
     CommandHandler,
     ContextTypes,
     CallbackQueryHandler
+)
+
+from config import (
+    UNIT_BUTTONS,
+    UNITS
 )
 
 import os
@@ -17,28 +23,6 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 TELEGRAM_TOKEN = os.environ.get(
     "TELEGRAM_TOKEN"
 )
-
-
-UNITS = {
-    "unit_everys": {
-        "아야츠노 유니": "yuni",
-        "사키하네 후야": "huya"
-    },
-
-    "unit_universe": {
-        "시라유키 히나": "hina",
-        "네네코 마시로": "mashiro",
-        "아카네 리제": "lize",
-        "아라하시 타비": "tabi"
-    },
-
-    "unit_cliche": {
-        "텐코 시부키": "shibuki",
-        "아오쿠모 린": "rin",
-        "하나코 나나": "nana",
-        "유즈하 리코": "riko"
-    }
-}
 
 
 
@@ -62,26 +46,22 @@ def run_health_server():
 
 async def start(update: Update, context):
 
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                "🌸 에버리스",
-                callback_data="unit_everys"
+    keyboard = []
+
+    for unit_id, unit_name in UNIT_BUTTONS.items():
+    
+        keyboard = []
+
+        for unit_name in UNITS.keys():
+        
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        unit_name,
+                        callback_data=f"unit_{unit_name}"
+                    )
+                ]
             )
-        ],
-        [
-            InlineKeyboardButton(
-                "☁️ 유니버스",
-                callback_data="unit_universe"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                "✨ 클리셰",
-                callback_data="unit_cliche"
-            )
-        ]
-    ]
 
     reply_markup = InlineKeyboardMarkup(
         keyboard
@@ -110,26 +90,18 @@ async def button_handler(
 
     if query.data == "back_units":
 
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                "🌸 에버리스",
-                callback_data="unit_everies"
+        keyboard = []
+
+        for unit_id, unit_name in UNIT_BUTTONS.items():
+        
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        unit_name,
+                        callback_data=unit_id
+                    )
+                ]
             )
-        ],
-        [
-            InlineKeyboardButton(
-                "☁️ 유니버스",
-                callback_data="unit_universe"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                "✨ 클리셰",
-                callback_data="unit_cliche"
-            )
-        ]
-    ]
 
     await query.edit_message_text(
         "🎤 YouTube Notify 봇입니다!\n\n"
@@ -139,21 +111,23 @@ async def button_handler(
 
     return
 
-    unit = query.data
+    if query.data.startswith("unit_"):
 
-    if unit in UNITS:
-
+    unit = query.data.replace(
+        "unit_",
+        ""
+    )
         print("3. 유닛 찾음")
 
         keyboard = []
 
-        for artist, artist_id in UNITS[unit].items():
+        for artist, artist_info in UNITS[unit].items():
 
             keyboard.append(
                 [
                     InlineKeyboardButton(
-                        artist,
-                        callback_data=f"artist_{artist_id}"
+                        artist_info["display"],
+                        callback_data=f"artist_{artist}"
                     )
                 ]
             )
