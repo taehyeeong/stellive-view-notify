@@ -1,7 +1,14 @@
 import os
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+
+KST = timezone(timedelta(hours=9))
+
+def now_kst():
+    return datetime.now(KST)
+
 
 from config import (
     VIEW_STEP,
@@ -130,7 +137,7 @@ def send_error(error):
 
     message = (
         "⚠️ YouTube Notify 오류 발생\n\n"
-        f"🕒 시간: {datetime.now()}\n\n"
+        f"🕒 시간: {now_kst()}\n\n"
         f"❌ 내용:\n{error}"
     )
 
@@ -649,7 +656,7 @@ def main():
             "unit": video.get("unit", ""),
             "views": views,
             "notified": list(set(notified)),
-            "updated": str(datetime.now())
+            "updated": str(now_kst())
         }
 
 
@@ -663,7 +670,7 @@ def main():
         
     send_telegram(
         f"✅ YouTube Notify 실행 완료\n\n"
-        f"⏰ 실행 시간: {datetime.now()}\n\n"
+        f"⏰ 실행 시간: {now_kst()}\n\n"
         f"🏠 확인 유닛: {', '.join(UNITS.keys())}\n"
         f"👥 확인 아티스트: {len(checked_artists)}명\n"
         f"📁 확인 플레이리스트: {checked_playlists}개\n"
