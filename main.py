@@ -1,13 +1,22 @@
 import os
 import json
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+
+KST = timezone(timedelta(hours=9))
+
+def now_kst():
+    return datetime.now(KST).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
 
 from config import (
-    CHANNELS,
     VIEW_STEP,
     MUSIC_KEYWORDS,
     MILESTONES,
+    MILESTONE_TEMPLATE,
     EXCLUDE_KEYWORDS,
     INITIAL_SETUP,
     UNITS
@@ -63,7 +72,8 @@ def send_telegram(message):
         url,
         json={
             "chat_id": TELEGRAM_CHAT_ID,
-            "text": message
+            "text": message,
+            "disable_web_page_preview": True
         },
         timeout=10
     )
@@ -74,11 +84,62 @@ def send_telegram(message):
     print("========================")
 
 
+
+def send_notification(
+    message,
+    video_id=None
+):
+
+    if video_id:
+
+        send_telegram_photo(
+            message,
+            video_id
+        )
+
+    else:
+
+        send_telegram(
+            message
+        )
+
+
+
+def send_telegram_photo(message, video_id):
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{TELEGRAM_TOKEN}/sendPhoto"
+    )
+
+    thumbnail = (
+        f"https://img.youtube.com/vi/"
+        f"{video_id}/maxresdefault.jpg"
+    )
+
+    response = requests.post(
+        url,
+        json={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "photo": thumbnail,
+            "caption": message
+        },
+        timeout=10
+    )
+
+    print("===== Telegram Photo 결과 =====")
+    print(response.status_code)
+    print(response.text)
+    print("==============================")
+
+
+
+
 def send_error(error):
 
     message = (
         "⚠️ YouTube Notify 오류 발생\n\n"
-        f"🕒 시간: {datetime.now()}\n\n"
+        f"🕒 시간: {now_kst()}\n\n"
         f"❌ 내용:\n{error}"
     )
 
@@ -241,13 +302,10 @@ def get_playlist_videos():
                                 if is_music(title):
                 
                                     videos.append({
-                
                                         "id": video_id,
-                                    
                                         "title": title,
-                                    
-                                        "artist": artist_name
-                                    
+                                        "artist": artist_name,
+                                        "unit": unit
                                     })
                 
                                     seen.add(video_id)
@@ -393,25 +451,37 @@ def get_view_counts(video_ids):
 
 
 
+def get_artist_info(artist):
+
+    for unit, artists in UNITS.items():
+
+        if artist in artists:
+            return artists[artist]
+
+    return None
+
+
+
 # ======================
 # 알림 계산
 # ======================
 
 def check_milestone(
-        old,
-        new,
-        title,
-        url,
-        notified,
-        artist
+    old_views,
+    views,
+    title,
+    url,
+    notified,
+    artist_info,
+    video_id
 ):
 
     alerts = []
     new_notified = []
 
 
-    old_step = old // VIEW_STEP
-    new_step = new // VIEW_STEP
+    old_step = old_views // VIEW_STEP
+    new_step = views // VIEW_STEP
 
 
     if new_step > old_step:
@@ -426,23 +496,35 @@ def check_milestone(
             if count not in notified:
     
                 alerts.append(
-                    f"[{artist} 키워드]\n\n"
-                    f"{artist}아\n"
-                    f"『{title}』 {count / 10000:g}만 축하해 !!\n\n"
-                    f"{url}"
+                    {
+                        "message": MILESTONE_TEMPLATE.format(
+                            keyword=artist_info["keyword"],
+                            nickname=artist_info["nickname"],
+                            title=title,
+                            views_text=f"{count / 10000:g}만",
+                            url=url
+                        ),
+                        "video_id": video_id
+                    }
                 )
 
             new_notified.append(count)
 
     for milestone in MILESTONES:
 
-        if old < milestone <= new:
+        if old_views < milestone <= views:
 
            alerts.append(
-                f"[{artist} 키워드]\n\n"
-                f"{artist}아\n"
-                f"『{title}』 {milestone / 10000:g}만 축하해 !!\n\n"
-                f"{url}"
+                {
+                    "message": MILESTONE_TEMPLATE.format(
+                        keyword=artist_info["keyword"],
+                        nickname=artist_info["nickname"],
+                        title=title,
+                        views_text=f"{milestone / 10000:g}만",
+                        url=url
+                    ),
+                    "video_id": video_id
+                }
             )
 
 
@@ -534,6 +616,9 @@ def main():
 
         else:
 
+
+            artist_info = get_artist_info(artist)
+            
             messages, new_notified = check_milestone(
                 old_views,
                 views,
@@ -543,13 +628,16 @@ def main():
                     "notified",
                     []
                 ),
-                artist
+                artist_info,
+                video_id
             )
 
 
-        for msg in messages:
-            send_telegram(msg)
-
+        for alert in messages:
+            send_notification(
+                alert["message"],
+                alert["video_id"]
+            )
 
         if is_new and INITIAL_SETUP:
 
@@ -566,9 +654,11 @@ def main():
         
         data[video_id] = {
             "title": title,
+            "artist": video.get("artist", ""),
+            "unit": video.get("unit", ""),
             "views": views,
             "notified": list(set(notified)),
-            "updated": str(datetime.now())
+            "updated": str(now_kst())
         }
 
 
@@ -582,7 +672,7 @@ def main():
         
     send_telegram(
         f"✅ YouTube Notify 실행 완료\n\n"
-        f"⏰ 실행 시간: {datetime.now()}\n\n"
+        f"⏰ 실행 시간: {now_kst()}\n\n"
         f"🏠 확인 유닛: {', '.join(UNITS.keys())}\n"
         f"👥 확인 아티스트: {len(checked_artists)}명\n"
         f"📁 확인 플레이리스트: {checked_playlists}개\n"
