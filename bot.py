@@ -48,20 +48,16 @@ async def start(update: Update, context):
 
     keyboard = []
 
-    for unit_id, unit_name in UNIT_BUTTONS.items():
+    for name, unit_id in UNIT_BUTTONS.items():
     
-        keyboard = []
-
-        for name, unit_id in UNIT_BUTTONS.items():
-            keyboard.append(
-                [
-                    InlineKeyboardButton(
-                        name,
-                        callback_data=unit_id
-                    )
-                ]
-            )
-
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    name,
+                    callback_data=unit_id
+                )
+            ]
+        )
     reply_markup = InlineKeyboardMarkup(
         keyboard
     )
@@ -90,20 +86,17 @@ async def button_handler(
     if query.data == "back_units":
 
         keyboard = []
-
-        for unit_id, unit_name in UNIT_BUTTONS.items():
-        
-            keyboard = []
-
-            for name, unit_id in UNIT_BUTTONS.items():
-                keyboard.append(
-                    [
-                        InlineKeyboardButton(
-                            name,
-                            callback_data=unit_id
-                        )
-                    ]
-                )
+    
+        for name, unit_id in UNIT_BUTTONS.items():
+    
+            keyboard.append(
+                [
+                    InlineKeyboardButton(
+                        name,
+                        callback_data=unit_id
+                    )
+                ]
+            )
 
     await query.edit_message_text(
         "🎤 YouTube Notify 봇입니다!\n\n"
@@ -115,10 +108,9 @@ async def button_handler(
 
     if query.data.startswith("unit_"):
 
-    unit = query.data.replace(
-        "unit_",
-        ""
-    )
+    unit = query.data
+
+    
         print("3. 유닛 찾음")
 
         keyboard = []
@@ -129,7 +121,7 @@ async def button_handler(
                 [
                     InlineKeyboardButton(
                         artist_info["display"],
-                        callback_data=f"artist_{artist}"
+                        callback_data=f"artist_{unit}_{artist}"
                     )
                 ]
             )
