@@ -146,6 +146,8 @@ async def button_handler(
 
 def main():
 
+    print("🤖 Telegram bot started")
+
     # 봇 실행 전에 헬스체크 서버를 백그라운드로 띄운다
     threading.Thread(
         target=run_health_server,
