@@ -1,5 +1,21 @@
 # 감시할 유튜브 채널 설정 파일
 
+
+
+# 조회수 달성 축하 메시지 템플릿
+
+MILESTONE_TEMPLATE = """
+{keyword}
+
+{nickname}
+『 {title} 』
+
+{views_text} 축하해 !!
+
+{url}
+"""
+
+
 # YouTube 채널 핸들
 CHANNELS = {
     "@shirayukihina": "시라유키 히나"
