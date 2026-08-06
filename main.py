@@ -7,7 +7,9 @@ from datetime import datetime, timezone, timedelta
 KST = timezone(timedelta(hours=9))
 
 def now_kst():
-    return datetime.now(KST)
+    return datetime.now(KST).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
 
 
 from config import (
