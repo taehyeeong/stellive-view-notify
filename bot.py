@@ -52,13 +52,12 @@ async def start(update: Update, context):
     
         keyboard = []
 
-        for unit_name in UNITS.keys():
-        
+        for name, unit_id in UNIT_BUTTONS.items():
             keyboard.append(
                 [
                     InlineKeyboardButton(
-                        unit_name,
-                        callback_data=f"unit_{unit_name}"
+                        name,
+                        callback_data=unit_id
                     )
                 ]
             )
@@ -94,14 +93,17 @@ async def button_handler(
 
         for unit_id, unit_name in UNIT_BUTTONS.items():
         
-            keyboard.append(
-                [
-                    InlineKeyboardButton(
-                        unit_name,
-                        callback_data=unit_id
-                    )
-                ]
-            )
+            keyboard = []
+
+            for name, unit_id in UNIT_BUTTONS.items():
+                keyboard.append(
+                    [
+                        InlineKeyboardButton(
+                            name,
+                            callback_data=unit_id
+                        )
+                    ]
+                )
 
     await query.edit_message_text(
         "🎤 YouTube Notify 봇입니다!\n\n"
