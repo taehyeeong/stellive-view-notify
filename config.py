@@ -60,6 +60,16 @@ MILESTONE_TEMPLATE = """
 
 
 
+
+# 텔레그램 봇 유닛 버튼 설정
+
+UNIT_BUTTONS = {
+    "unit_everys": "🌸 에버리스",
+    "unit_universe": "☁️ 유니버스",
+    "unit_cliche": "✨ 클리셰"
+}
+
+
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
 
