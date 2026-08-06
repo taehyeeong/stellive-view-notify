@@ -108,9 +108,7 @@ async def button_handler(
 
     if query.data.startswith("unit_"):
 
-    unit = query.data
-
-    
+        unit = query.data
         print("3. 유닛 찾음")
 
         keyboard = []
