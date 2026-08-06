@@ -64,7 +64,8 @@ def send_telegram(message):
         url,
         json={
             "chat_id": TELEGRAM_CHAT_ID,
-            "text": message
+            "text": message,
+            "disable_web_page_preview": True
         },
         timeout=10
     )
