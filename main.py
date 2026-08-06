@@ -76,6 +76,37 @@ def send_telegram(message):
     print("========================")
 
 
+
+def send_telegram_photo(message, video_id):
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{TELEGRAM_TOKEN}/sendPhoto"
+    )
+
+    thumbnail = (
+        f"https://img.youtube.com/vi/"
+        f"{video_id}/maxresdefault.jpg"
+    )
+
+    response = requests.post(
+        url,
+        json={
+            "chat_id": TELEGRAM_CHAT_ID,
+            "photo": thumbnail,
+            "caption": message
+        },
+        timeout=10
+    )
+
+    print("===== Telegram Photo 결과 =====")
+    print(response.status_code)
+    print(response.text)
+    print("==============================")
+
+
+
+
 def send_error(error):
 
     message = (
@@ -405,7 +436,8 @@ def check_milestone(
     title,
     url,
     notified,
-    artist_info
+    artist_info,
+    video_id
 ):
 
     alerts = []
@@ -559,12 +591,16 @@ def main():
                     "notified",
                     []
                 ),
-                artist_info
+                artist_info,
+                video_id
             )
 
 
         for msg in messages:
-            send_telegram(msg)
+            send_telegram_photo(
+                msg,
+                video_id
+            )
 
 
         if is_new and INITIAL_SETUP:
