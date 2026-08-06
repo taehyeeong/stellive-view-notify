@@ -303,7 +303,7 @@ def get_playlist_videos():
                                         "id": video_id,
                                         "title": title,
                                         "artist": artist_name,
-                                        "unit": unit_name
+                                        "unit": unit
                                     })
                 
                                     seen.add(video_id)
