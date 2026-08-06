@@ -54,7 +54,7 @@ UNITS = {
                     "channel": "@shirayukihina",
                     "display": "시라유키 히나",
                     "keyword": "#daily_hina",
-                    "nickname": "히나",
+                    "nickname": "히나야",
         
                     "playlists": [
                         "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L",  # 오리곡
