@@ -23,15 +23,20 @@ from config import (
 )
 
 
-from dotenv import load_dotenv
 import os
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
 TELEGRAM_TOKEN = os.environ.get(
     "TELEGRAM_TOKEN"
+)
+
+TELEGRAM_CHAT_ID = os.environ.get(
+    "TELEGRAM_CHAT_ID"
 )
 
 GITHUB_TOKEN = os.environ.get(
@@ -56,7 +61,7 @@ def run_health_server():
     server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
     server.serve_forever()
 
-def check_github_actions():
+async def check_github_actions(app):
 
     url = (
         "https://api.github.com/repos/"
@@ -88,6 +93,18 @@ def check_github_actions():
     print("Workflow :", run["name"])
     print("Status   :", run["status"])
     print("Result   :", run["conclusion"])
+
+    if run["conclusion"] != "success":
+
+        await send_telegram_message(
+            app,
+            (
+                f"⚠️ {BOT_TITLE}\n\n"
+                f"GitHub Actions 실패 감지\n\n"
+                f"Workflow: {run['name']}\n"
+                f"결과: {run['conclusion']}"
+            )
+        )
 
 
 def create_unit_keyboard():
@@ -186,6 +203,23 @@ async def button_handler(
         print("5. 화면 변경 완료")
 
 
+async def send_telegram_message(app, text):
+
+    await app.bot.send_message(
+        chat_id=TELEGRAM_CHAT_ID,
+        text=text
+    )
+
+
+async def send_test_message(app):
+
+    await send_telegram_message(
+        app,
+        f"✅ {BOT_TITLE} 연결 성공"
+    )
+
+    await check_github_actions(app)
+
 
 def main():
 
@@ -195,13 +229,15 @@ def main():
     threading.Thread(
         target=run_health_server,
         daemon=True
-    ).start
+    ).start()
 
-    check_github_actions()
 
     app = Application.builder() \
         .token(TELEGRAM_TOKEN) \
         .build()
+
+    app.post_init = send_test_message
+
 
     app.add_handler(
         CommandHandler(
