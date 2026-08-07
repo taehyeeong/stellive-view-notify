@@ -1,5 +1,3 @@
-import requests
-
 
 from telegram import (
     Update,
@@ -25,7 +23,6 @@ from config import (
 
 import os
 import threading
-import json
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from dotenv import load_dotenv
@@ -39,12 +36,6 @@ TELEGRAM_TOKEN = os.environ.get(
 TELEGRAM_CHAT_ID = os.environ.get(
     "TELEGRAM_CHAT_ID"
 )
-
-GITHUB_TOKEN = os.environ.get(
-    "GITHUB_TOKEN"
-)
-
-LAST_RUN_FILE = "last_run.json"
 
 # --- Render 포트 감지용 간단한 헬스체크 서버 ---
 class HealthCheckHandler(BaseHTTPRequestHandler):
@@ -63,116 +54,6 @@ def run_health_server():
     server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
     server.serve_forever()
 
-
-def load_last_run_id():
-
-    try:
-        with open(LAST_RUN_FILE, "r") as f:
-            data = json.load(f)
-            return data.get("last_run_id")
-
-    except FileNotFoundError:
-        return None
-
-
-
-def save_last_run_id(run_id):
-
-    with open(LAST_RUN_FILE, "w") as f:
-        json.dump(
-            {
-                "last_run_id": run_id
-            },
-            f,
-            indent=4
-        )
-
-
-
-LAST_RUN_FILE = "last_run_id.txt"
-
-
-def save_last_run_id(run_id):
-
-    with open(
-        LAST_RUN_FILE,
-        "w"
-    ) as f:
-        f.write(str(run_id))
-
-
-def load_last_run_id():
-
-    if not os.path.exists(LAST_RUN_FILE):
-        return None
-
-    with open(
-        LAST_RUN_FILE,
-        "r"
-    ) as f:
-        return int(f.read())
-
-
-async def check_github_actions(app):
-
-    url = (
-        "https://api.github.com/repos/"
-        "taehyeeong/youtube-view-notify/"
-        "actions/runs?per_page=1"
-    )
-
-    headers = {
-        "Authorization": f"Bearer {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github+json"
-    }
-
-    response = requests.get(
-        url,
-        headers=headers,
-        timeout=10
-    )
-
-    print("GitHub API 상태:", response.status_code)
-
-    if response.status_code != 200:
-        print(response.text)
-        return
-
-    data = response.json()
-
-    run = data["workflow_runs"][0]
-
-    current_run_id = run["id"]
-    last_run_id = load_last_run_id()
-
-    print("현재 run:", current_run_id)
-    print("마지막 run:", last_run_id)
-
-    print("결론 확인:", run["conclusion"])
-
-    print("Workflow :", run["name"])
-    print("Status   :", run["status"])
-    print("Result   :", run["conclusion"])
-
-    if run["conclusion"] in [
-        "failure",
-        "cancelled",
-        "timed_out"
-    ]:
-
-        if current_run_id != last_run_id:
-
-            await app.bot.send_message(
-                chat_id=TELEGRAM_CHAT_ID,
-                text=(
-                    f"⚠️ {BOT_TITLE}\n\n"
-                    f"GitHub Actions {run['conclusion']} 발생\n\n"
-                    f"Workflow: {run['name']}\n"
-                    f"결과: {run['conclusion']}"
-                )
-            )
-
-            save_last_run_id(current_run_id)
 
 
 def create_unit_keyboard():
@@ -284,8 +165,6 @@ async def send_test_message(app):
         app,
         f"✅ {BOT_TITLE}\n연결 성공"
     )
-
-    await check_github_actions(app)
 
 
 def main():

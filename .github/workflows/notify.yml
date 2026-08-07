@@ -49,8 +49,6 @@ jobs:
         with:
           commit_message: Update view count data
 
-      - name: Test Failure
-        run: exit 1
         
       - name: Send Telegram failure alert
         if: failure()
