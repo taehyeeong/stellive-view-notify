@@ -94,7 +94,7 @@ async def check_github_actions(app):
     print("Status   :", run["status"])
     print("Result   :", run["conclusion"])
 
-    if run["conclusion"] != "success":
+    if True:
 
         await send_telegram_message(
             app,
@@ -210,12 +210,11 @@ async def send_telegram_message(app, text):
         text=text
     )
 
-
 async def send_test_message(app):
 
     await send_telegram_message(
         app,
-        f"✅ {BOT_TITLE} 연결 성공"
+        f"✅ {BOT_TITLE}\n연결 성공"
     )
 
     await check_github_actions(app)
