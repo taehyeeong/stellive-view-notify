@@ -154,7 +154,11 @@ async def check_github_actions(app):
     print("Status   :", run["status"])
     print("Result   :", run["conclusion"])
 
-    if run["conclusion"] in ["failure", "cancelled", "timed_out"]:
+    if run["conclusion"] in [
+        "failure",
+        "cancelled",
+        "timed_out"
+    ]:
 
         if current_run_id != last_run_id:
 
