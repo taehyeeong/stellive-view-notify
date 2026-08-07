@@ -108,6 +108,8 @@ def create_unit_keyboard():
 
 async def start(update: Update, context):
 
+    print("CHAT ID:", update.effective_chat.id)
+
     reply_markup = create_unit_keyboard()
 
     await update.message.reply_text(
