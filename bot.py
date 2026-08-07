@@ -1,3 +1,6 @@
+import requests
+
+
 from telegram import (
     Update,
     InlineKeyboardButton,
@@ -27,6 +30,9 @@ TELEGRAM_TOKEN = os.environ.get(
     "TELEGRAM_TOKEN"
 )
 
+GITHUB_TOKEN = os.environ.get(
+    "GITHUB_TOKEN"
+)
 
 
 # --- Render 포트 감지용 간단한 헬스체크 서버 ---
@@ -46,7 +52,38 @@ def run_health_server():
     server = HTTPServer(("0.0.0.0", port), HealthCheckHandler)
     server.serve_forever()
 
+def check_github_actions():
 
+    url = (
+        "https://api.github.com/repos/"
+        "taehyeeong/youtube-view-notify/"
+        "actions/runs?per_page=1"
+    )
+
+    headers = {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    response = requests.get(
+        url,
+        headers=headers,
+        timeout=10
+    )
+
+    print("GitHub API 상태:", response.status_code)
+
+    if response.status_code != 200:
+        print(response.text)
+        return
+
+    data = response.json()
+
+    run = data["workflow_runs"][0]
+
+    print("Workflow :", run["name"])
+    print("Status   :", run["status"])
+    print("Result   :", run["conclusion"])
 
 
 def create_unit_keyboard():
@@ -152,7 +189,9 @@ def main():
     threading.Thread(
         target=run_health_server,
         daemon=True
-    ).start()
+    ).start
+
+    check_github_actions()
 
     app = Application.builder() \
         .token(TELEGRAM_TOKEN) \
