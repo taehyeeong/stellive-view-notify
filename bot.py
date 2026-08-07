@@ -22,9 +22,13 @@ from config import (
     BOT_SELECT_MEMBER_TEXT
 )
 
+
+from dotenv import load_dotenv
 import os
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
+
+load_dotenv()
 
 TELEGRAM_TOKEN = os.environ.get(
     "TELEGRAM_TOKEN"
