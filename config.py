@@ -116,7 +116,7 @@ UNITS = {
                     "channel": "@shirayukihina",
                     "display": "시라유키 히나",
                     "keyword": "#daily_hina",
-                    "nickname": "히나야",
+                    "nickname": "히나얌",
         
                     "playlists": [
                         "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L",  # 오리곡
@@ -166,7 +166,7 @@ UNITS = {
             "channel": "@tenkoshibuki",
             "display": "텐코 시부키",
             "keyword": "#for_shibuki",
-            "nickname": "요우신",
+            "nickname": "요우신~",
 
             "playlists": [
                 "PLanLo2fF2MkY",                    # 오리곡
@@ -178,7 +178,7 @@ UNITS = {
             "channel": "@aokumorin",
             "display": "아오쿠모 린",
             "keyword": "#happy_rin",
-            "nickname": "린",
+            "nickname": "린~",
 
             "playlists": [
                 "PLSDRWR15h-o7xvAej539Ggs2Kjb22y3_M", # 오리곡
@@ -204,7 +204,7 @@ UNITS = {
             "channel": "@yuzuhariko",
             "display": "유즈하 리코",
             "keyword": "#riko_diary",
-            "nickname": "리코야",
+            "nickname": "리코코!",
 
             "playlists": [
                 "PL_D2YrKeYY2U6GvgRx8Ai-VaddWQarbnL", # Riko Cloud
