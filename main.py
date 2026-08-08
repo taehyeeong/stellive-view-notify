@@ -14,7 +14,6 @@ def now_kst():
 
 from config import (
     VIEW_STEP,
-    MUSIC_KEYWORDS,
     MILESTONES,
     MILESTONE_TEMPLATE,
     EXCLUDE_KEYWORDS,
@@ -298,16 +297,16 @@ def get_playlist_videos():
                                     continue
                 
                 
-                                # 음악 키워드 확인
-                                if is_music(title):
-                
+                                # 제외 키워드 확인
+                                if not is_excluded(title):
+                                
                                     videos.append({
                                         "id": video_id,
                                         "title": title,
                                         "artist": artist_name,
                                         "unit": unit
                                     })
-                
+                                
                                     seen.add(video_id)
         
         
@@ -365,31 +364,17 @@ def get_playlist_videos():
 
 # 음악 영상 판단
 
-def is_music(title):
+def is_excluded(title):
 
     title_lower = title.lower()
-
-
-    # 제외 키워드 검사
 
     for word in EXCLUDE_KEYWORDS:
 
         if word.lower() in title_lower:
 
-            return False
-
-
-    # 음악 키워드 검사
-
-    for word in MUSIC_KEYWORDS:
-
-        if word.lower() in title_lower:
-
             return True
 
-
     return False
-
 
 
 # 조회수 가져오기
