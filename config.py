@@ -30,7 +30,9 @@ EXCLUDE_KEYWORDS = [
     "clip",
     "클립",
     "雑談",
-    "잡담"
+    "잡담",
+    "Teaser",
+    "하이라이트 메들리"
 ]
 
 
