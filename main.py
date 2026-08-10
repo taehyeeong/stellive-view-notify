@@ -549,10 +549,16 @@ def main():
 
         video_id = video["id"]
 
-        info = view_data[video_id]
+        info = view_data.get(video_id)
 
+        if info is None:
+            print(
+                f"⚠️ YouTube API에서 영상을 찾을 수 없음: {video_id}"
+            )
+            continue
+        
         views = info["views"]
-
+        
         title = info["title"]
 
         artist = video["artist"]
