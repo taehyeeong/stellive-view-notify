@@ -86,6 +86,21 @@ BOT_SELECT_MEMBER_TEXT = (
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
 
+    "스텔라이브": {
+       "스텔라이브": {
+            "channel": "@stellive_official",
+            "display": "스텔라이브",
+            "keyword": "#stellive",
+            "nickname": "애들아 !!",
+
+            "playlists": [
+                "PLLjd981H8qSMGC4Nir0hD2Gj9n9PDUoHX", # 오리곡
+                "PLLjd981H8qSN9PQ8-X6wINqBF1GjGxusy"  # 노래
+            ]
+        }
+    },
+
+
     "에버리스": {
        "아야츠노 유니": {
             "channel": "@ayatsunoyuni",
