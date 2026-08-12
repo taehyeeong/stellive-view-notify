@@ -93,6 +93,12 @@ UNITS = {
             "keyword": "#stellive",
             "nickname": "애들아 !!",
 
+            "aliases": [
+                "스텔라이브",
+                "Stellive",
+                "STELLIVE"
+            ],
+
             "playlists": [
                 "PLLjd981H8qSMGC4Nir0hD2Gj9n9PDUoHX", # 오리곡
                 "PLLjd981H8qSN9PQ8-X6wINqBF1GjGxusy"  # 노래
@@ -108,6 +114,13 @@ UNITS = {
             "keyword": "#yunikki",
             "nickname": "유니야",
 
+            "aliases": [
+                "아야츠노 유니",
+                "Ayatsuno Yuni",
+                "AYATSUNO YUNI",
+                "유니"
+            ],
+
             "playlists": [
                 "PL3HtH_xx9h_4ulddfVG8DdD_EwKUMBqvL", # 오리곡
                 "PL3HtH_xx9h_7ZGoZ9zMUQ-MPumwe21_cc"  # 노래
@@ -118,6 +131,13 @@ UNITS = {
             "display": "사키하네 후야",
             "keyword": "#huya_live",
             "nickname": "후야야",
+
+            "aliases": [
+                "사키하네 후야",
+                "Sakihane Huya",
+                "SAKIHANE HUYA",
+                "후야"
+            ],
 
             "playlists": [
                 "PL3rF5rqFNO48ZMgPuZ6XbQ1J9IT3TQtcs" # 커버곡
@@ -131,7 +151,14 @@ UNITS = {
                     "display": "시라유키 히나",
                     "keyword": "#daily_hina",
                     "nickname": "히나얌",
-        
+
+                    "aliases": [
+                        "시라유키 히나",
+                        "Shirayuki Hina",
+                        "SHIRAYUKI HINA",
+                        "히나"
+                    ],
+
                     "playlists": [
                         "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L",  # 오리곡
                         "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc",  # 커버곡
@@ -145,6 +172,13 @@ UNITS = {
             "keyword": "#dayshiro",
             "nickname": "찌로야",
 
+            "aliases": [
+                "네네코 마시로",
+                "Neneko Mashiro",
+                "NENEKO MASHIRO",
+                "마시로"
+            ],
+
             "playlists": [
                 "PLWwhuXFHGLvgHQY8lryIUP7vf9i8-TJrk", # 오리곡
                 "PLWwhuXFHGLvhgZZb5_rmQEMI1B0ysKJxG"  # 커버곡
@@ -156,6 +190,13 @@ UNITS = {
             "keyword": "#Lize_daze",
             "nickname": "맂제야",
 
+            "aliases": [
+                "아카네 리제",
+                "Akane Rize",
+                "AKANE RIZE",
+                "리제"
+            ],
+
             "playlists": [
                 "PL-DHk0WpiRNSHxQzKx88q2kmJVwlCQCNq", # 오리곡
                 "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX"  # 커버곡
@@ -166,6 +207,13 @@ UNITS = {
             "display": "아라하시 타비",
             "keyword": "#luv_tabi",
             "nickname": "따비야",
+
+            "aliases": [
+                "아라하시 타비",
+                "Arahashi Tabi",
+                "ARAHASHI TABI",
+                "타비"
+            ],
 
             "playlists": [
                 "PLbIDsfX2JRA2Qoddb0eKan9yFJ0_MR8Nk", # 3D
@@ -182,6 +230,14 @@ UNITS = {
             "keyword": "#for_shibuki",
             "nickname": "요우신~",
 
+            "aliases": [
+                "텐코 시부키",
+                "Tenko Shibuki",
+                "TENKO SHIBUKI",
+                "시부키",
+                "텐코"
+            ],
+
             "playlists": [
                 "PLanLo2fF2MkY",                    # 오리곡
                 "PLKVNBOcsLJlVii-8YwoZTD3o4gh5CnIND", # 커버곡
@@ -194,6 +250,13 @@ UNITS = {
             "keyword": "#happy_rin",
             "nickname": "린~",
 
+            "aliases": [
+                "아오쿠모 린",
+                "Aokumo Rin",
+                "AOKUMO RIN",
+                "린",
+            ],
+
             "playlists": [
                 "PLSDRWR15h-o7xvAej539Ggs2Kjb22y3_M", # 오리곡
                 "PLSDRWR15h-o4uWNeoLv0upOUUGj12f-yU", # 커버곡
@@ -205,6 +268,13 @@ UNITS = {
             "display": "하나코 나나",
             "keyword": "#nanaiary",
             "nickname": "나나야",
+
+            "aliases": [
+                "하나코 나나",
+                "Hanako Nana",
+                "HANAKO NANA",
+                "나나"
+            ],
 
             "playlists": [
                 "PLJWmDIpvwe7DSCq5McjxHXQCWfrahkIEE", # 3D
@@ -219,6 +289,13 @@ UNITS = {
             "display": "유즈하 리코",
             "keyword": "#riko_diary",
             "nickname": "리코코!",
+
+            "aliases": [
+                "유즈하 리코",
+                "Yuzuhariko",
+                "YUZUHARIKO",
+                "리코"
+            ],
 
             "playlists": [
                 "PL_D2YrKeYY2U6GvgRx8Ai-VaddWQarbnL", # Riko Cloud
