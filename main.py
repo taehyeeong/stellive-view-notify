@@ -668,7 +668,7 @@ def check_milestone(
                         "message": MILESTONE_TEMPLATE.format(
                             keyword=artist_info["keyword"],
                             nickname=artist_info["nickname"],
-                            title=display_title,
+                            title=title,
                             views_text=f"{count / 10000:g}만",
                             url=url
                         ),
@@ -695,7 +695,7 @@ def check_milestone(
                     "message": MILESTONE_TEMPLATE.format(
                         keyword=artist_info["keyword"],
                         nickname=artist_info["nickname"],
-                        title=display_title,
+                        title=title,
                         views_text=f"{milestone / 10000:g}만",
                         url=url
                     ),
