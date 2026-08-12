@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import re
 from datetime import datetime, timezone, timedelta
 
 
@@ -83,7 +84,6 @@ def send_telegram(message):
     print("========================")
 
 
-
 def send_notification(
     message,
     video_id=None
@@ -101,7 +101,6 @@ def send_notification(
         send_telegram(
             message
         )
-
 
 
 def send_telegram_photo(message, video_id):
@@ -132,8 +131,6 @@ def send_telegram_photo(message, video_id):
     print("==============================")
 
 
-
-
 def send_error(error):
 
     message = (
@@ -143,7 +140,6 @@ def send_error(error):
     )
 
     send_telegram(message)
-
 
 
 def send_photo(photo, caption):
@@ -162,7 +158,6 @@ def send_photo(photo, caption):
         },
         timeout=10
     )
-
 
 
 def get_reached_milestones(views):
@@ -203,7 +198,6 @@ def youtube_get(url, params):
     return r.json()
 
 
-
 # 채널 ID 가져오기
 
 def get_channel_id(handle):
@@ -224,6 +218,21 @@ def get_channel_id(handle):
 
     return items[0]["id"]
 
+
+def sort_artists_by_config_order(artist_names):
+
+    ordered_names = []
+
+    for unit, artists in UNITS.items():
+
+        for artist_name in artists.keys():
+
+            if artist_name in artist_names:
+                ordered_names.append(
+                    artist_name
+                )
+
+    return ordered_names
 
 
 def find_artists_from_title(title):
@@ -266,6 +275,7 @@ def find_artists_from_title(title):
 
 
 
+
 # =========================
 # 음악 영상 제외 판단
 # =========================
@@ -282,8 +292,10 @@ def is_excluded(title):
     return False
 
 
-
+# =========================
 # 플레이리스트
+# =========================
+
 
 def get_playlist_videos():
 
@@ -357,14 +369,17 @@ def get_playlist_videos():
 
                             collab_artists = find_artists_from_title(title)
 
-                            artist_names = [artist_name]
+                            artist_names = [
+                                matched["artist"]
+                                for matched in collab_artists
+                            ]
 
-                            for matched in collab_artists:
+                            if artist_name not in artist_names:
+                                artist_names.append(artist_name)
 
-                                if matched["artist"] not in artist_names:
-                                    artist_names.append(
-                                        matched["artist"]
-                                    )
+                            artist_names = sort_artists_by_config_order(
+                                artist_names
+                            )
 
                             videos.append({
                                 "id": video_id,
@@ -463,10 +478,12 @@ def get_playlist_videos():
 
                         continue
 
-                    artist_names = [
-                        item["artist"]
-                        for item in collab_artists
-                    ]
+                    artist_names = sort_artists_by_config_order(
+                        [
+                            item["artist"]
+                            for item in collab_artists
+                        ]
+                    )
 
                     unit = collab_artists[0]["unit"]
 
@@ -596,11 +613,11 @@ def get_notification_artist_info(artist_names):
     ]
 
     return {
-        "keyword": "\n".join(
+        "keyword": " ".join(
             info["keyword"]
             for info in artist_infos
         ),
-        "nickname": "\n".join(
+        "nickname": " ".join(
             info["nickname"]
             for info in artist_infos
         )
@@ -651,7 +668,7 @@ def check_milestone(
                         "message": MILESTONE_TEMPLATE.format(
                             keyword=artist_info["keyword"],
                             nickname=artist_info["nickname"],
-                            title=title,
+                            title=display_title,
                             views_text=f"{count / 10000:g}만",
                             url=url
                         ),
@@ -678,7 +695,7 @@ def check_milestone(
                     "message": MILESTONE_TEMPLATE.format(
                         keyword=artist_info["keyword"],
                         nickname=artist_info["nickname"],
-                        title=title,
+                        title=display_title,
                         views_text=f"{milestone / 10000:g}만",
                         url=url
                     ),
@@ -691,6 +708,149 @@ def check_milestone(
             new_notified.append(milestone)
 
     return alerts, new_notified
+
+
+def clean_song_title(title, artist_names=None):
+
+    cleaned = title.strip()
+
+    # ==================================
+    # 1. 따옴표 안의 제목 추출
+    # ==================================
+
+    quoted_patterns = [
+        r"[‘'“\"「『](.*?)[’'”\"」』]"
+    ]
+
+    for pattern in quoted_patterns:
+
+        matches = re.findall(
+            pattern,
+            cleaned
+        )
+
+        if matches:
+
+            # 가장 긴 문장을 제목으로 선택
+            candidate = max(
+                matches,
+                key=len
+            ).strip()
+
+            if candidate:
+                return candidate
+
+    # ==================================
+    # 2. Playlist 제목은 자동 추출하지 않음
+    # ==================================
+
+    if re.search(
+        r"\bplaylist\b",
+        cleaned,
+        flags=re.IGNORECASE
+    ):
+        return cleaned
+
+    # ==================================
+    # 3. Cover 뒤쪽 제거
+    # ==================================
+
+    cleaned = re.split(
+        r"\s*(?:cover|歌ってみた|カバー)\b",
+        cleaned,
+        maxsplit=1,
+        flags=re.IGNORECASE
+    )[0].strip()
+
+    # ==================================
+    # 4. 멤버명 / 본계명 뒤쪽 제거
+    # ==================================
+
+    names = []
+
+    if artist_names:
+
+        for artist_name in artist_names:
+
+            info = get_artist_info(artist_name)
+
+            names.append(artist_name)
+            names.append(
+                info.get(
+                    "display",
+                    artist_name
+                )
+            )
+
+            names.extend(
+                info.get(
+                    "aliases",
+                    []
+                )
+            )
+
+    names.extend(
+        [
+            "스텔라이브",
+            "StelLive"
+        ]
+    )
+
+    names = sorted(
+        set(names),
+        key=len,
+        reverse=True
+    )
+
+    if names:
+
+        name_pattern = "|".join(
+            re.escape(name)
+            for name in names
+            if name
+        )
+
+        # / 멤버명, - 멤버명, ㅣ멤버명 앞까지만 사용
+        cleaned = re.split(
+            rf"\s*(?:/|-|ㅣ)\s*"
+            rf"(?:.*?(?:{name_pattern})).*$",
+            cleaned,
+            maxsplit=1,
+            flags=re.IGNORECASE
+        )[0].strip()
+
+    # ==================================
+    # 5. 본체명 | '제목' 형식 처리
+    # ==================================
+
+    if "|" in cleaned:
+
+        parts = [
+            part.strip()
+            for part in cleaned.split("|")
+        ]
+
+        # 본체/멤버 정보가 포함된 앞부분 제거
+        if len(parts) >= 2:
+
+            cleaned = parts[-1].strip()
+
+    # ==================================
+    # 6. 제목 앞뒤의 따옴표·괄호 제거
+    # ==================================
+
+    cleaned = cleaned.strip(
+        " \t-'\"'‘’“”「」『』"
+    )
+
+    # 제목이 [제목] 형식이면 괄호 제거
+    if (
+        cleaned.startswith("[")
+        and cleaned.endswith("]")
+    ):
+        cleaned = cleaned[1:-1].strip()
+
+    return cleaned
 
 
 # =========================
@@ -753,6 +913,16 @@ def main():
         
         title = info["title"]
 
+        artist_names = video.get(
+            "artists",
+            [video["artist"]]
+        )
+
+        display_title = clean_song_title(
+            title,
+            artist_names
+        )
+
         artist = video["artist"]
 
         artist_names = video.get(
@@ -785,7 +955,7 @@ def main():
 
                 f"🆕 새로운 음악 영상 발견!\n\n"
                 f"👤 {artist}\n\n"
-                f"🎵 {title}\n\n"
+                f"🎵 {display_title}\n\n"
                 f"📊 현재 조회수: {views:,}회\n\n"
                 f"🔗 {url}"
             )
