@@ -639,6 +639,21 @@ def check_milestone(
     return alerts, new_notified
 
 
+# =========================
+# 아티스트 설정 가져오기
+# =========================
+
+def get_artist_info(artist_name):
+
+    for unit, artists in UNITS.items():
+
+        if artist_name in artists:
+            return artists[artist_name]
+
+    raise ValueError(
+        f"등록되지 않은 아티스트입니다: {artist_name}"
+    )
+
 
 # ======================
 # 실행
