@@ -267,6 +267,26 @@ def find_artist_from_title(title):
 
     return artist_name, unit
 
+
+
+
+# =========================
+# 음악 영상 제외 판단
+# =========================
+
+def is_excluded(title):
+
+    title_lower = title.lower()
+
+    for word in EXCLUDE_KEYWORDS:
+
+        if word.lower() in title_lower:
+            return True
+
+    return False
+
+
+
 # 플레이리스트
 
 def get_playlist_videos():
@@ -494,6 +514,60 @@ def get_playlist_videos():
         checked_units,
         checked_artists
     )
+
+
+# =========================
+# 조회수 가져오기
+# =========================
+
+def get_view_counts(video_ids):
+
+    result = {}
+
+    # YouTube API는 한 번에 최대 50개까지 조회 가능
+    for start in range(0, len(video_ids), 50):
+
+        chunk = video_ids[start:start + 50]
+
+        data = youtube_get(
+            "https://www.googleapis.com/youtube/v3/videos",
+            {
+                "part": "snippet,statistics",
+                "id": ",".join(chunk),
+                "key": YOUTUBE_API_KEY
+            }
+        )
+
+        for item in data.get("items", []):
+
+            video_id = item["id"]
+            snippet = item.get("snippet", {})
+            statistics = item.get("statistics", {})
+
+            thumbnails = snippet.get(
+                "thumbnails",
+                {}
+            )
+
+            thumbnail = (
+                thumbnails.get("high")
+                or thumbnails.get("medium")
+                or thumbnails.get("default")
+                or {}
+            ).get("url", "")
+
+            result[video_id] = {
+                "views": int(
+                    statistics.get("viewCount", 0)
+                ),
+                "title": snippet.get(
+                    "title",
+                    ""
+                ),
+                "thumb": thumbnail
+            }
+
+    return result
 
 
 # ======================
