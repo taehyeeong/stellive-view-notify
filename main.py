@@ -226,9 +226,10 @@ def get_channel_id(handle):
 
 
 
-def find_artist_from_title(title):
+def find_artists_from_title(title):
+
     title_lower = title.lower()
-    candidates = []
+    matched = []
 
     for unit, artists in UNITS.items():
 
@@ -245,28 +246,23 @@ def find_artist_from_title(title):
                 ]
             )
 
+            found = False
+
             for alias in aliases:
 
                 if alias.lower() in title_lower:
-                    candidates.append(
-                        (
-                            len(alias),
-                            artist_name,
-                            unit
-                        )
-                    )
+                    found = True
+                    break
 
-    if not candidates:
-        return None, None
+            if found:
+                matched.append(
+                    {
+                        "artist": artist_name,
+                        "unit": unit
+                    }
+                )
 
-    # 긴 별칭을 우선 선택
-    _, artist_name, unit = max(
-        candidates,
-        key=lambda item: item[0]
-    )
-
-    return artist_name, unit
-
+    return matched
 
 
 
@@ -359,10 +355,22 @@ def get_playlist_videos():
                             if is_excluded(title):
                                 continue
 
+                            collab_artists = find_artists_from_title(title)
+
+                            artist_names = [artist_name]
+
+                            for matched in collab_artists:
+
+                                if matched["artist"] not in artist_names:
+                                    artist_names.append(
+                                        matched["artist"]
+                                    )
+
                             videos.append({
                                 "id": video_id,
                                 "title": title,
-                                "artist": artist_name,
+                                "artist": artist_names[0],
+                                "artists": artist_names,
                                 "unit": unit,
                                 "playlist_id": playlist_id
                             })
@@ -443,11 +451,9 @@ def get_playlist_videos():
                         continue
 
                     # 제목으로 실제 멤버 판별
-                    artist_name, unit = (
-                        find_artist_from_title(title)
-                    )
+                    collab_artists = find_artists_from_title(title)
 
-                    if artist_name is None:
+                    if not collab_artists:
 
                         print(
                             "⚠️ 본계 영상 아티스트 판별 실패:"
@@ -457,10 +463,18 @@ def get_playlist_videos():
 
                         continue
 
+                    artist_names = [
+                        item["artist"]
+                        for item in collab_artists
+                    ]
+
+                    unit = collab_artists[0]["unit"]
+
                     videos.append({
                         "id": video_id,
                         "title": title,
-                        "artist": artist_name,
+                        "artist": artist_names[0],
+                        "artists": artist_names,
                         "unit": unit,
                         "playlist_id": playlist_id
                     })
@@ -571,6 +585,29 @@ def get_view_counts(video_ids):
 
 
 # ======================
+# 알림용 정보 생성
+# ======================
+
+def get_notification_artist_info(artist_names):
+
+    artist_infos = [
+        get_artist_info(artist_name)
+        for artist_name in artist_names
+    ]
+
+    return {
+        "keyword": "\n".join(
+            info["keyword"]
+            for info in artist_infos
+        ),
+        "nickname": "\n".join(
+            info["nickname"]
+            for info in artist_infos
+        )
+    }
+
+
+# ======================
 # 알림 계산
 # ======================
 
@@ -587,10 +624,12 @@ def check_milestone(
     alerts = []
     new_notified = []
 
-
     old_step = old_views // VIEW_STEP
     new_step = views // VIEW_STEP
 
+    # ==================================
+    # 일반 조회수 알림
+    # ==================================
 
     if new_step > old_step:
 
@@ -598,11 +637,15 @@ def check_milestone(
             old_step + 1,
             new_step + 1
         ):
-    
+
             count = i * VIEW_STEP
-    
+
+            # 특별 기록과 중복되는 일반 알림은 보내지 않음
+            if count in MILESTONES:
+                continue
+
             if count not in notified:
-    
+
                 alerts.append(
                     {
                         "message": MILESTONE_TEMPLATE.format(
@@ -616,13 +659,21 @@ def check_milestone(
                     }
                 )
 
+            # 이미 알림을 보냈어도 목록에는 기록
             new_notified.append(count)
 
-    for milestone in MILESTONES:
+    # ==================================
+    # 특별 조회수 알림
+    # ==================================
 
-        if old_views < milestone <= views:
+    for milestone in set(MILESTONES):
 
-           alerts.append(
+        if (
+            old_views < milestone <= views
+            and milestone not in notified
+        ):
+
+            alerts.append(
                 {
                     "message": MILESTONE_TEMPLATE.format(
                         keyword=artist_info["keyword"],
@@ -635,6 +686,9 @@ def check_milestone(
                 }
             )
 
+        # 특별 기록도 알림 완료 목록에 저장
+        if old_views < milestone <= views:
+            new_notified.append(milestone)
 
     return alerts, new_notified
 
@@ -701,6 +755,15 @@ def main():
 
         artist = video["artist"]
 
+        artist_names = video.get(
+            "artists",
+            [artist]
+        )
+
+        artist_info = get_notification_artist_info(
+            artist_names
+        )
+
         url = (
             f"https://www.youtube.com/watch?v={video_id}"
         )
@@ -745,9 +808,6 @@ def main():
 
         else:
 
-
-            artist_info = get_artist_info(artist)
-            
             messages, new_notified = check_milestone(
                 old_views,
                 views,
@@ -757,7 +817,6 @@ def main():
                     "notified",
                     []
                 ),
-                artist_info,
                 video_id
             )
 
