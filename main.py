@@ -930,6 +930,11 @@ def main():
             [artist]
         )
 
+        display_title = clean_song_title(
+            title,
+            artist_names
+        )
+
         artist_info = get_notification_artist_info(
             artist_names
         )
@@ -981,7 +986,7 @@ def main():
             messages, new_notified = check_milestone(
                 old_views,
                 views,
-                title,
+                display_title,
                 url,
                 data.get(video_id, {}).get(
                     "notified",
