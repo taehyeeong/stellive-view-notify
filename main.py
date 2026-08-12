@@ -817,6 +817,7 @@ def main():
                     "notified",
                     []
                 ),
+                artist_info,
                 video_id
             )
 
