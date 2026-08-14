@@ -1,3 +1,4 @@
+import dataclasses
 import os
 import json
 import requests
@@ -18,6 +19,7 @@ from config import (
     MILESTONES,
     MILESTONE_TEMPLATE,
     EXCLUDE_KEYWORDS,
+    STELLIVE_EXCLUDED_ARTIST_ALIASES,  
     INITIAL_SETUP,
     UNITS
 )
@@ -234,44 +236,6 @@ def sort_artists_by_config_order(artist_names):
 
     return ordered_names
 
-
-def find_artists_from_title(title):
-
-    title_lower = title.lower()
-    matched = []
-
-    for unit, artists in UNITS.items():
-
-        if unit == "스텔라이브":
-            continue
-
-        for artist_name, info in artists.items():
-
-            aliases = info.get(
-                "aliases",
-                [
-                    artist_name,
-                    info.get("display", artist_name)
-                ]
-            )
-
-            found = False
-
-            for alias in aliases:
-
-                if alias.lower() in title_lower:
-                    found = True
-                    break
-
-            if found:
-                matched.append(
-                    {
-                        "artist": artist_name,
-                        "unit": unit
-                    }
-                )
-
-    return matched
 
 
 
@@ -491,13 +455,39 @@ def get_playlist_videos():
                         # → 스텔라이브 영상으로 등록
                         # ----------------------------------
 
-                        videos[video_id] = {
-                            "id": video_id,
-                            "title": title,
-                            "artists": ["스텔라이브"],
-                            "unit": "스텔라이브",
-                            "is_stellive": True
-                        }
+                        if is_excluded(title):
+                            continue
+
+                        # 졸업생 아이리 칸나는 공식 재생목록에 있어도 집계하지 않음
+                        if is_excluded_stellive_video(title):
+                            continue
+
+                        # 개인 재생목록에서 이미 발견한 경우에는
+                        # 기존의 개인/다중 멤버 정보를 유지
+                        if video_id in videos:
+                            continue
+
+                        # 개인 재생목록에는 없지만 공식 커버곡 목록에 있는 경우:
+                        # 제목의 멤버명으로 개인 또는 다중 멤버를 복원
+                        matched_artists = get_artists_from_title(title)
+
+                        if matched_artists:
+                            videos[video_id] = {
+                                "id": video_id,
+                                "title": title,
+                                "artists": matched_artists,
+                                "unit": "개인 판별",
+                                "is_stellive": False
+                            }
+                        else:
+                            # 제목에도 멤버가 없을 때만 단체 영상
+                            videos[video_id] = {
+                                "id": video_id,
+                                "title": title,
+                                "artists": ["스텔라이브"],
+                                "unit": "스텔라이브",
+                                "is_stellive": True
+                            }
 
                     next_page = data.get(
                         "nextPageToken"
@@ -746,47 +736,42 @@ def clean_song_title(title, artist_names=None):
 
     cleaned = title.strip()
 
-    # ==================================
-    # 1. 따옴표 안의 제목 추출
-    # ==================================
-
-    quoted_patterns = [
-        r"[‘'“\"「『](.*?)[’'”\"」』]"
-    ]
-
-    for pattern in quoted_patterns:
-
-        matches = re.findall(
-            pattern,
-            cleaned
-        )
-
-        if matches:
-
-            # 가장 긴 문장을 제목으로 선택
-            candidate = max(
-                matches,
-                key=len
-            ).strip()
-
-            if candidate:
-                return candidate
-
-    # ==================================
-    # 2. Playlist 제목은 자동 추출하지 않음
-    # ==================================
-
-    if re.search(
-        r"\bplaylist\b",
-        cleaned,
-        flags=re.IGNORECASE
-    ):
+    # Playlist는 원본 제목을 유지
+    if re.search(r"\bplaylist\b", cleaned, flags=re.IGNORECASE):
         return cleaned
 
-    # ==================================
-    # 3. Cover 뒤쪽 제거
-    # ==================================
+    names = ["스텔라이브", "StelLive"]
 
+    for artist_name in artist_names or []:
+        artist_info = get_artist_info(artist_name)
+
+        names.extend([
+            artist_name,
+            artist_info.get("display", artist_name),
+            *artist_info.get("aliases", [])
+        ])
+
+    names = sorted(
+        {name for name in names if name},
+        key=len,
+        reverse=True
+    )
+
+    name_pattern = "|".join(
+        re.escape(name)
+        for name in names
+    )
+
+    # [하나코 나나] 같은 앞쪽 멤버 표기만 제거
+    if name_pattern:
+        cleaned = re.sub(
+            rf"^\s*[\[［(（]\s*(?:{name_pattern})\s*[\]］)）]\s*",
+            "",
+            cleaned,
+            flags=re.IGNORECASE
+        )
+
+    # Cover 이후의 크레딧 제거
     cleaned = re.split(
         r"\s*(?:cover|歌ってみた|カバー)\b",
         cleaned,
@@ -794,95 +779,33 @@ def clean_song_title(title, artist_names=None):
         flags=re.IGNORECASE
     )[0].strip()
 
-    # ==================================
-    # 4. 멤버명 / 본계명 뒤쪽 제거
-    # ==================================
-
-    names = []
-
-    if artist_names:
-
-        for artist_name in artist_names:
-
-            info = get_artist_info(artist_name)
-
-            names.append(artist_name)
-            names.append(
-                info.get(
-                    "display",
-                    artist_name
-                )
-            )
-
-            names.extend(
-                info.get(
-                    "aliases",
-                    []
-                )
-            )
-
-    names.extend(
-        [
-            "스텔라이브",
-            "StelLive"
-        ]
-    )
-
-    names = sorted(
-        set(names),
-        key=len,
-        reverse=True
-    )
-
-    if names:
-
-        name_pattern = "|".join(
-            re.escape(name)
-            for name in names
-            if name
-        )
-
-        # / 멤버명, - 멤버명, ㅣ멤버명 앞까지만 사용
+    # "/ 멤버명", "- 멤버명" 등 업로더/보컬 크레딧 제거
+    if name_pattern:
         cleaned = re.split(
-            rf"\s*(?:/|-|ㅣ)\s*"
-            rf"(?:.*?(?:{name_pattern})).*$",
+            rf"\s*(?:/|ㅣ|-)\s*.*?(?:{name_pattern}).*$",
             cleaned,
             maxsplit=1,
             flags=re.IGNORECASE
         )[0].strip()
 
-    # ==================================
-    # 5. 본체명 | '제목' 형식 처리
-    # ==================================
+    # 제목 뒤 원곡/작곡가 표기 제거:
+    # 모니터링 [モニタリング - DECO*27] → 모니터링
+    cleaned = re.sub(
+        r"\s*[\[［(（][^\]］)）]*[\]］)）]\s*$",
+        "",
+        cleaned
+    ).strip()
 
-    if "|" in cleaned:
+    # 닫히지 않은 대괄호도 남기지 않음
+    cleaned = re.sub(
+        r"\s*[\[［][^\]］]*$",
+        "",
+        cleaned
+    ).strip()
 
-        parts = [
-            part.strip()
-            for part in cleaned.split("|")
-        ]
-
-        # 본체/멤버 정보가 포함된 앞부분 제거
-        if len(parts) >= 2:
-
-            cleaned = parts[-1].strip()
-
-    # ==================================
-    # 6. 제목 앞뒤의 따옴표·괄호 제거
-    # ==================================
-
-    cleaned = cleaned.strip(
-        " \t-'\"'‘’“”「」『』"
+    return cleaned.strip(
+        " \t-'\"'‘’“”「」『』[]［］()（）"
     )
-
-    # 제목이 [제목] 형식이면 괄호 제거
-    if (
-        cleaned.startswith("[")
-        and cleaned.endswith("]")
-    ):
-        cleaned = cleaned[1:-1].strip()
-
-    return cleaned
 
 
 # =========================
@@ -902,26 +825,40 @@ def get_artist_info(artist_name):
 
 
 def get_artists_from_title(title):
-    """
-    영상 제목에서 참여 멤버를 찾는다.
-    여러 명이 나오면 전부 반환한다.
-    """
-
+    title_lower = title.lower()
     matched_artists = []
 
     for unit, artists in UNITS.items():
 
-        # 스텔라이브 본계는 여기서 제외
         if unit == "스텔라이브":
             continue
 
-        for artist_name, info in artists.items():
+        for artist_name, artist_info in artists.items():
 
-            # 멤버 이름이 제목에 있으면 참여 멤버로 판단
-            if artist_name in title:
+            aliases = [
+                artist_name,
+                artist_info.get("display", artist_name),
+                *artist_info.get("aliases", [])
+            ]
+
+            if any(
+                alias and alias.lower() in title_lower
+                for alias in aliases
+            ):
                 matched_artists.append(artist_name)
 
-    return matched_artists
+    return sort_artists_by_config_order(
+        list(dict.fromkeys(matched_artists))
+    )
+
+
+def is_excluded_stellive_video(title):
+    title_lower = title.lower()
+
+    return any(
+        alias.lower() in title_lower
+        for alias in STELLIVE_EXCLUDED_ARTIST_ALIASES
+    )
 
 
 # ======================
@@ -1061,7 +998,8 @@ def main():
         
         data[video_id] = {
             "title": title,
-            "artist": video.get("artist", ""),
+            "artist": artists[0],     # 기존 views.json 호환
+            "artists": artists,       # 실제 알림 대상 전체
             "unit": video.get("unit", ""),
             "views": views,
             "notified": list(set(notified)),

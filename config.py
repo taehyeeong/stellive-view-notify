@@ -59,6 +59,11 @@ MILESTONE_TEMPLATE = """
 """
 
 
+STELLIVE_EXCLUDED_ARTIST_ALIASES = [
+    "아이리 칸나",
+    "Airi Kanna",
+    "AIRIKANNA",
+]
 
 
 # 텔레그램 봇 유닛 버튼 설정
