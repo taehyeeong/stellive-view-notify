@@ -260,6 +260,16 @@ def is_excluded(title):
 # 플레이리스트
 # =========================
 
+def add_title_artists(video, title):
+
+    for artist_name in get_artists_from_title(title):
+
+        if artist_name not in video["artists"]:
+            video["artists"].append(artist_name)
+
+    video["artists"] = sort_artists_by_config_order(
+        video["artists"]
+    )
 
 def get_playlist_videos():
 
@@ -359,6 +369,11 @@ def get_playlist_videos():
                                         artist_name
                                     )
 
+                            add_title_artists(
+                                videos[video_id],
+                                title
+                            )
+
                         next_page = data.get(
                             "nextPageToken"
                         )
@@ -445,6 +460,11 @@ def get_playlist_videos():
                         # ----------------------------------
 
                         if video_id in videos:
+
+                            add_title_artists(
+                                videos[video_id],
+                                title
+                            )
 
                             videos[video_id]["is_stellive"] = False
 
@@ -825,6 +845,7 @@ def get_artist_info(artist_name):
 
 
 def get_artists_from_title(title):
+
     title_lower = title.lower()
     matched_artists = []
 
