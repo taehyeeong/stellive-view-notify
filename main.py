@@ -299,8 +299,7 @@ def is_excluded(title):
 
 def get_playlist_videos():
 
-    videos = []
-    seen = set()
+    videos = {}
 
     checked_artists = []
     checked_units = []
@@ -308,23 +307,23 @@ def get_playlist_videos():
     error_playlists = 0
 
     # ==========================================
-    # 1단계: 멤버 개인 재생목록
+    # 1단계
+    # 개인 재생목록 먼저 확인
     # ==========================================
 
-    normal_units = {
-        unit: artists
-        for unit, artists in UNITS.items()
-        if unit != "스텔라이브"
-    }
+    for unit, artists in UNITS.items():
 
-    for unit, artists in normal_units.items():
+        # 스텔라이브 본계는 나중에 확인
+        if unit == "스텔라이브":
+            continue
 
         if unit not in checked_units:
             checked_units.append(unit)
 
         for artist_name, info in artists.items():
 
-            checked_artists.append(artist_name)
+            if artist_name not in checked_artists:
+                checked_artists.append(artist_name)
 
             for playlist_id in info["playlists"]:
 
@@ -353,46 +352,52 @@ def get_playlist_videos():
 
                         for item in data.get("items", []):
 
-                            snippet = item["snippet"]
-
                             video_id = (
-                                snippet["resourceId"]["videoId"]
+                                item["snippet"]
+                                ["resourceId"]
+                                ["videoId"]
                             )
 
-                            title = snippet["title"]
-
-                            if video_id in seen:
-                                continue
+                            title = (
+                                item["snippet"]
+                                ["title"]
+                            )
 
                             if is_excluded(title):
                                 continue
 
-                            collab_artists = find_artists_from_title(title)
+                            # ----------------------------------
+                            # 처음 발견한 영상
+                            # ----------------------------------
 
-                            artist_names = [
-                                matched["artist"]
-                                for matched in collab_artists
-                            ]
+                            if video_id not in videos:
 
-                            if artist_name not in artist_names:
-                                artist_names.append(artist_name)
+                                videos[video_id] = {
+                                    "id": video_id,
+                                    "title": title,
+                                    "artists": [artist_name],
+                                    "unit": unit,
+                                    "is_stellive": False
+                                }
 
-                            artist_names = sort_artists_by_config_order(
-                                artist_names
-                            )
+                            # ----------------------------------
+                            # 다른 멤버 재생목록에도 있는 영상
+                            # ----------------------------------
 
-                            videos.append({
-                                "id": video_id,
-                                "title": title,
-                                "artist": artist_names[0],
-                                "artists": artist_names,
-                                "unit": unit,
-                                "playlist_id": playlist_id
-                            })
+                            else:
 
-                            seen.add(video_id)
+                                if (
+                                    artist_name
+                                    not in videos[video_id]["artists"]
+                                ):
 
-                        next_page = data.get("nextPageToken")
+                                    videos[video_id]["artists"].append(
+                                        artist_name
+                                    )
+
+                        next_page = data.get(
+                            "nextPageToken"
+                        )
 
                         if not next_page:
                             break
@@ -408,120 +413,139 @@ def get_playlist_videos():
                         f"❌ 내용:\n{e}"
                     )
 
+                    continue
+
+
     # ==========================================
-    # 2단계: 스텔라이브 본계 fallback
+    # 2단계
+    # 스텔라이브 본계 재생목록 확인
     # ==========================================
 
-    stellive_info = UNITS.get(
-        "스텔라이브",
-        {}
-    ).get(
+    stellive_artists = UNITS.get(
         "스텔라이브",
         {}
     )
 
-    if "스텔라이브" not in checked_units:
-        checked_units.append("스텔라이브")
+    for artist_name, info in stellive_artists.items():
 
-    for playlist_id in stellive_info.get("playlists", []):
+        if artist_name not in checked_artists:
+            checked_artists.append(artist_name)
 
-        checked_playlists += 1
+        if "스텔라이브" not in checked_units:
+            checked_units.append("스텔라이브")
 
-        try:
+        for playlist_id in info["playlists"]:
 
-            next_page = None
+            checked_playlists += 1
 
-            while True:
+            try:
 
-                params = {
-                    "part": "snippet",
-                    "playlistId": playlist_id,
-                    "maxResults": 50,
-                    "key": YOUTUBE_API_KEY
-                }
+                next_page = None
 
-                if next_page:
-                    params["pageToken"] = next_page
+                while True:
 
-                data = youtube_get(
-                    "https://www.googleapis.com/youtube/v3/playlistItems",
-                    params
+                    params = {
+                        "part": "snippet",
+                        "playlistId": playlist_id,
+                        "maxResults": 50,
+                        "key": YOUTUBE_API_KEY
+                    }
+
+                    if next_page:
+                        params["pageToken"] = next_page
+
+                    data = youtube_get(
+                        "https://www.googleapis.com/youtube/v3/playlistItems",
+                        params
+                    )
+
+                    for item in data.get("items", []):
+
+                        video_id = (
+                            item["snippet"]
+                            ["resourceId"]
+                            ["videoId"]
+                        )
+
+                        title = (
+                            item["snippet"]
+                            ["title"]
+                        )
+
+                        if is_excluded(title):
+                            continue
+
+                        # ----------------------------------
+                        # 이미 개인 재생목록에서 발견했다면
+                        # 개인 정보를 그대로 유지
+                        # ----------------------------------
+
+                        if video_id in videos:
+
+                            videos[video_id]["is_stellive"] = False
+
+                            continue
+
+                        # ----------------------------------
+                        # 개인 재생목록에는 없었던 영상
+                        # → 스텔라이브 영상으로 등록
+                        # ----------------------------------
+
+                        videos[video_id] = {
+                            "id": video_id,
+                            "title": title,
+                            "artists": ["스텔라이브"],
+                            "unit": "스텔라이브",
+                            "is_stellive": True
+                        }
+
+                    next_page = data.get(
+                        "nextPageToken"
+                    )
+
+                    if not next_page:
+                        break
+
+            except Exception as e:
+
+                error_playlists += 1
+
+                send_telegram(
+                    f"⚠️ 플레이리스트 오류\n\n"
+                    f"🎤 아티스트: {artist_name}\n"
+                    f"📁 Playlist ID: {playlist_id}\n\n"
+                    f"❌ 내용:\n{e}"
                 )
 
-                for item in data.get("items", []):
+                continue
 
-                    snippet = item["snippet"]
 
-                    video_id = (
-                        snippet["resourceId"]["videoId"]
-                    )
+    # ==========================================
+    # 리스트 형태로 변환
+    # ==========================================
 
-                    title = snippet["title"]
+    videos = list(videos.values())
 
-                    # 개인 재생목록에서 이미 발견된 영상이면 유지
-                    if video_id in seen:
-                        continue
 
-                    if is_excluded(title):
-                        continue
-
-                    # 제목으로 실제 멤버 판별
-                    collab_artists = find_artists_from_title(title)
-
-                    if not collab_artists:
-
-                        print(
-                            "⚠️ 본계 영상 아티스트 판별 실패:"
-                        )
-                        print(f"   영상 ID: {video_id}")
-                        print(f"   제목: {title}")
-
-                        continue
-
-                    artist_names = sort_artists_by_config_order(
-                        [
-                            item["artist"]
-                            for item in collab_artists
-                        ]
-                    )
-
-                    unit = collab_artists[0]["unit"]
-
-                    videos.append({
-                        "id": video_id,
-                        "title": title,
-                        "artist": artist_names[0],
-                        "artists": artist_names,
-                        "unit": unit,
-                        "playlist_id": playlist_id
-                    })
-
-                    seen.add(video_id)
-
-                next_page = data.get("nextPageToken")
-
-                if not next_page:
-                    break
-
-        except Exception as e:
-
-            error_playlists += 1
-
-            send_telegram(
-                f"⚠️ 본계 플레이리스트 오류\n\n"
-                f"📁 Playlist ID: {playlist_id}\n\n"
-                f"❌ 내용:\n{e}"
-            )
+    # ==========================================
+    # 결과 출력
+    # ==========================================
 
     print("===== Playlist 음악 영상 =====")
 
     for video in videos:
+
         print(
-            f"[{video['artist']}] "
+            f"[{', '.join(video['artists'])}] "
             f"{video['title']}"
         )
 
-    print("총", len(videos), "개")
+    print(
+        "총",
+        len(videos),
+        "개"
+    )
+
     print("============================")
 
     print(
@@ -634,12 +658,22 @@ def check_milestone(
     title,
     url,
     notified,
-    artist_info,
+    artist_infos,
     video_id
 ):
 
     alerts = []
     new_notified = []
+
+    keywords = " ".join(
+        info["keyword"]
+        for info in artist_infos
+    )
+
+    nicknames = " ".join(
+        info["nickname"]
+        for info in artist_infos
+    )
 
     old_step = old_views // VIEW_STEP
     new_step = views // VIEW_STEP
@@ -666,8 +700,8 @@ def check_milestone(
                 alerts.append(
                     {
                         "message": MILESTONE_TEMPLATE.format(
-                            keyword=artist_info["keyword"],
-                            nickname=artist_info["nickname"],
+                            keyword=keywords,
+                            nickname=nicknames,
                             title=title,
                             views_text=f"{count / 10000:g}만",
                             url=url
@@ -693,8 +727,8 @@ def check_milestone(
             alerts.append(
                 {
                     "message": MILESTONE_TEMPLATE.format(
-                        keyword=artist_info["keyword"],
-                        nickname=artist_info["nickname"],
+                        keyword=keywords,
+                        nickname=nicknames,
                         title=title,
                         views_text=f"{milestone / 10000:g}만",
                         url=url
@@ -869,6 +903,29 @@ def get_artist_info(artist_name):
     )
 
 
+def get_artists_from_title(title):
+    """
+    영상 제목에서 참여 멤버를 찾는다.
+    여러 명이 나오면 전부 반환한다.
+    """
+
+    matched_artists = []
+
+    for unit, artists in UNITS.items():
+
+        # 스텔라이브 본계는 여기서 제외
+        if unit == "스텔라이브":
+            continue
+
+        for artist_name, info in artists.items():
+
+            # 멤버 이름이 제목에 있으면 참여 멤버로 판단
+            if artist_name in title:
+                matched_artists.append(artist_name)
+
+    return matched_artists
+
+
 # ======================
 # 실행
 # ======================
@@ -913,30 +970,18 @@ def main():
         
         title = info["title"]
 
-        artist_names = video.get(
+        artists = video.get(
             "artists",
-            [video["artist"]]
+            [video.get("artist", "스텔라이브")]
         )
 
         display_title = clean_song_title(
             title,
-            artist_names
-        )
-
-        artist = video["artist"]
-
-        artist_names = video.get(
-            "artists",
-            [artist]
-        )
-
-        display_title = clean_song_title(
-            title,
-            artist_names
+            artists
         )
 
         artist_info = get_notification_artist_info(
-            artist_names
+            artists
         )
 
         url = (
@@ -959,7 +1004,7 @@ def main():
                 info["thumb"],
 
                 f"🆕 새로운 음악 영상 발견!\n\n"
-                f"👤 {artist}\n\n"
+                f"👤 {', '.join(artists)}\n\n"
                 f"🎵 {display_title}\n\n"
                 f"📊 현재 조회수: {views:,}회\n\n"
                 f"🔗 {url}"
