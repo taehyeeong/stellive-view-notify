@@ -636,6 +636,12 @@ def get_notification_artist_info(artist_names):
         for artist_name in artist_names
     ]
 
+    artist_infos = [
+        info
+        for info in artist_infos
+        if info is not None
+    ]
+
     return {
         "keyword": " ".join(
             info["keyword"]
@@ -647,7 +653,6 @@ def get_notification_artist_info(artist_names):
         )
     }
 
-
 # ======================
 # 알림 계산
 # ======================
@@ -658,22 +663,15 @@ def check_milestone(
     title,
     url,
     notified,
-    artist_infos,
+    artist_info,
     video_id
 ):
 
     alerts = []
     new_notified = []
 
-    keywords = " ".join(
-        info["keyword"]
-        for info in artist_infos
-    )
-
-    nicknames = " ".join(
-        info["nickname"]
-        for info in artist_infos
-    )
+    keywords = artist_info["keyword"]
+    nicknames = artist_info["nickname"]
 
     old_step = old_views // VIEW_STEP
     new_step = views // VIEW_STEP
