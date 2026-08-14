@@ -85,26 +85,6 @@ def send_telegram(message):
     print(response.text)
     print("========================")
 
-
-def send_notification(
-    message,
-    video_id=None
-):
-
-    if video_id:
-
-        send_telegram_photo(
-            message,
-            video_id
-        )
-
-    else:
-
-        send_telegram(
-            message
-        )
-
-
 def send_telegram_photo(message, video_id):
 
     url = (
@@ -131,6 +111,15 @@ def send_telegram_photo(message, video_id):
     print(response.status_code)
     print(response.text)
     print("==============================")
+
+    return response.ok
+
+def send_notification(message, video_id=None):
+
+    if video_id and send_telegram_photo(message, video_id):
+        return
+
+    send_telegram(message)
 
 
 def send_error(error):
