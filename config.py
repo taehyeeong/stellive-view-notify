@@ -55,7 +55,7 @@ MILESTONE_TEMPLATE = """
 {nickname}
 
 『 {title} 』 {views_text} 축하해 !!
-{url}
+Full : {url}
 """
 
 
