@@ -1,4 +1,5 @@
 import dataclasses
+import dataclasses
 import os
 import json
 import requests
@@ -39,6 +40,8 @@ TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 # ======================
 
 DATA_FILE = "views.json"
+# 조회수 변화 기록
+HISTORY_LIMIT = 30
 
 
 def load_data():
@@ -625,6 +628,203 @@ def get_view_counts(video_ids):
 
 
 # ======================
+# 조회수 성장 분석
+# ======================
+
+def get_growth_stats(history, current_views):
+    """
+    조회수 history를 이용해 최근 성장 속도를 계산한다.
+
+    반환:
+        daily_1d   : 최근 1일 일평균 증가량
+        daily_3d   : 최근 3일 일평균 증가량
+        daily_7d   : 최근 7일 일평균 증가량
+        daily_avg  : 가중 평균 일일 증가량
+        remaining  : 다음 5만 단위까지 남은 조회수
+        eta_days   : 예상 달성 일수
+    """
+
+    if not isinstance(history, list):
+        return {
+            "daily_1d": 0,
+            "daily_3d": 0,
+            "daily_7d": 0,
+            "daily_avg": 0,
+            "remaining": 0,
+            "eta_days": None
+        }
+
+    if len(history) < 2:
+        return {
+            "daily_1d": 0,
+            "daily_3d": 0,
+            "daily_7d": 0,
+            "daily_avg": 0,
+            "remaining": 0,
+            "eta_days": None
+        }
+
+    # ----------------------
+    # history 정리
+    # ----------------------
+
+    points = []
+
+    for item in history:
+
+        try:
+
+            views = int(item["views"])
+
+            updated = datetime.strptime(
+                item["updated"],
+                "%Y-%m-%d %H:%M:%S"
+            ).replace(
+                tzinfo=KST
+            )
+
+            points.append(
+                (updated, views)
+            )
+
+        except Exception:
+            continue
+
+    if len(points) < 2:
+        return {
+            "daily_1d": 0,
+            "daily_3d": 0,
+            "daily_7d": 0,
+            "daily_avg": 0,
+            "remaining": 0,
+            "eta_days": None
+        }
+
+    points.sort(
+        key=lambda x: x[0]
+    )
+
+    now = datetime.now(KST)
+
+    # ----------------------
+    # 기간별 증가량 계산
+    # ----------------------
+
+    def get_daily_rate(days):
+
+        cutoff = now - timedelta(
+            days=days
+        )
+
+        recent = [
+            point
+            for point in points
+            if point[0] >= cutoff
+        ]
+
+        if len(recent) < 2:
+            return 0
+
+        start_time, start_views = recent[0]
+        end_time, end_views = recent[-1]
+
+        elapsed = (
+            end_time - start_time
+        ).total_seconds()
+
+        if elapsed <= 0:
+            return 0
+
+        increase = (
+            end_views - start_views
+        )
+
+        # 조회수가 감소한 경우는 성장속도 0으로 처리
+        if increase <= 0:
+            return 0
+
+        return (
+            increase
+            / (elapsed / 86400)
+        )
+
+    daily_1d = get_daily_rate(1)
+    daily_3d = get_daily_rate(3)
+    daily_7d = get_daily_rate(7)
+
+    # ----------------------
+    # 가중 평균
+    #
+    # 최근 데이터일수록 중요하게 봄
+    # ----------------------
+
+    rates = []
+    weights = []
+
+    if daily_1d > 0:
+        rates.append(daily_1d)
+        weights.append(0.5)
+
+    if daily_3d > 0:
+        rates.append(daily_3d)
+        weights.append(0.3)
+
+    if daily_7d > 0:
+        rates.append(daily_7d)
+        weights.append(0.2)
+
+    if rates:
+
+        daily_avg = (
+            sum(
+                rate * weight
+                for rate, weight
+                in zip(rates, weights)
+            )
+            / sum(weights)
+        )
+
+    else:
+
+        daily_avg = 0
+
+    # ----------------------
+    # 다음 5만 단위 계산
+    # ----------------------
+
+    next_target = (
+        (current_views // VIEW_STEP) + 1
+    ) * VIEW_STEP
+
+    remaining = (
+        next_target - current_views
+    )
+
+    # ----------------------
+    # 예상 달성 시간
+    # ----------------------
+
+    if daily_avg > 0:
+
+        eta_days = (
+            remaining / daily_avg
+        )
+
+    else:
+
+        eta_days = None
+
+    return {
+        "daily_1d": daily_1d,
+        "daily_3d": daily_3d,
+        "daily_7d": daily_7d,
+        "daily_avg": daily_avg,
+        "remaining": remaining,
+        "eta_days": eta_days
+    }
+
+
+# ======================
 # 알림용 정보 생성
 # ======================
 
@@ -965,6 +1165,60 @@ def main():
             views
         )
 
+        # ======================
+        # 조회수 history 기록
+        # ======================
+
+        video_data = data.get(
+            video_id,
+            {}
+        )
+
+        history = video_data.get(
+            "history",
+            []
+        )
+
+        # 기존 history가 잘못된 형식이면 초기화
+        if not isinstance(history, list):
+            history = []
+
+        # 현재 조회수 기록 추가
+        history.append({
+            "views": views,
+            "updated": str(now_kst())
+        })
+
+        # 최근 기록만 유지
+        history = history[-HISTORY_LIMIT:]
+
+
+        growth = get_growth_stats(
+            history,
+            views
+        )
+
+
+      ## test ##
+      
+        if growth["eta_days"] is not None:
+            eta_text = f"{growth['eta_days']:.2f}일"
+        else:
+            eta_text = "계산 불가"
+
+        print(
+            f"📊 {title}\n"
+            f"   현재 조회수: {views:,}\n"
+            f"   다음 목표까지: {growth['remaining']:,}회\n"
+            f"   1일 속도: {growth['daily_1d']:,.0f}/일\n"
+            f"   3일 속도: {growth['daily_3d']:,.0f}/일\n"
+            f"   7일 속도: {growth['daily_7d']:,.0f}/일\n"
+            f"   예상 속도: {growth['daily_avg']:,.0f}/일\n"
+            f"   예상 달성: {eta_text}"
+        )
+        
+      ## test end ##
+
 
         if is_new:
 
@@ -1012,6 +1266,7 @@ def main():
             "artists": artists,       # 실제 알림 대상 전체
             "unit": video.get("unit", ""),
             "views": views,
+            "history": history,           # 조회수 변화 기록
             "notified": list(set(notified)),
             "updated": str(now_kst())
         }
