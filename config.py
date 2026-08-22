@@ -194,7 +194,7 @@ UNITS = {
             "channel": "@akanelize",
             "display": "아카네 리제",
             "keyword": "#Lize_daze",
-            "nickname": "맂제야",
+            "nickname": "리제야",
 
             "aliases": [
                 "아카네 리제",
