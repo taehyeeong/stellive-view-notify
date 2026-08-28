@@ -2,58 +2,60 @@ name: YouTube View Monitor
 
 on:
   schedule:
-    # 매시간 17분 실행
-    - cron: "17 * * * *"
+    # 매시간 43분에 실행
+    - cron: "43 * * * *"
 
-  # 수동 실행 버튼
+  # 수동 실행
   workflow_dispatch:
 
+# 동시에 두 번 실행되는 것 방지
+concurrency:
+  group: youtube-view-monitor
+  cancel-in-progress: false
+
+# 저장된 view 데이터 커밋을 허용
+permissions:
+  contents: write
 
 jobs:
   monitor:
-
     runs-on: ubuntu-latest
 
+    # 비정상적으로 오래 걸리는 경우 중단
+    timeout-minutes: 5
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
-
       - name: Setup Python
         uses: actions/setup-python@v5
-
         with:
           python-version: "3.12"
-
 
       - name: Install packages
         run: |
           pip install -r requirements.txt
-
 
       - name: Run monitor
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-
         run: |
           python main.py
 
-
       - name: Save views
         uses: stefanzweifel/git-auto-commit-action@v5
-
         with:
           commit_message: Update view count data
 
-        
       - name: Send Telegram failure alert
         if: failure()
-
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-          -d text="⚠️ YouTube Notify GitHub Actions 실패 발생"
+          curl -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            -d text="⚠️ YouTube Notify GitHub Actions 실패 발생"
