@@ -824,6 +824,40 @@ def get_growth_stats(history, current_views):
     }
 
 
+def calculate_growth_score(views, growth):
+    """
+    다음 5만 단위 조회수 달성 가능성을 점수화
+    """
+
+    remaining = growth["remaining"]
+    daily_avg = growth["daily_avg"]
+
+    if daily_avg <= 0:
+        return 0
+
+    # 다음 5만 단위까지 예상 일수
+    eta_days = remaining / daily_avg
+
+    # 가까울수록 높은 점수
+    distance_score = max(
+        0,
+        100 - (eta_days * 10)
+    )
+
+    # 조회수 증가 속도 점수
+    speed_score = min(
+        100,
+        daily_avg / 10000
+    )
+
+    # 최종 점수
+    score = (
+        distance_score * 0.6
+        + speed_score * 0.4
+    )
+
+    return round(score, 2)
+
 # ======================
 # 알림용 정보 생성
 # ======================
@@ -1197,6 +1231,25 @@ def main():
             history,
             views
         )
+
+        score = calculate_growth_score(
+            views,
+            growth
+        )
+
+        print(
+            f"📊 {title}\n"
+            f"   현재 조회수: {views:,}\n"
+            f"   다음 목표까지: {growth['remaining']:,}회\n"
+            f"   1일 속도: {growth['daily_1d']:,.0f}/일\n"
+            f"   3일 속도: {growth['daily_3d']:,.0f}/일\n"
+            f"   7일 속도: {growth['daily_7d']:,.0f}/일\n"
+            f"   예상 속도: {growth['daily_avg']:,.0f}/일\n"
+            f"   예상 달성: {growth['eta_days']:.2f}일\n"
+            f"   성장 점수: {score}"
+        )
+
+
 
 
       ## test ##
