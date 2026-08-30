@@ -1,5 +1,6 @@
 import dataclasses
 import dataclasses
+import dataclasses
 import os
 import json
 import requests
@@ -1315,27 +1316,6 @@ def main():
 
 
 
-      ## test ##
-      
-        if growth["eta_days"] is not None:
-            eta_text = f"{growth['eta_days']:.2f}일"
-        else:
-            eta_text = "계산 불가"
-
-        print(
-            f"📊 {title}\n"
-            f"   현재 조회수: {views:,}\n"
-            f"   다음 목표까지: {growth['remaining']:,}회\n"
-            f"   1일 속도: {growth['daily_1d']:,.0f}/일\n"
-            f"   3일 속도: {growth['daily_3d']:,.0f}/일\n"
-            f"   7일 속도: {growth['daily_7d']:,.0f}/일\n"
-            f"   예상 속도: {growth['daily_avg']:,.0f}/일\n"
-            f"   예상 달성: {eta_text}"
-        )
-        
-      ## test end ##
-
-
         if is_new:
 
             messages = []
@@ -1375,6 +1355,18 @@ def main():
                 + new_notified
             )
         
+        # 조회수 history 누적
+        history = data.get(video_id, {}).get("history", [])
+
+        history.append({
+            "views": views,
+            "updated": now_kst()
+        })
+
+        # 최근 7일 정도만 유지
+        history = history[-200:]
+
+
         
         data[video_id] = {
             "title": title,
@@ -1382,6 +1374,7 @@ def main():
             "artists": video.get("artists", []),
             "unit": video.get("unit", ""),
             "views": views,
+            "history": history,
 
             "growth": {
                 "remaining": growth["remaining"],
