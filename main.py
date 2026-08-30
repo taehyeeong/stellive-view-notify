@@ -975,6 +975,53 @@ def check_milestone(
     return alerts, new_notified
 
 
+
+# ======================
+# 성장 가능성 높은 영상 선정
+# ======================
+
+def get_top_growth_videos(data, limit=20):
+
+    candidates = []
+
+    for video_id, info in data.items():
+
+        score = info.get(
+            "growth_score",
+            0
+        )
+
+        views = info.get(
+            "views",
+            0
+        )
+
+        # 성장 데이터가 없는 예전 영상은 제외
+        if "growth" not in info:
+            continue
+
+        candidates.append({
+            "video_id": video_id,
+            "title": info.get("title", ""),
+            "artist": info.get("artist", ""),
+            "unit": info.get("unit", ""),
+            "views": views,
+            "score": score,
+            "eta_days": info["growth"].get(
+                "eta_days"
+            )
+        })
+
+    # 점수가 높은 순서
+    candidates.sort(
+        key=lambda x: x["score"],
+        reverse=True
+    )
+
+    return candidates[:limit]
+
+
+
 def clean_song_title(title, artist_names=None):
 
     cleaned = title.strip()
@@ -1315,11 +1362,22 @@ def main():
         
         data[video_id] = {
             "title": title,
-            "artist": artists[0],     # 기존 views.json 호환
-            "artists": artists,       # 실제 알림 대상 전체
+            "artist": video.get("artist", ""),
+            "artists": video.get("artists", []),
             "unit": video.get("unit", ""),
             "views": views,
-            "history": history,           # 조회수 변화 기록
+
+            "growth": {
+                "remaining": growth["remaining"],
+                "daily_1d": growth["daily_1d"],
+                "daily_3d": growth["daily_3d"],
+                "daily_7d": growth["daily_7d"],
+                "daily_avg": growth["daily_avg"],
+                "eta_days": growth["eta_days"]
+            },
+
+            "growth_score": score,
+
             "notified": list(set(notified)),
             "updated": str(now_kst())
         }
@@ -1343,6 +1401,36 @@ def main():
         f"🆕 새 영상: {new_videos}개\n\n"
         f"상태: {status}"
     )
+
+    # ======================
+    # 성장 가능성 높은 영상
+    # ======================
+
+    top_videos = get_top_growth_videos(
+        data,
+        limit=20
+    )
+
+    print("===== 성장 가능성 TOP 20 =====")
+
+    for rank, video in enumerate(
+        top_videos,
+        start=1
+    ):
+
+        print(
+            f"{rank}. "
+            f"[{video['score']}점] "
+            f"[{video['artist']}] "
+            f"{video['title']} "
+            f"({video['views']:,}회)"
+        )
+
+    print("==============================")
+
+
+
+
     save_data(data)
 
 
