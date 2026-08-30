@@ -631,196 +631,109 @@ def get_view_counts(video_ids):
 # 조회수 성장 분석
 # ======================
 
-def get_growth_stats(history, current_views):
-    """
-    조회수 history를 이용해 최근 성장 속도를 계산한다.
 
-    반환:
-        daily_1d   : 최근 1일 일평균 증가량
-        daily_3d   : 최근 3일 일평균 증가량
-        daily_7d   : 최근 7일 일평균 증가량
-        daily_avg  : 가중 평균 일일 증가량
-        remaining  : 다음 5만 단위까지 남은 조회수
-        eta_days   : 예상 달성 일수
-    """
-
-    if not isinstance(history, list):
-        return {
-            "daily_1d": 0,
-            "daily_3d": 0,
-            "daily_7d": 0,
-            "daily_avg": 0,
-            "remaining": 0,
-            "eta_days": None
-        }
-
-    if len(history) < 2:
-        return {
-            "daily_1d": 0,
-            "daily_3d": 0,
-            "daily_7d": 0,
-            "daily_avg": 0,
-            "remaining": 0,
-            "eta_days": None
-        }
-
-    # ----------------------
-    # history 정리
-    # ----------------------
-
-    points = []
-
-    for item in history:
-
-        try:
-
-            views = int(item["views"])
-
-            updated = datetime.strptime(
-                item["updated"],
-                "%Y-%m-%d %H:%M:%S"
-            ).replace(
-                tzinfo=KST
-            )
-
-            points.append(
-                (updated, views)
-            )
-
-        except Exception:
-            continue
-
-    if len(points) < 2:
-        return {
-            "daily_1d": 0,
-            "daily_3d": 0,
-            "daily_7d": 0,
-            "daily_avg": 0,
-            "remaining": 0,
-            "eta_days": None
-        }
-
-    points.sort(
-        key=lambda x: x[0]
-    )
+def get_growth_stats(history, views):
 
     now = datetime.now(KST)
 
-    # ----------------------
-    # 기간별 증가량 계산
-    # ----------------------
+    def get_views_at(days):
+        target = now - timedelta(days=days)
 
-    def get_daily_rate(days):
+        candidates = []
 
-        cutoff = now - timedelta(
-            days=days
+        for item in history:
+            try:
+                updated = datetime.strptime(
+                    item["updated"],
+                    "%Y-%m-%d %H:%M:%S"
+                ).replace(tzinfo=KST)
+
+                if updated <= target:
+                    candidates.append(
+                        (updated, item["views"])
+                    )
+
+            except Exception:
+                continue
+
+        if not candidates:
+            return None
+
+        candidates.sort(
+            key=lambda x: x[0],
+            reverse=True
         )
 
-        recent = [
-            point
-            for point in points
-            if point[0] >= cutoff
-        ]
+        return candidates[0][1]
 
-        if len(recent) < 2:
+    views_1d = get_views_at(1)
+    views_3d = get_views_at(3)
+    views_7d = get_views_at(7)
+
+    def daily_speed(old_views, days):
+        if old_views is None:
             return 0
 
-        start_time, start_views = recent[0]
-        end_time, end_views = recent[-1]
+        increase = views - old_views
 
-        elapsed = (
-            end_time - start_time
-        ).total_seconds()
-
-        if elapsed <= 0:
-            return 0
-
-        increase = (
-            end_views - start_views
-        )
-
-        # 조회수가 감소한 경우는 성장속도 0으로 처리
         if increase <= 0:
             return 0
 
-        return (
-            increase
-            / (elapsed / 86400)
-        )
+        return increase / days
 
-    daily_1d = get_daily_rate(1)
-    daily_3d = get_daily_rate(3)
-    daily_7d = get_daily_rate(7)
+    daily_1d = daily_speed(views_1d, 1)
+    daily_3d = daily_speed(views_3d, 3)
+    daily_7d = daily_speed(views_7d, 7)
 
-    # ----------------------
-    # 가중 평균
-    #
-    # 최근 데이터일수록 중요하게 봄
-    # ----------------------
+    speeds = [
+        speed
+        for speed in [
+            daily_1d,
+            daily_3d,
+            daily_7d
+        ]
+        if speed > 0
+    ]
 
-    rates = []
-    weights = []
-
-    if daily_1d > 0:
-        rates.append(daily_1d)
-        weights.append(0.5)
-
-    if daily_3d > 0:
-        rates.append(daily_3d)
-        weights.append(0.3)
-
-    if daily_7d > 0:
-        rates.append(daily_7d)
-        weights.append(0.2)
-
-    if rates:
-
+    if speeds:
         daily_avg = (
-            sum(
-                rate * weight
-                for rate, weight
-                in zip(rates, weights)
-            )
-            / sum(weights)
+            daily_1d * 0.50
+            + daily_3d * 0.30
+            + daily_7d * 0.20
         )
-
     else:
-
         daily_avg = 0
 
-    # ----------------------
-    # 다음 5만 단위 계산
-    # ----------------------
-
+    # 다음 5만 단위 목표
     next_target = (
-        (current_views // VIEW_STEP) + 1
+        (views // VIEW_STEP) + 1
     ) * VIEW_STEP
 
-    remaining = (
-        next_target - current_views
-    )
+    remaining = next_target - views
 
-    # ----------------------
     # 예상 달성 시간
-    # ----------------------
-
     if daily_avg > 0:
-
-        eta_days = (
-            remaining / daily_avg
-        )
-
+        eta_days = remaining / daily_avg
     else:
+        eta_days = float("inf")
 
-        eta_days = None
+    # 최근 속도가 장기 속도보다 빨라지고 있는지
+    if daily_7d > 0:
+        acceleration = (
+            daily_1d / daily_7d
+        )
+    else:
+        acceleration = 1.0
 
     return {
         "daily_1d": daily_1d,
         "daily_3d": daily_3d,
         "daily_7d": daily_7d,
         "daily_avg": daily_avg,
+        "next_target": next_target,
         "remaining": remaining,
-        "eta_days": eta_days
+        "eta_days": eta_days,
+        "acceleration": acceleration
     }
 
 
@@ -830,33 +743,133 @@ def calculate_growth_score(views, growth):
     """
 
     remaining = growth["remaining"]
-    daily_avg = growth["daily_avg"]
 
-    if daily_avg <= 0:
+    daily_1d = growth["daily_1d"]
+    daily_3d = growth["daily_3d"]
+    daily_7d = growth["daily_7d"]
+
+    acceleration = growth["acceleration"]
+
+
+    # ==================================
+    # 1. 최근 조회수 증가 속도
+    # ==================================
+
+    # 최근 1일을 가장 중요하게 봄
+    speed = (
+        daily_1d * 0.50
+        + daily_3d * 0.30
+        + daily_7d * 0.20
+    )
+
+
+    if speed <= 0:
         return 0
 
-    # 다음 5만 단위까지 예상 일수
-    eta_days = remaining / daily_avg
 
-    # 가까울수록 높은 점수
-    distance_score = max(
-        0,
-        100 - (eta_days * 10)
+    # ==================================
+    # 2. 다음 목표까지 남은 거리
+    # ==================================
+
+    # 5만 단위 안에서 얼마나 진행됐는지
+    progress = (
+        1
+        - (remaining / VIEW_STEP)
     )
 
-    # 조회수 증가 속도 점수
+    progress = max(
+        0,
+        min(1, progress)
+    )
+
+
+    # 가까울수록 급격하게 높은 점수
+    distance_score = (
+        progress ** 2
+    ) * 100
+
+
+    # ==================================
+    # 3. 실제 예상 달성 시간
+    # ==================================
+
+    eta_days = remaining / speed
+
+
+    # 1일 이내 달성 가능성을 특히 높게 평가
+    if eta_days <= 1:
+        eta_score = 100
+
+    elif eta_days <= 3:
+        eta_score = (
+            100
+            - (eta_days - 1) * 20
+        )
+
+    elif eta_days <= 7:
+        eta_score = (
+            60
+            - (eta_days - 3) * 8
+        )
+
+    else:
+        eta_score = max(
+            0,
+            28 - (eta_days - 7) * 2
+        )
+
+
+    eta_score = max(
+        0,
+        min(100, eta_score)
+    )
+
+
+    # ==================================
+    # 4. 조회수 상승 속도 점수
+    # ==================================
+
+    # 하루 10만 증가 = 100점
     speed_score = min(
         100,
-        daily_avg / 10000
+        speed / 1000
     )
 
+
+    # ==================================
+    # 5. 상승세 보너스
+    # ==================================
+
+    acceleration_bonus = 0
+
+    if acceleration > 1.2:
+        acceleration_bonus = 10
+
+    elif acceleration > 1.05:
+        acceleration_bonus = 5
+
+    elif acceleration < 0.7:
+        acceleration_bonus = -10
+
+
+    # ==================================
     # 최종 점수
+    # ==================================
+
     score = (
-        distance_score * 0.6
-        + speed_score * 0.4
+        distance_score * 0.35
+        + eta_score * 0.40
+        + speed_score * 0.20
+        + acceleration_bonus
     )
 
-    return round(score, 2)
+
+    return round(
+        max(0, min(100, score)),
+        2
+    )
+
+
 
 # ======================
 # 알림용 정보 생성
@@ -985,6 +998,9 @@ def get_top_growth_videos(data, limit=20):
     candidates = []
 
     for video_id, info in data.items():
+
+        if video_id.startswith("_"):
+            continue
 
         score = info.get(
             "growth_score",
@@ -1410,6 +1426,37 @@ def main():
         data,
         limit=20
     )
+
+    data["_growth_playlist"] = {
+        "updated": str(now_kst()),
+        "videos": [
+            {
+                "video_id": video["video_id"],
+                "title": video["title"],
+                "artist": video["artist"],
+                "views": video["views"],
+                "score": video["score"],
+                "eta_days": video["eta_days"]
+            }
+            for video in top_videos
+        ]
+    }
+
+
+    data["_growth_playlist"] = {
+        "updated": str(now_kst()),
+        "videos": [
+            {
+                "video_id": video["video_id"],
+                "title": video["title"],
+                "artist": video["artist"],
+                "views": video["views"],
+                "score": video["score"],
+                "eta_days": video["eta_days"]
+            }
+            for video in top_videos
+        ]
+    }
 
     print("===== 성장 가능성 TOP 20 =====")
 
