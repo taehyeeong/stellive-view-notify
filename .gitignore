@@ -1,2 +1,7 @@
 .env
 last_run_id.txt
+client_secret.json
+
+client_secret_*.json
+
+oauth_setup.py
