@@ -1,10 +1,14 @@
 import dataclasses
+import dataclasses
+import dataclasses
 import os
 import json
 import requests
-import time
 import re
+import time
 from datetime import datetime, timezone, timedelta
+
+from requests import RequestException
 
 
 KST = timezone(timedelta(hours=9))
@@ -179,17 +183,96 @@ def get_reached_milestones(views):
 # YouTube API
 # ======================
 
-def youtube_get(url, params):
+def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
+    """YouTube API 요청. 일시 오류는 exponential backoff로 재시도하고 quota 초과는 즉시 알림."""
 
-    r = requests.get(
-        url,
-        params=params,
-        timeout=10
-    )
+    for attempt in range(max_retries + 1):
+        try:
+            response = requests.get(
+                url,
+                params=params,
+                timeout=10
+            )
+        except RequestException as e:
+            if attempt < max_retries:
+                wait = 2 ** attempt
+                print(
+                    f"⚠️ YouTube 네트워크 오류: {description} "
+                    f"→ {wait}초 후 재시도 ({attempt + 1}/{max_retries})"
+                )
+                time.sleep(wait)
+                continue
 
-    r.raise_for_status()
+            message = (
+                "⚠️ YouTube API 요청 실패\n\n"
+                f"🕒 시간: {now_kst()}\n"
+                f"📌 요청: {description}\n"
+                f"❌ 내용: {e}\n\n"
+                "🔁 자동 재시도를 모두 소진했습니다."
+            )
+            send_telegram(message)
+            raise
 
-    return r.json()
+        # quota 초과는 재시도하지 않음
+        if response.status_code == 403:
+            try:
+                error_data = response.json()
+                reasons = [
+                    error.get("reason", "")
+                    for error in error_data.get("error", {}).get("errors", [])
+                ]
+            except Exception:
+                reasons = []
+
+            if (
+                any(reason in {"quotaExceeded", "dailyLimitExceeded"} for reason in reasons)
+                or "quotaExceeded" in response.text
+                or "dailyLimitExceeded" in response.text
+            ):
+                message = (
+                    "🚨 YouTube API quota 초과\n\n"
+                    f"🕒 시간: {now_kst()}\n"
+                    f"📌 요청: {description}\n\n"
+                    "⛔ 오늘의 API quota가 초과되어 실행을 중단했습니다."
+                )
+                print(message)
+                send_telegram(message)
+                raise RuntimeError("YouTube API quotaExceeded")
+
+        # YouTube 서버의 일시적인 오류는 재시도
+        if response.status_code in {409, 500, 502, 503, 504}:
+            if attempt < max_retries:
+                wait = 2 ** attempt
+                print(
+                    f"⚠️ YouTube API 일시 오류 {response.status_code}: "
+                    f"{description} → {wait}초 후 재시도 "
+                    f"({attempt + 1}/{max_retries})"
+                )
+                time.sleep(wait)
+                continue
+
+            message = (
+                "⚠️ YouTube API 일시 오류 반복\n\n"
+                f"🕒 시간: {now_kst()}\n"
+                f"📌 요청: {description}\n"
+                f"❌ HTTP {response.status_code}\n\n"
+                "🔁 자동 재시도를 모두 소진했습니다."
+            )
+            print(message)
+            send_telegram(message)
+            raise RuntimeError(
+                f"YouTube API 일시 오류 {response.status_code}: {description}"
+            )
+
+        # 그 외 HTTP 오류
+        try:
+            response.raise_for_status()
+        except RequestException as e:
+            raise RuntimeError(
+                f"YouTube API 오류: HTTP {response.status_code}: {description}: {e}"
+            ) from e
+
+        return response.json()
 
 
 # 채널 ID 가져오기
@@ -313,7 +396,8 @@ def get_playlist_videos():
 
                         data = youtube_get(
                             "https://www.googleapis.com/youtube/v3/playlistItems",
-                            params
+                            params,
+                            f"개인 재생목록 조회: {playlist_id}"
                         )
 
                         for item in data.get("items", []):
@@ -427,7 +511,8 @@ def get_playlist_videos():
 
                     data = youtube_get(
                         "https://www.googleapis.com/youtube/v3/playlistItems",
-                        params
+                        params,
+                        f"스텔라이브 재생목록 조회: {playlist_id}"
                     )
 
                     for item in data.get("items", []):
@@ -993,15 +1078,24 @@ def check_milestone(
 # 성장 가능성 높은 영상 선정
 # ======================
 
-def get_top_growth_videos(data):
+def get_top_growth_videos(data, limit=20):
+
     candidates = []
 
     for video_id, info in data.items():
+
         if video_id.startswith("_"):
             continue
 
-        score = info.get("growth_score", 0)
-        views = info.get("views", 0)
+        score = info.get(
+            "growth_score",
+            0
+        )
+
+        views = info.get(
+            "views",
+            0
+        )
 
         # 성장 데이터가 없는 예전 영상은 제외
         if "growth" not in info:
@@ -1025,13 +1119,21 @@ def get_top_growth_videos(data):
         reverse=True
     )
 
-    return candidates
+    return candidates[:limit]
 
 
 
 def clean_song_title(title, artist_names=None):
 
     cleaned = title.strip()
+
+    # 영상 앞에 붙는 4K / 4K60 / 4K 60FPS 등의 촬영/화질 표기 제거
+    cleaned = re.sub(
+        r"^\s*(?:\[?\s*)4k(?:\s*[-_]?\s*(?:60(?:fps)?|120(?:fps)?))?(?:\s*\]?\s*)[|:/_-]?\s*",
+        "",
+        cleaned,
+        flags=re.IGNORECASE
+    )
 
     # Playlist는 원본 제목을 유지
     if re.search(r"\bplaylist\b", cleaned, flags=re.IGNORECASE):
@@ -1057,20 +1159,6 @@ def clean_song_title(title, artist_names=None):
     name_pattern = "|".join(
         re.escape(name)
         for name in names
-    )
-
-    # 앞쪽 화질 표기 제거: [4K], 4K, [4K60], 4K 60FPS 등
-    cleaned = re.sub(
-        r"^\s*\[\s*4k(?:\s*[-_ ]?\s*(?:60|120)\s*(?:fps)?)?\s*\]\s*[-|:/_]*\s*",
-        "",
-        cleaned,
-        flags=re.IGNORECASE
-    )
-    cleaned = re.sub(
-        r"^\s*4k(?:\s*[-_ ]?\s*(?:60|120)\s*(?:fps)?)?\s*[-|:/_]+\s*",
-        "",
-        cleaned,
-        flags=re.IGNORECASE
     )
 
     # [하나코 나나] 같은 앞쪽 멤버 표기만 제거
@@ -1156,7 +1244,9 @@ def get_artists_from_title(title):
             ]
 
             if any(
-                alias and alias.lower() in title_lower
+                isinstance(alias, str)
+                and alias.strip()
+                and alias.strip().lower() in title_lower
                 for alias in aliases
             ):
                 matched_artists.append(artist_name)
@@ -1169,9 +1259,20 @@ def get_artists_from_title(title):
 def is_excluded_stellive_video(title):
     title_lower = title.lower()
 
+    excluded_aliases = list(STELLIVE_EXCLUDED_ARTIST_ALIASES)
+
+    # 아이리 칸나는 졸업생이므로 공식 스텔라이브 재생목록에 있어도
+    # 스텔라이브 집계/알림 대상으로 가져오지 않는다.
+    excluded_aliases.extend([
+        "아이리 칸나",
+        "아이리칸나",
+        "Airi Kanna",
+        "AiriKanna",
+    ])
+
     return any(
-        alias.lower() in title_lower
-        for alias in STELLIVE_EXCLUDED_ARTIST_ALIASES
+        alias and alias.lower() in title_lower
+        for alias in excluded_aliases
     )
 
 
@@ -1224,9 +1325,12 @@ def main():
             [video.get("artist", "스텔라이브")]
         )
 
-        saved_title = data.get(video_id, {}).get("title")
-        if saved_title:
-            display_title = saved_title
+        # 이미 views.json에 저장된 제목은 사용자가 직접 수정했을 수도 있으므로
+        # 절대 다시 필터링/덮어쓰기하지 않는다.
+        stored_title = data.get(video_id, {}).get("title")
+
+        if isinstance(stored_title, str) and stored_title.strip():
+            display_title = stored_title.strip()
         else:
             display_title = clean_song_title(
                 title,
@@ -1312,7 +1416,7 @@ def main():
         )
 
         print(
-            f"📊 {title}\n"
+            f"📊 {display_title}\n"
             f"   현재 조회수: {views:,}\n"
             f"   다음 목표까지: {growth['remaining']:,}회\n"
             f"   1일 속도: {growth['daily_1d']:,.0f}/일\n"
@@ -1365,9 +1469,23 @@ def main():
                 + new_notified
             )
         
+        # 조회수 history 누적
+        history = data.get(video_id, {}).get("history", [])
+
+        history.append({
+            "views": views,
+            "updated": now_kst()
+        })
+
+        # 최근 7일 정도만 유지
+        history = history[-200:]
+
+
+        
         data[video_id] = {
-            # 신규 영상은 최초 정리 제목을 저장하고, 기존 영상은 저장된 제목을 보존
-            "title": video_data.get("title") or display_title,
+            # 첫 발견 시 필터링된 제목을 저장하고, 이후에는 저장된 제목만 사용
+            # 사용자가 views.json에서 직접 수정한 제목도 그대로 보존한다.
+            "title": display_title,
             "artist": video.get("artist", ""),
             "artists": video.get("artists", []),
             "unit": video.get("unit", ""),
@@ -1413,7 +1531,10 @@ def main():
     # 성장 가능성 높은 영상
     # ======================
 
-    top_videos = get_top_growth_videos(data)
+    top_videos = get_top_growth_videos(
+        data,
+        limit=20
+    )
 
     data["_growth_playlist"] = {
         "updated": str(now_kst()),
@@ -1431,8 +1552,22 @@ def main():
     }
 
 
-    
-    print("===== 성장 가능성 =====")
+    data["_growth_playlist"] = {
+        "updated": str(now_kst()),
+        "videos": [
+            {
+                "video_id": video["video_id"],
+                "title": video["title"],
+                "artist": video["artist"],
+                "views": video["views"],
+                "score": video["score"],
+                "eta_days": video["eta_days"]
+            }
+            for video in top_videos
+        ]
+    }
+
+    print("===== 성장 가능성 TOP 20 =====")
 
     for rank, video in enumerate(
         top_videos,

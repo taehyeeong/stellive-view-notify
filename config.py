@@ -6,6 +6,9 @@
 # 50000 = 5만 조회수마다 알림
 VIEW_STEP = 50000
 
+# 성장 가능성 플리에 넣을 최대 영상 수
+MAX_GROWTH_PLAYLIST_VIDEOS = 30
+
 
 # 음악 영상으로 판단할 제목 키워드
 MUSIC_KEYWORDS = [
