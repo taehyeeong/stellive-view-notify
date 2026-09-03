@@ -1,9 +1,8 @@
 import dataclasses
-import dataclasses
-import dataclasses
 import os
 import json
 import requests
+import time
 import re
 from datetime import datetime, timezone, timedelta
 
@@ -994,24 +993,15 @@ def check_milestone(
 # 성장 가능성 높은 영상 선정
 # ======================
 
-def get_top_growth_videos(data, limit=20):
-
+def get_top_growth_videos(data):
     candidates = []
 
     for video_id, info in data.items():
-
         if video_id.startswith("_"):
             continue
 
-        score = info.get(
-            "growth_score",
-            0
-        )
-
-        views = info.get(
-            "views",
-            0
-        )
+        score = info.get("growth_score", 0)
+        views = info.get("views", 0)
 
         # 성장 데이터가 없는 예전 영상은 제외
         if "growth" not in info:
@@ -1035,7 +1025,7 @@ def get_top_growth_videos(data, limit=20):
         reverse=True
     )
 
-    return candidates[:limit]
+    return candidates
 
 
 
@@ -1067,6 +1057,20 @@ def clean_song_title(title, artist_names=None):
     name_pattern = "|".join(
         re.escape(name)
         for name in names
+    )
+
+    # 앞쪽 화질 표기 제거: [4K], 4K, [4K60], 4K 60FPS 등
+    cleaned = re.sub(
+        r"^\s*\[\s*4k(?:\s*[-_ ]?\s*(?:60|120)\s*(?:fps)?)?\s*\]\s*[-|:/_]*\s*",
+        "",
+        cleaned,
+        flags=re.IGNORECASE
+    )
+    cleaned = re.sub(
+        r"^\s*4k(?:\s*[-_ ]?\s*(?:60|120)\s*(?:fps)?)?\s*[-|:/_]+\s*",
+        "",
+        cleaned,
+        flags=re.IGNORECASE
     )
 
     # [하나코 나나] 같은 앞쪽 멤버 표기만 제거
@@ -1146,6 +1150,8 @@ def get_artists_from_title(title):
             aliases = [
                 artist_name,
                 artist_info.get("display", artist_name),
+                artist_info.get("keyword", ""),
+                artist_info.get("nickname", ""),
                 *artist_info.get("aliases", [])
             ]
 
@@ -1218,10 +1224,14 @@ def main():
             [video.get("artist", "스텔라이브")]
         )
 
-        display_title = clean_song_title(
-            title,
-            artists
-        )
+        saved_title = data.get(video_id, {}).get("title")
+        if saved_title:
+            display_title = saved_title
+        else:
+            display_title = clean_song_title(
+                title,
+                artists
+            )
 
         artist_info = get_notification_artist_info(
             artists
@@ -1355,21 +1365,9 @@ def main():
                 + new_notified
             )
         
-        # 조회수 history 누적
-        history = data.get(video_id, {}).get("history", [])
-
-        history.append({
-            "views": views,
-            "updated": now_kst()
-        })
-
-        # 최근 7일 정도만 유지
-        history = history[-200:]
-
-
-        
         data[video_id] = {
-            "title": title,
+            # 신규 영상은 최초 정리 제목을 저장하고, 기존 영상은 저장된 제목을 보존
+            "title": video_data.get("title") or display_title,
             "artist": video.get("artist", ""),
             "artists": video.get("artists", []),
             "unit": video.get("unit", ""),
@@ -1415,10 +1413,7 @@ def main():
     # 성장 가능성 높은 영상
     # ======================
 
-    top_videos = get_top_growth_videos(
-        data,
-        limit=20
-    )
+    top_videos = get_top_growth_videos(data)
 
     data["_growth_playlist"] = {
         "updated": str(now_kst()),
@@ -1436,22 +1431,8 @@ def main():
     }
 
 
-    data["_growth_playlist"] = {
-        "updated": str(now_kst()),
-        "videos": [
-            {
-                "video_id": video["video_id"],
-                "title": video["title"],
-                "artist": video["artist"],
-                "views": video["views"],
-                "score": video["score"],
-                "eta_days": video["eta_days"]
-            }
-            for video in top_videos
-        ]
-    }
-
-    print("===== 성장 가능성 TOP 20 =====")
+    
+    print("===== 성장 가능성 =====")
 
     for rank, video in enumerate(
         top_videos,

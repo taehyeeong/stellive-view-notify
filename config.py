@@ -32,7 +32,8 @@ EXCLUDE_KEYWORDS = [
     "雑談",
     "잡담",
     "Teaser",
-    "하이라이트 메들리"
+    "하이라이트 메들리",
+    "생일"
 ]
 
 
@@ -64,6 +65,7 @@ STELLIVE_EXCLUDED_ARTIST_ALIASES = [
     "아이리 칸나",
     "Airi Kanna",
     "AIRIKANNA",
+    "藍璃かんな",
 ]
 
 
