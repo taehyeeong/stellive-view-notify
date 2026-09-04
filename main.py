@@ -26,7 +26,9 @@ from config import (
     EXCLUDE_KEYWORDS,
     STELLIVE_EXCLUDED_ARTIST_ALIASES,  
     INITIAL_SETUP,
-    UNITS
+    UNITS,
+    MAX_GROWTH_PLAYLIST_VIDEOS,
+    GROWTH_PLAYLIST_ID
 )
 
 
@@ -1078,49 +1080,51 @@ def check_milestone(
 # 성장 가능성 높은 영상 선정
 # ======================
 
-def get_top_growth_videos(data, limit=20):
-
+def get_top_growth_videos(data, limit=None):
     candidates = []
+
+    if limit is None:
+        limit = MAX_GROWTH_PLAYLIST_VIDEOS
 
     for video_id, info in data.items():
 
         if video_id.startswith("_"):
             continue
 
-        score = info.get(
-            "growth_score",
-            0
-        )
+        if not isinstance(info, dict):
+            continue
 
-        views = info.get(
-            "views",
-            0
-        )
-
-        # 성장 데이터가 없는 예전 영상은 제외
         if "growth" not in info:
             continue
+
+        score = info.get("growth_score", 0)
+        views = info.get("views", 0)
+
+        artists = info.get("artists", [])
+
+        if not isinstance(artists, list):
+            artists = []
+
+        artists = sort_artists_by_config_order(
+            list(dict.fromkeys(artists))
+        )
 
         candidates.append({
             "video_id": video_id,
             "title": info.get("title", ""),
-            "artist": info.get("artist", ""),
+            "artists": artists,
             "unit": info.get("unit", ""),
             "views": views,
             "score": score,
-            "eta_days": info["growth"].get(
-                "eta_days"
-            )
+            "eta_days": info["growth"].get("eta_days")
         })
 
-    # 점수가 높은 순서
     candidates.sort(
         key=lambda x: x["score"],
         reverse=True
     )
 
     return candidates[:limit]
-
 
 
 def clean_song_title(title, artist_names=None):
@@ -1287,6 +1291,15 @@ def main():
     new_videos = 0
 
     data = load_data()
+
+    # 구형 artist 필드 제거
+    for video_id, info in data.items():
+        if video_id.startswith("_"):
+            continue
+
+        if isinstance(info, dict):
+            info.pop("artist", None)
+
     checked_videos = 0
 
     videos, checked_playlists, checked_units, checked_artists = get_playlist_videos()
@@ -1320,10 +1333,10 @@ def main():
         
         title = info["title"]
 
-        artists = video.get(
-            "artists",
-            [video.get("artist", "스텔라이브")]
-        )
+        artists = video.get("artists", [])
+
+        if not artists:
+            artists = ["스텔라이브"]
 
         # 이미 views.json에 저장된 제목은 사용자가 직접 수정했을 수도 있으므로
         # 절대 다시 필터링/덮어쓰기하지 않는다.
@@ -1486,7 +1499,6 @@ def main():
             # 첫 발견 시 필터링된 제목을 저장하고, 이후에는 저장된 제목만 사용
             # 사용자가 views.json에서 직접 수정한 제목도 그대로 보존한다.
             "title": display_title,
-            "artist": video.get("artist", ""),
             "artists": video.get("artists", []),
             "unit": video.get("unit", ""),
             "views": views,
@@ -1552,20 +1564,25 @@ def main():
     }
 
 
+    top_videos = get_top_growth_videos(
+        data,
+        limit=MAX_GROWTH_PLAYLIST_VIDEOS
+    )
+
     data["_growth_playlist"] = {
         "updated": str(now_kst()),
         "videos": [
             {
                 "video_id": video["video_id"],
                 "title": video["title"],
-                "artist": video["artist"],
-                "views": video["views"],
-                "score": video["score"],
-                "eta_days": video["eta_days"]
-            }
-            for video in top_videos
-        ]
-    }
+            "artists": video["artists"],
+            "views": video["views"],
+            "score": video["score"],
+            "eta_days": video["eta_days"]
+        }
+        for video in top_videos
+    ]
+}
 
     print("===== 성장 가능성 TOP 20 =====")
 
@@ -1577,7 +1594,7 @@ def main():
         print(
             f"{rank}. "
             f"[{video['score']}점] "
-            f"[{video['artist']}] "
+            f"[{', '.join(video['artists'])}] "
             f"{video['title']} "
             f"({video['views']:,}회)"
         )

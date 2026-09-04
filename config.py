@@ -9,6 +9,8 @@ VIEW_STEP = 50000
 # 성장 가능성 플리에 넣을 최대 영상 수
 MAX_GROWTH_PLAYLIST_VIDEOS = 30
 
+GROWTH_PLAYLIST_ID = "PLSDVNaGEjRRs"
+
 
 # 음악 영상으로 판단할 제목 키워드
 MUSIC_KEYWORDS = [
@@ -17,8 +19,6 @@ MUSIC_KEYWORDS = [
     "Official",
     "Original",
     "Cover",
-    "歌ってみた",
-    "オリジナル",
     "노래",
     "cover",
     "music",
@@ -32,11 +32,10 @@ EXCLUDE_KEYWORDS = [
     "쇼츠",
     "clip",
     "클립",
-    "雑談",
-    "잡담",
     "Teaser",
     "하이라이트 메들리",
-    "생일"
+    "생일",
+    "데뷔"
 ]
 
 
