@@ -1285,7 +1285,7 @@ def is_excluded_stellive_video(title):
 # ======================
 
 def main():
-    printf("🔥 NEW MAIN.PY - artists migration")
+    print("🔥 NEW MAIN.PY - artists migration")
 
     checked_playlists = 0
     error_playlists = 0
