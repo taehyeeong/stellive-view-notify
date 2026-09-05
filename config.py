@@ -84,6 +84,13 @@ STELLIVE_EXCLUDED_ARTIST_ALIASES = [
     "藍璃かんな",
 ]
 
+# 아예 제외할 개별 영상 (URL 또는 ID) — 제목/채널로 안 걸러지는 것들
+EXCLUDED_VIDEO_IDS = [
+    # "https://www.youtube.com/watch?v=xxxxxxxxxxx",  # 아이리 칸나 커버 A
+]
+
+
+
 
 # 텔레그램 봇 유닛 버튼 설정
 
@@ -126,6 +133,10 @@ UNITS = {
             "playlists": [
                 "PLLjd981H8qSMGC4Nir0hD2Gj9n9PDUoHX", # 오리곡
                 "PLLjd981H8qSN9PQ8-X6wINqBF1GjGxusy"  # 노래
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         }
     },
@@ -148,6 +159,10 @@ UNITS = {
             "playlists": [
                 "PL3HtH_xx9h_4ulddfVG8DdD_EwKUMBqvL", # 오리곡
                 "PL3HtH_xx9h_7ZGoZ9zMUQ-MPumwe21_cc"  # 노래
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         },
        "사키하네 후야": {
@@ -165,6 +180,10 @@ UNITS = {
 
             "playlists": [
                 "PL3rF5rqFNO48ZMgPuZ6XbQ1J9IT3TQtcs" # 커버곡
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         }
     },
@@ -188,6 +207,10 @@ UNITS = {
                         "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc",  # 커버곡
                         "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 Playlist
                         "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO"  # 3D Live
+                    ],
+                    "videos": [
+                        # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                        
                     ]
                 },
          "네네코 마시로": {
@@ -206,6 +229,10 @@ UNITS = {
             "playlists": [
                 "PLWwhuXFHGLvgHQY8lryIUP7vf9i8-TJrk", # 오리곡
                 "PLWwhuXFHGLvhgZZb5_rmQEMI1B0ysKJxG"  # 커버곡
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         },
          "아카네 리제": {
@@ -224,6 +251,10 @@ UNITS = {
             "playlists": [
                 "PL-DHk0WpiRNSHxQzKx88q2kmJVwlCQCNq", # 오리곡
                 "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX"  # 커버곡
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         },
         "아라하시 타비": {
@@ -243,6 +274,10 @@ UNITS = {
                 "PLbIDsfX2JRA2Qoddb0eKan9yFJ0_MR8Nk", # 3D
                 "PLbIDsfX2JRA0TXoG69AT8Iu9QEB9lUC2s", # 오리곡
                 "PLbIDsfX2JRA0oawGN209gpd_nz9IMvUlb"  # 커버곡
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         }
     },
@@ -266,6 +301,10 @@ UNITS = {
                 "PLanLo2fF2MkY",                    # 오리곡
                 "PLKVNBOcsLJlVii-8YwoZTD3o4gh5CnIND", # 커버곡
                 "PLKVNBOcsLJlVmzvd2SpmwHZt6KOkcaarD"  # 3D
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         },
         "아오쿠모 린": {
@@ -285,6 +324,10 @@ UNITS = {
                 "PLSDRWR15h-o7xvAej539Ggs2Kjb22y3_M", # 오리곡
                 "PLSDRWR15h-o4uWNeoLv0upOUUGj12f-yU", # 커버곡
                 "PLSDRWR15h-o5YHBDW4fvHU8UlSCfSuV3r"  # 3D
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         },
          "하나코 나나": {
@@ -306,6 +349,10 @@ UNITS = {
                 "PLJWmDIpvwe7CQTYQdGqEipTd7IMX10VHm", # 오리곡
                 "PLJWmDIpvwe7AQ3z5-jML31bfMf4QFEx4T", # Nana Drive
                 "PLJWmDIpvwe7Cri29xtAyQXLC1RLwOChpA"  # 커버곡
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         },
         "유즈하 리코": {
@@ -324,6 +371,10 @@ UNITS = {
             "playlists": [
                 "PL_D2YrKeYY2U6GvgRx8Ai-VaddWQarbnL", # Riko Cloud
                 "PL_D2YrKeYY2UvRIw_SW3lQXzBDO7aBeii"  # 커버곡
+            ],
+            "videos": [
+                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                
             ]
         }
     }

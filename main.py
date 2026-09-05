@@ -6,8 +6,14 @@ import re
 import time
 from datetime import datetime, timezone, timedelta
 
+class QuotaExceededError(Exception):
+    pass
+
+
 from requests import RequestException
 from dotenv import load_dotenv
+from urllib.parse import quote
+
 
 load_dotenv()
 
@@ -31,7 +37,8 @@ from config import (
     GROWTH_PLAYLIST_ID,
     SYNC_GROWTH_PLAYLIST,
     GROWTH_PLAYLIST_REMOVE_MISSING,
-    MAX_PLAYLIST_OPS_PER_RUN
+    MAX_PLAYLIST_OPS_PER_RUN,
+    EXCLUDED_VIDEO_IDS
 )
 
 
@@ -80,29 +87,30 @@ def save_data(data):
 # 텔레그램
 # ======================
 
-def send_telegram(message):
+def send_telegram(message, reply_markup=None):
 
     url = (
         f"https://api.telegram.org/"
         f"bot{TELEGRAM_TOKEN}/sendMessage"
     )
 
-    response = requests.post(
-        url,
-        json={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": message,
-            "disable_web_page_preview": True
-        },
-        timeout=10
-    )
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "disable_web_page_preview": True
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+
+    response = requests.post(url, json=payload, timeout=10)
 
     print("===== Telegram 결과 =====")
     print(response.status_code)
     print(response.text)
     print("========================")
 
-def send_telegram_photo(message, video_id):
+
+def send_telegram_photo(message, video_id, reply_markup=None):
 
     url = (
         f"https://api.telegram.org/"
@@ -114,15 +122,15 @@ def send_telegram_photo(message, video_id):
         f"{video_id}/maxresdefault.jpg"
     )
 
-    response = requests.post(
-        url,
-        json={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "photo": thumbnail,
-            "caption": message
-        },
-        timeout=10
-    )
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "photo": thumbnail,
+        "caption": message
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+
+    response = requests.post(url, json=payload, timeout=10)
 
     print("===== Telegram Photo 결과 =====")
     print(response.status_code)
@@ -131,12 +139,25 @@ def send_telegram_photo(message, video_id):
 
     return response.ok
 
+
+def make_x_button(text):
+    tweet_url = "https://twitter.com/intent/tweet?text=" + quote(text)
+    return {
+        "inline_keyboard": [[
+            {"text": "X에 POST", "url": tweet_url}
+        ]]
+    }
+
+
 def send_notification(message, video_id=None):
 
-    if video_id and send_telegram_photo(message, video_id):
+    markup = make_x_button(message)
+
+    if video_id and send_telegram_photo(message, video_id, reply_markup=markup):
         return
 
-    send_telegram(message)
+    send_telegram(message, reply_markup=markup)
+
 
 
 def send_error(error):
@@ -240,7 +261,7 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
                 )
                 print(message)
                 send_telegram(message)
-                raise RuntimeError("YouTube API quotaExceeded")
+                raise QuotaExceededError("YouTube API quotaExceeded")
 
         if response.status_code in {409, 500, 502, 503, 504}:
             if attempt < max_retries:
@@ -470,8 +491,29 @@ def add_title_artists(video, title):
         video["artists"]
     )
 
+def extract_video_id(value):
+    if not value:
+        return ""
+    match = re.search(
+        r"(?:v=|youtu\.be/|/shorts/|/live/)([A-Za-z0-9_-]{11})",
+        value
+    )
+    if match:
+        return match.group(1)
+    return value.strip()
+
+def get_excluded_video_ids():
+    result = set()
+    for value in EXCLUDED_VIDEO_IDS:
+        vid = extract_video_id(value)
+        if vid:
+            result.add(vid)
+    return result
+
 
 def get_playlist_videos():
+
+    excluded_ids = get_excluded_video_ids()
 
     videos = {}
 
@@ -542,7 +584,8 @@ def get_playlist_videos():
                         next_page = data.get("nextPageToken")
                         if not next_page:
                             break
-
+                except QuotaExceededError:
+                    raise
                 except Exception as e:
                     error_playlists += 1
                     send_telegram(
@@ -552,6 +595,7 @@ def get_playlist_videos():
                         f"❌ 내용:\n{e}"
                     )
                     continue
+
 
     # 2단계: 스텔라이브 본계 재생목록
     stellive_artists = UNITS.get("스텔라이브", {})
@@ -591,6 +635,10 @@ def get_playlist_videos():
                     for item in data.get("items", []):
                         video_id = item["snippet"]["resourceId"]["videoId"]
                         title = item["snippet"]["title"]
+                        owner_title = item["snippet"].get("videoOwnerChannelTitle", "")
+
+                        if video_id in excluded_ids:
+                            continue
 
                         if is_excluded(title):
                             continue
@@ -600,7 +648,7 @@ def get_playlist_videos():
                             videos[video_id]["is_stellive"] = False
                             continue
 
-                        if is_excluded_stellive_video(title):
+                        if is_excluded_stellive_video(title) or is_excluded_stellive_video(owner_title):
                             continue
 
                         matched_artists = get_artists_from_title(title)
@@ -626,6 +674,8 @@ def get_playlist_videos():
                     if not next_page:
                         break
 
+            except QuotaExceededError:
+                raise
             except Exception as e:
                 error_playlists += 1
                 send_telegram(
@@ -635,6 +685,28 @@ def get_playlist_videos():
                     f"❌ 내용:\n{e}"
                 )
                 continue
+
+    # 각 아티스트에 직접 추가한 개별 영상 주입 (UNITS의 "videos")
+    for unit, artists in UNITS.items():
+        for artist_name, info in artists.items():
+            for raw_video in info.get("videos", []):
+                manual_id = extract_video_id(raw_video)
+                if not manual_id:
+                    continue
+
+                if manual_id in videos:
+                    if artist_name not in videos[manual_id]["artists"]:
+                        videos[manual_id]["artists"].append(artist_name)
+                else:
+                    videos[manual_id] = {
+                        "id": manual_id,
+                        "title": "",
+                        "artists": [artist_name],
+                        "unit": unit,
+                        "is_stellive": False,
+                    }
+
+
 
     videos = list(videos.values())
 
@@ -1312,7 +1384,6 @@ def sync_growth_playlist(top_videos):
 # ======================
 
 def main():
-    print("🔥 NEW MAIN.PY - artists migration")
 
     checked_playlists = 0
     error_playlists = 0
@@ -1320,15 +1391,10 @@ def main():
 
     data = load_data()
 
-    # 구형 artist 필드 및 단수형 필드 제거 안전 처리
-    for video_id, info in data.items():
-        if video_id.startswith("_"):
-            continue
+    # 제외 목록 영상은 기존 데이터에서도 삭제
+    for excluded_id in get_excluded_video_ids():
+        data.pop(excluded_id, None)
 
-        if isinstance(info, dict):
-            info.pop("artist", None)
-            if "artists" not in info or not isinstance(info["artists"], list):
-                info["artists"] = ["스텔라이브"]
 
     checked_videos = 0
 
