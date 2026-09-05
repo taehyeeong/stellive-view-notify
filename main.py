@@ -9,7 +9,9 @@ import time
 from datetime import datetime, timezone, timedelta
 
 from requests import RequestException
+from dotenv import load_dotenv
 
+load_dotenv()
 
 KST = timezone(timedelta(hours=9))
 
@@ -1539,30 +1541,13 @@ def main():
         f"상태: {status}"
     )
 
+    # 마일스톤 알림 상태 먼저 저장
+    save_data(data)
+
+
     # ======================
     # 성장 가능성 높은 영상
     # ======================
-
-    top_videos = get_top_growth_videos(
-        data,
-        limit=20
-    )
-
-    data["_growth_playlist"] = {
-        "updated": str(now_kst()),
-        "videos": [
-            {
-                "video_id": video["video_id"],
-                "title": video["title"],
-                "artist": video["artist"],
-                "views": video["views"],
-                "score": video["score"],
-                "eta_days": video["eta_days"]
-            }
-            for video in top_videos
-        ]
-    }
-
 
     top_videos = get_top_growth_videos(
         data,
@@ -1575,22 +1560,24 @@ def main():
             {
                 "video_id": video["video_id"],
                 "title": video["title"],
-            "artists": video["artists"],
-            "views": video["views"],
-            "score": video["score"],
-            "eta_days": video["eta_days"]
-        }
-        for video in top_videos
-    ]
-}
+                "artists": video["artists"],
+                "views": video["views"],
+                "score": video["score"],
+                "eta_days": video["eta_days"]
+            }
+            for video in top_videos
+        ]
+    }
 
-    print("===== 성장 가능성 TOP 20 =====")
+    print(
+        f"===== 성장 가능성 TOP "
+        f"{MAX_GROWTH_PLAYLIST_VIDEOS} ====="
+    )
 
     for rank, video in enumerate(
         top_videos,
         start=1
     ):
-
         print(
             f"{rank}. "
             f"[{video['score']}점] "
