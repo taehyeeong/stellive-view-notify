@@ -1271,14 +1271,22 @@ def _is_quota_error(error):
 
 def sync_growth_playlist(top_videos):
     if not SYNC_GROWTH_PLAYLIST:
-        return
+        return  # 기능을 꺼둔 경우엔 조용히 넘어감
 
     if not (YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET and YOUTUBE_REFRESH_TOKEN):
-        print("⚠️ OAuth 자격증명이 없어 플리 동기화를 건너뜁니다.")
+        send_telegram(
+            "⚠️ 성장 플리 동기화 건너뜀\n\n"
+            f"🕒 {now_kst()}\n"
+            "❌ OAuth 자격증명(CLIENT_ID/SECRET/REFRESH_TOKEN)이 없습니다."
+        )
         return
 
     if not GROWTH_PLAYLIST_ID:
-        print("⚠️ GROWTH_PLAYLIST_ID가 없어 플리 동기화를 건너뜁니다.")
+        send_telegram(
+            "⚠️ 성장 플리 동기화 건너뜀\n\n"
+            f"🕒 {now_kst()}\n"
+            "❌ GROWTH_PLAYLIST_ID가 설정되지 않았습니다."
+        )
         return
 
     try:
@@ -1298,7 +1306,6 @@ def sync_growth_playlist(top_videos):
         ops = 0
         quota_hit = False
 
-        # 1) TOP에서 빠진 영상 제거
         if GROWTH_PLAYLIST_REMOVE_MISSING:
             for item in current_items:
                 if item.get("video_id") in desired_set:
@@ -1315,7 +1322,6 @@ def sync_growth_playlist(top_videos):
                         break
                     print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
 
-        # 2) 새로 들어올 영상 추가 (원하는 순서 위치에 삽입)
         if not quota_hit:
             for target_position, video_id in enumerate(desired_ids):
                 if video_id in current_set:
@@ -1349,7 +1355,6 @@ def sync_growth_playlist(top_videos):
             f"목표 {len(desired_ids)}곡"
         )
 
-        note = ""
         if quota_hit:
             note = "\n\n⚠️ 오늘 API 쿼터 소진 — 남은 정리는 리셋 후 이어감."
         elif still_to_remove > 0 or ops >= MAX_PLAYLIST_OPS_PER_RUN:
@@ -1357,16 +1362,20 @@ def sync_growth_playlist(top_videos):
                 f"\n\n⏳ 이번 실행 한도({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 — "
                 f"남은 건 다음 실행에서 이어감."
             )
+        elif added == 0 and removed == 0:
+            note = "\n\n✅ 변경 없음 (플리가 이미 최신 상태)"
+        else:
+            note = ""
 
-        if added or removed or quota_hit:
-            send_telegram(
-                "🎶 성장 플리 자동 갱신\n\n"
-                f"🕒 {now_kst()}\n"
-                f"➕ 추가: {added}곡\n"
-                f"➖ 삭제: {removed}곡\n"
-                f"📼 목표: {len(desired_ids)}곡"
-                f"{note}"
-            )
+        # 변경이 없어도 항상 상태 알림 전송
+        send_telegram(
+            "🎶 성장 플리 자동 갱신\n\n"
+            f"🕒 {now_kst()}\n"
+            f"➕ 추가: {added}곡\n"
+            f"➖ 삭제: {removed}곡\n"
+            f"📼 목표: {len(desired_ids)}곡"
+            f"{note}"
+        )
 
     except Exception as e:
         print(f"⚠️ 성장 플리 동기화 중 오류: {e}")
@@ -1375,6 +1384,7 @@ def sync_growth_playlist(top_videos):
             f"🕒 {now_kst()}\n"
             f"❌ {e}"
         )
+
 
 
 
