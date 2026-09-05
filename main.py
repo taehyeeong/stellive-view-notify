@@ -333,6 +333,70 @@ def get_artist_info(artist_name):
     }
 
 
+def _is_hangul_char(ch):
+    return bool(ch) and (
+        "\uAC00" <= ch <= "\uD7A3"    # 완성형 한글 음절
+        or "\u1100" <= ch <= "\u11FF"  # 한글 자모
+        or "\u3130" <= ch <= "\u318F"  # 호환용 자모
+    )
+
+
+def alias_in_title(alias, title_lower):
+    """
+    제목 안에 별칭이 들어있는지 검사.
+    '나나'가 '나나호시' 안에서 잘못 잡히는 걸 막으려고,
+    3글자 이하 짧은 별칭은 앞뒤가 다른 한글 글자에 붙어 있으면
+    (= 더 긴 단어의 일부면) 매칭으로 치지 않는다.
+    """
+    alias = (alias or "").strip().lower()
+    if not alias:
+        return False
+
+    short_alias = len(alias) <= 3
+    start = 0
+
+    while True:
+        idx = title_lower.find(alias, start)
+        if idx == -1:
+            return False
+
+        if not short_alias:
+            return True
+
+        before = title_lower[idx - 1] if idx > 0 else ""
+        after_pos = idx + len(alias)
+        after = title_lower[after_pos] if after_pos < len(title_lower) else ""
+
+        # 짧은 별칭이 한글 글자에 붙어 있으면 더 긴 이름의 일부로 보고 건너뜀
+        if _is_hangul_char(before) or _is_hangul_char(after):
+            start = idx + 1
+            continue
+
+        return True
+
+
+def normalize_artists(artists):
+    if not isinstance(artists, list):
+        return []
+    cleaned = [
+        artist.strip()
+        for artist in artists
+        if isinstance(artist, str) and artist.strip()
+    ]
+    return list(dict.fromkeys(cleaned))
+
+
+def resolve_effective_artists(auto_artists, override):
+    """
+    사용자가 직접 지정한 override가 있으면 (적은 순서 그대로) 그걸 쓰고,
+    없으면 자동 판별된 아티스트를 쓴다.
+    """
+    normalized_override = normalize_artists(override)
+    if normalized_override:
+        return normalized_override
+    return auto_artists
+
+
 def get_artists_from_title(title):
 
     title_lower = title.lower()
@@ -354,9 +418,7 @@ def get_artists_from_title(title):
             ]
 
             if any(
-                isinstance(alias, str)
-                and alias.strip()
-                and alias.strip().lower() in title_lower
+                isinstance(alias, str) and alias_in_title(alias, title_lower)
                 for alias in aliases
             ):
                 matched_artists.append(artist_name)
@@ -364,6 +426,7 @@ def get_artists_from_title(title):
     return sort_artists_by_config_order(
         list(dict.fromkeys(matched_artists))
     )
+
 
 
 def is_excluded_stellive_video(title):
@@ -877,14 +940,18 @@ def get_top_growth_videos(data, limit=None):
         score = info.get("growth_score", 0)
         views = info.get("views", 0)
 
-        artists = info.get("artists", [])
+        override = normalize_artists(info.get("artists_override"))
 
-        if not isinstance(artists, list):
-            artists = []
+        if override:
+            artists = override
+        else:
+            raw_artists = info.get("artists", [])
+            if not isinstance(raw_artists, list):
+                raw_artists = []
+            artists = sort_artists_by_config_order(
+                list(dict.fromkeys(raw_artists))
+            )
 
-        artists = sort_artists_by_config_order(
-            list(dict.fromkeys(artists))
-        )
 
         candidates.append({
             "video_id": video_id,
@@ -1026,19 +1093,28 @@ def main():
         views = info["views"]
         title = info["title"]
 
-        artists = video.get("artists", [])
+        auto_artists = video.get("artists", [])
 
-        if not artists:
-            artists = ["스텔라이브"]
+        if not auto_artists:
+            auto_artists = ["스텔라이브"]
 
-        stored_title = data.get(video_id, {}).get("title")
+        stored_entry = data.get(video_id, {})
+
+        # 내가 직접 고친 아티스트(artists_override)가 있으면 그걸 우선 사용
+        effective_artists = resolve_effective_artists(
+            auto_artists,
+            stored_entry.get("artists_override")
+        )
+
+        stored_title = stored_entry.get("title")
 
         if isinstance(stored_title, str) and stored_title.strip():
             display_title = stored_title.strip()
         else:
-            display_title = clean_song_title(title, artists)
+            display_title = clean_song_title(title, effective_artists)
 
-        artist_info = get_notification_artist_info(artists)
+        artist_info = get_notification_artist_info(effective_artists)
+
 
         url = f"https://www.youtube.com/watch?v={video_id}"
 
@@ -1051,7 +1127,7 @@ def main():
             send_photo(
                 info["thumb"],
                 f"🆕 새로운 음악 영상 발견!\n\n"
-                f"👤 {', '.join(artists)}\n\n"
+                f"👤 {', '.join(effective_artists)}\n\n"
                 f"🎵 {display_title}\n\n"
                 f"📊 현재 조회수: {views:,}회\n\n"
                 f"🔗 {url}"
@@ -1113,9 +1189,9 @@ def main():
 
         history = history[-200:]
 
-        data[video_id] = {
+        new_entry = {
             "title": display_title,
-            "artists": video.get("artists", []),
+            "artists": auto_artists,
             "unit": video.get("unit", ""),
             "views": views,
             "history": history,
@@ -1131,6 +1207,16 @@ def main():
             "notified": list(set(notified)),
             "updated": str(now_kst())
         }
+
+        # 내가 지정한 수정본은 다음 실행에서도 유지되도록 그대로 보존
+        preserved_override = normalize_artists(
+            stored_entry.get("artists_override")
+        )
+        if preserved_override:
+            new_entry["artists_override"] = preserved_override
+
+        data[video_id] = new_entry
+
 
     status = (
         "✅ 이상 없음"
