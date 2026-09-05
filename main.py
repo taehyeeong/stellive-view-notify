@@ -39,6 +39,10 @@ from config import (
 # 환경 변수
 # ======================
 
+YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
+TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
+TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+
 YOUTUBE_CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
 YOUTUBE_CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
 YOUTUBE_REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
