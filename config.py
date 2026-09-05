@@ -9,7 +9,11 @@ VIEW_STEP = 50000
 # 성장 가능성 플리에 넣을 최대 영상 수
 MAX_GROWTH_PLAYLIST_VIDEOS = 30
 
-GROWTH_PLAYLIST_ID = "PLSDVNaGEjRRs"
+
+# 한 번 실행에서 허용할 플리 추가+삭제 총 횟수 (쿼터 보호)
+MAX_PLAYLIST_OPS_PER_RUN = 40
+
+GROWTH_PLAYLIST_ID = "PLQ45s5Ix3Lmk"
 
 
 # 성장 플리 자동 갱신 켜기/끄기

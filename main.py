@@ -30,7 +30,8 @@ from config import (
     MAX_GROWTH_PLAYLIST_VIDEOS,
     GROWTH_PLAYLIST_ID,
     SYNC_GROWTH_PLAYLIST,
-    GROWTH_PLAYLIST_REMOVE_MISSING
+    GROWTH_PLAYLIST_REMOVE_MISSING,
+    MAX_PLAYLIST_OPS_PER_RUN
 )
 
 
@@ -1186,13 +1187,17 @@ def arrange_for_variety(videos):
 
 
 
+def _is_quota_error(error):
+    response = getattr(error, "response", None)
+    if response is None:
+        return False
+    if response.status_code != 403:
+        return False
+    text = response.text or ""
+    return "quotaExceeded" in text or "dailyLimitExceeded" in text
+
+
 def sync_growth_playlist(top_videos):
-    """
-    성장 TOP 영상들을 실제 유튜브 플리(GROWTH_PLAYLIST_ID)에 반영.
-    - 증분 갱신: 빠질 건 삭제, 새로 들어올 건 추가
-    - 같은 아티스트가 연달아 안 나오게 배치
-    핵심 조회수 추적을 방해하지 않도록 어떤 오류도 여기서 삼킨다.
-    """
     if not SYNC_GROWTH_PLAYLIST:
         return
 
@@ -1207,7 +1212,6 @@ def sync_growth_playlist(top_videos):
     try:
         access_token = get_youtube_access_token()
 
-        # 원하는 최종 순서 (점수순 → 변화있게 재배치)
         arranged = arrange_for_variety(top_videos)
         desired_ids = [v["video_id"] for v in arranged if v.get("video_id")]
         desired_set = set(desired_ids)
@@ -1219,55 +1223,86 @@ def sync_growth_playlist(top_videos):
 
         removed = 0
         added = 0
+        ops = 0
+        quota_hit = False
 
         # 1) TOP에서 빠진 영상 제거
         if GROWTH_PLAYLIST_REMOVE_MISSING:
             for item in current_items:
-                if item.get("video_id") not in desired_set:
-                    try:
-                        playlist_delete(access_token, item["playlist_item_id"])
-                        removed += 1
-                    except Exception as e:
-                        print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
+                if item.get("video_id") in desired_set:
+                    continue
+                if ops >= MAX_PLAYLIST_OPS_PER_RUN:
+                    break
+                try:
+                    playlist_delete(access_token, item["playlist_item_id"])
+                    removed += 1
+                    ops += 1
+                except Exception as e:
+                    if _is_quota_error(e):
+                        quota_hit = True
+                        break
+                    print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
 
         # 2) 새로 들어올 영상 추가 (원하는 순서 위치에 삽입)
-        for target_position, video_id in enumerate(desired_ids):
-            if video_id in current_set:
-                continue
-            try:
-                playlist_insert(
-                    access_token,
-                    GROWTH_PLAYLIST_ID,
-                    video_id,
-                    position=target_position,
-                )
-                added += 1
-            except Exception as e:
-                print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
+        if not quota_hit:
+            for target_position, video_id in enumerate(desired_ids):
+                if video_id in current_set:
+                    continue
+                if ops >= MAX_PLAYLIST_OPS_PER_RUN:
+                    break
+                try:
+                    playlist_insert(
+                        access_token,
+                        GROWTH_PLAYLIST_ID,
+                        video_id,
+                        position=target_position,
+                    )
+                    added += 1
+                    ops += 1
+                except Exception as e:
+                    if _is_quota_error(e):
+                        quota_hit = True
+                        break
+                    print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
+
+        still_to_remove = 0
+        if GROWTH_PLAYLIST_REMOVE_MISSING:
+            still_to_remove = sum(
+                1 for it in current_items
+                if it.get("video_id") not in desired_set
+            ) - removed
 
         print(
-            f"🎶 성장 플리 동기화 완료 | 추가 {added} · 삭제 {removed} · "
+            f"🎶 플리 동기화 | 추가 {added} · 삭제 {removed} · "
             f"목표 {len(desired_ids)}곡"
         )
 
-        if added or removed:
+        note = ""
+        if quota_hit:
+            note = "\n\n⚠️ 오늘 API 쿼터 소진 — 남은 정리는 리셋 후 이어감."
+        elif still_to_remove > 0 or ops >= MAX_PLAYLIST_OPS_PER_RUN:
+            note = (
+                f"\n\n⏳ 이번 실행 한도({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 — "
+                f"남은 건 다음 실행에서 이어감."
+            )
+
+        if added or removed or quota_hit:
             send_telegram(
                 "🎶 성장 플리 자동 갱신\n\n"
                 f"🕒 {now_kst()}\n"
                 f"➕ 추가: {added}곡\n"
                 f"➖ 삭제: {removed}곡\n"
-                f"📼 현재 목표: {len(desired_ids)}곡"
+                f"📼 목표: {len(desired_ids)}곡"
+                f"{note}"
             )
 
     except Exception as e:
-        # 플리 동기화 실패가 전체 실행을 막지 않도록
         print(f"⚠️ 성장 플리 동기화 중 오류: {e}")
         send_telegram(
             "⚠️ 성장 플리 동기화 실패\n\n"
             f"🕒 {now_kst()}\n"
             f"❌ {e}"
         )
-
 
 
 
