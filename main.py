@@ -1391,6 +1391,14 @@ def main():
 
     data = load_data()
 
+    # 데이터가 비어있으면(초기화/손상 등) 이번 실행은 조용히 기준선만 재생성
+    # → 모든 영상에 "새 영상" 알림이 도배되는 것 방지
+    real_entries = [vid for vid in data if not vid.startswith("_")]
+    baseline_mode = len(real_entries) == 0
+    if baseline_mode:
+        print("⚠️ 데이터 비어있음 — 기준선 재생성 모드 (알림 생략)")
+
+
     # 제외 목록 영상은 기존 데이터에서도 삭제
     for excluded_id in get_excluded_video_ids():
         data.pop(excluded_id, None)
@@ -1449,7 +1457,7 @@ def main():
         if is_new:
             new_videos += 1
 
-        if is_new and not INITIAL_SETUP:
+        if is_new and not INITIAL_SETUP and not baseline_mode:
             send_photo(
                 info["thumb"],
                 f"🆕 새로운 음악 영상 발견!\n\n"
@@ -1501,7 +1509,7 @@ def main():
         for alert in messages:
             send_notification(alert["message"], alert["video_id"])
 
-        if is_new and INITIAL_SETUP:
+        if is_new and (INITIAL_SETUP or baseline_mode):
             notified = get_reached_milestones(views)
         else:
             notified = (
