@@ -12,6 +12,16 @@ MAX_GROWTH_PLAYLIST_VIDEOS = 30
 GROWTH_PLAYLIST_ID = "PLSDVNaGEjRRs"
 
 
+# 성장 플리 자동 갱신 켜기/끄기
+SYNC_GROWTH_PLAYLIST = True
+
+# TOP에 없는 영상을 플리에서 제거할지
+# True  = 플리를 TOP 목록과 똑같이 맞춤 (없는 건 삭제) ← 진짜 "최신화"
+# False = 추가만 하고 기존 영상은 절대 안 지움 (처음 테스트용으로 안전)
+GROWTH_PLAYLIST_REMOVE_MISSING = True
+
+
+
 # 음악 영상으로 판단할 제목 키워드
 MUSIC_KEYWORDS = [
     "MV",

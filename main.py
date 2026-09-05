@@ -24,21 +24,25 @@ from config import (
     MILESTONES,
     MILESTONE_TEMPLATE,
     EXCLUDE_KEYWORDS,
-    STELLIVE_EXCLUDED_ARTIST_ALIASES,  
+    STELLIVE_EXCLUDED_ARTIST_ALIASES,
     INITIAL_SETUP,
     UNITS,
     MAX_GROWTH_PLAYLIST_VIDEOS,
-    GROWTH_PLAYLIST_ID
+    GROWTH_PLAYLIST_ID,
+    SYNC_GROWTH_PLAYLIST,
+    GROWTH_PLAYLIST_REMOVE_MISSING
 )
+
 
 
 # ======================
 # 환경 변수
 # ======================
 
-YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
-TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
-TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+YOUTUBE_CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
+YOUTUBE_CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
+YOUTUBE_REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
+
 
 
 # ======================
@@ -1048,6 +1052,223 @@ def clean_song_title(title, artist_names=None):
 
 
 # ======================
+# YouTube 플레이리스트 쓰기 (OAuth)
+# ======================
+
+YOUTUBE_PLAYLIST_ITEMS_URL = "https://www.googleapis.com/youtube/v3/playlistItems"
+
+
+def get_youtube_access_token():
+    """refresh token으로 access token 발급."""
+    response = requests.post(
+        "https://oauth2.googleapis.com/token",
+        data={
+            "client_id": YOUTUBE_CLIENT_ID,
+            "client_secret": YOUTUBE_CLIENT_SECRET,
+            "refresh_token": YOUTUBE_REFRESH_TOKEN,
+            "grant_type": "refresh_token",
+        },
+        timeout=10,
+    )
+    response.raise_for_status()
+    return response.json()["access_token"]
+
+
+def fetch_playlist_items(access_token, playlist_id):
+    """대상 플리의 현재 아이템들을 순서대로 가져온다."""
+    headers = {"Authorization": f"Bearer {access_token}"}
+    items = []
+    next_page = None
+
+    while True:
+        params = {
+            "part": "snippet",
+            "playlistId": playlist_id,
+            "maxResults": 50,
+        }
+        if next_page:
+            params["pageToken"] = next_page
+
+        response = requests.get(
+            YOUTUBE_PLAYLIST_ITEMS_URL,
+            headers=headers,
+            params=params,
+            timeout=10,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        for item in data.get("items", []):
+            snippet = item.get("snippet", {})
+            resource = snippet.get("resourceId", {})
+            items.append({
+                "playlist_item_id": item.get("id"),
+                "video_id": resource.get("videoId"),
+                "position": snippet.get("position"),
+            })
+
+        next_page = data.get("nextPageToken")
+        if not next_page:
+            break
+
+    return items
+
+
+def playlist_insert(access_token, playlist_id, video_id, position=None):
+    headers = {"Authorization": f"Bearer {access_token}"}
+    snippet = {
+        "playlistId": playlist_id,
+        "resourceId": {
+            "kind": "youtube#video",
+            "videoId": video_id,
+        },
+    }
+    if position is not None:
+        snippet["position"] = position
+
+    response = requests.post(
+        YOUTUBE_PLAYLIST_ITEMS_URL,
+        headers=headers,
+        params={"part": "snippet"},
+        json={"snippet": snippet},
+        timeout=10,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def playlist_delete(access_token, playlist_item_id):
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.delete(
+        YOUTUBE_PLAYLIST_ITEMS_URL,
+        headers=headers,
+        params={"id": playlist_item_id},
+        timeout=10,
+    )
+    if response.status_code not in (200, 204):
+        response.raise_for_status()
+
+
+def arrange_for_variety(videos):
+    """
+    점수순으로 정렬된 목록을 받아, 같은 아티스트가 연달아 나오지 않게
+    최대한 섞어서 재배치한다. (점수 우선순위는 최대한 유지)
+    """
+    def primary(video):
+        artists = video.get("artists") or []
+        return artists[0] if artists else ""
+
+    remaining = list(videos)
+    arranged = []
+    last_artist = None
+
+    while remaining:
+        pick_index = None
+        for index, video in enumerate(remaining):
+            if primary(video) != last_artist:
+                pick_index = index
+                break
+
+        # 남은 게 전부 직전과 같은 아티스트면 그냥 점수 높은 것부터
+        if pick_index is None:
+            pick_index = 0
+
+        chosen = remaining.pop(pick_index)
+        arranged.append(chosen)
+        last_artist = primary(chosen)
+
+    return arranged
+
+
+
+
+def sync_growth_playlist(top_videos):
+    """
+    성장 TOP 영상들을 실제 유튜브 플리(GROWTH_PLAYLIST_ID)에 반영.
+    - 증분 갱신: 빠질 건 삭제, 새로 들어올 건 추가
+    - 같은 아티스트가 연달아 안 나오게 배치
+    핵심 조회수 추적을 방해하지 않도록 어떤 오류도 여기서 삼킨다.
+    """
+    if not SYNC_GROWTH_PLAYLIST:
+        return
+
+    if not (YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET and YOUTUBE_REFRESH_TOKEN):
+        print("⚠️ OAuth 자격증명이 없어 플리 동기화를 건너뜁니다.")
+        return
+
+    if not GROWTH_PLAYLIST_ID:
+        print("⚠️ GROWTH_PLAYLIST_ID가 없어 플리 동기화를 건너뜁니다.")
+        return
+
+    try:
+        access_token = get_youtube_access_token()
+
+        # 원하는 최종 순서 (점수순 → 변화있게 재배치)
+        arranged = arrange_for_variety(top_videos)
+        desired_ids = [v["video_id"] for v in arranged if v.get("video_id")]
+        desired_set = set(desired_ids)
+
+        current_items = fetch_playlist_items(access_token, GROWTH_PLAYLIST_ID)
+        current_set = {
+            it["video_id"] for it in current_items if it.get("video_id")
+        }
+
+        removed = 0
+        added = 0
+
+        # 1) TOP에서 빠진 영상 제거
+        if GROWTH_PLAYLIST_REMOVE_MISSING:
+            for item in current_items:
+                if item.get("video_id") not in desired_set:
+                    try:
+                        playlist_delete(access_token, item["playlist_item_id"])
+                        removed += 1
+                    except Exception as e:
+                        print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
+
+        # 2) 새로 들어올 영상 추가 (원하는 순서 위치에 삽입)
+        for target_position, video_id in enumerate(desired_ids):
+            if video_id in current_set:
+                continue
+            try:
+                playlist_insert(
+                    access_token,
+                    GROWTH_PLAYLIST_ID,
+                    video_id,
+                    position=target_position,
+                )
+                added += 1
+            except Exception as e:
+                print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
+
+        print(
+            f"🎶 성장 플리 동기화 완료 | 추가 {added} · 삭제 {removed} · "
+            f"목표 {len(desired_ids)}곡"
+        )
+
+        if added or removed:
+            send_telegram(
+                "🎶 성장 플리 자동 갱신\n\n"
+                f"🕒 {now_kst()}\n"
+                f"➕ 추가: {added}곡\n"
+                f"➖ 삭제: {removed}곡\n"
+                f"📼 현재 목표: {len(desired_ids)}곡"
+            )
+
+    except Exception as e:
+        # 플리 동기화 실패가 전체 실행을 막지 않도록
+        print(f"⚠️ 성장 플리 동기화 중 오류: {e}")
+        send_telegram(
+            "⚠️ 성장 플리 동기화 실패\n\n"
+            f"🕒 {now_kst()}\n"
+            f"❌ {e}"
+        )
+
+
+
+
+
+# ======================
 # 실행
 # ======================
 
@@ -1274,6 +1495,8 @@ def main():
     print("==============================")
 
     save_data(data)
+
+    sync_growth_playlist(top_videos)
 
 
 if __name__ == "__main__":
