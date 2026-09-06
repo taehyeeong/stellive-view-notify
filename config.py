@@ -89,6 +89,11 @@ EXCLUDED_VIDEO_IDS = [
     # "https://www.youtube.com/watch?v=xxxxxxxxxxx",  # 아이리 칸나 커버 A
 ]
 
+# 성장 플리에 항상 넣을 개인 선곡 (URL 또는 ID)
+GROWTH_PLAYLIST_PINNED = [
+    # "https://www.youtube.com/watch?v=xxxx",
+]
+
 
 
 

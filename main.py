@@ -38,7 +38,8 @@ from config import (
     SYNC_GROWTH_PLAYLIST,
     GROWTH_PLAYLIST_REMOVE_MISSING,
     MAX_PLAYLIST_OPS_PER_RUN,
-    EXCLUDED_VIDEO_IDS
+    EXCLUDED_VIDEO_IDS,
+    GROWTH_PLAYLIST_PINNED
 )
 
 
@@ -1330,7 +1331,18 @@ def sync_growth_playlist(top_videos):
 
         arranged = arrange_for_variety(top_videos)
         desired_ids = [v["video_id"] for v in arranged if v.get("video_id")]
+
+        # 개인 고정 선곡 — 맨 앞에 항상 포함 (중복 제거)
+        pinned = []
+        for raw in GROWTH_PLAYLIST_PINNED:
+            vid = extract_video_id(raw)
+            if vid and vid not in pinned:
+                pinned.append(vid)
+
+        desired_ids = pinned + [vid for vid in desired_ids if vid not in pinned]
+
         desired_set = set(desired_ids)
+
 
         current_items = fetch_playlist_items(access_token, GROWTH_PLAYLIST_ID)
         current_set = {
@@ -1502,10 +1514,17 @@ def main():
             display_title = clean_song_title(title, effective_artists)
 
         if titles_ok and video_id not in overrides:
-            entry = {"title": display_title, "artists": effective_artists}
+            entry = {
+                "title": display_title,
+                "artists": effective_artists,
+                "orig": title,
+                "url": f"https://youtu.be/{video_id}"
+            }
             titles_raw[video_id] = entry
             overrides[video_id] = entry
             titles_dirty = True
+
+
 
 
 
