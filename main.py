@@ -537,10 +537,6 @@ def build_override_map(titles_raw):
 
 
 
-titles_raw, titles_ok = load_titles()
-overrides = build_override_map(titles_raw)
-titles_dirty = False
-
 
 def get_excluded_video_ids():
     result = set()
@@ -1440,6 +1436,10 @@ def main():
     new_videos = 0
 
     data = load_data()
+
+    titles_raw, titles_ok = load_titles()
+    overrides = build_override_map(titles_raw)
+    titles_dirty = False
 
     # 데이터가 비어있으면(초기화/손상 등) 이번 실행은 조용히 기준선만 재생성
     # → 모든 영상에 "새 영상" 알림이 도배되는 것 방지
