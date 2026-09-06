@@ -365,6 +365,17 @@ def get_artist_info(artist_name):
         "aliases": [artist_name]
     }
 
+def expand_artists(artist_list):
+    result = []
+    for name in artist_list:
+        if name in UNITS:                     # 유닛명이면 멤버 전체로 확장
+            for member in UNITS[name].keys():
+                if member not in result:
+                    result.append(member)
+        elif name not in result:
+            result.append(name)
+    return result
+
 
 def _is_hangul_char(ch):
     return bool(ch) and (
@@ -1500,7 +1511,7 @@ def main():
         override = overrides.get(video_id)
 
         if override and override["artists"]:
-            effective_artists = override["artists"]
+            effective_artists = expand_artists(override["artists"])
         else:
             effective_artists = auto_artists
 
