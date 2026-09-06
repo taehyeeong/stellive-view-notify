@@ -504,32 +504,42 @@ def extract_video_id(value):
         return match.group(1)
     return value.strip()
 
-def load_title_overrides():
+
+def load_titles():
     try:
         with open(TITLE_FILE, "r", encoding="utf-8") as f:
-            raw = json.load(f)
+            data = json.load(f)
+        return (data, True) if isinstance(data, dict) else ({}, False)
+    except FileNotFoundError:
+        return {}, True
     except Exception:
-        return {}
-    if not isinstance(raw, dict):
-        return {}
+        return {}, False   # JSON 손상 → 덮어쓰기 금지 신호
+
+
+def build_override_map(titles_raw):
     result = {}
-    for key, value in raw.items():
+    for key, value in titles_raw.items():
         vid = extract_video_id(key)
         if not vid:
             continue
-        if isinstance(value, str):          # "id": "제목"
-            title = value
-        elif isinstance(value, dict):       # "id": {"title": "...", "note": "..."}
-            title = value.get("title", "")
-        else:
-            title = ""
-        if isinstance(title, str) and title.strip():
-            result[vid] = title.strip()
+        if isinstance(value, str):
+            result[vid] = {"title": value.strip(), "artists": []}
+        elif isinstance(value, dict):
+            t = value.get("title", "")
+            a = value.get("artists", [])
+            result[vid] = {
+                "title": t.strip() if isinstance(t, str) else "",
+                "artists": [x.strip() for x in a
+                            if isinstance(x, str) and x.strip()]
+                           if isinstance(a, list) else []
+            }
     return result
 
 
 
-title_overrides = load_title_overrides()
+titles_raw, titles_ok = load_titles()
+overrides = build_override_map(titles_raw)
+titles_dirty = False
 
 
 def get_excluded_video_ids():
@@ -1475,20 +1485,28 @@ def main():
         stored_entry = data.get(video_id, {})
 
         # 내가 직접 고친 아티스트(artists_override)가 있으면 그걸 우선 사용
-        effective_artists = resolve_effective_artists(
-            auto_artists,
-            stored_entry.get("artists_override")
-        )
+        override = overrides.get(video_id)
+
+        if override and override["artists"]:
+            effective_artists = override["artists"]
+        else:
+            effective_artists = auto_artists
 
         stored_title = stored_entry.get("title")
-        override_title = title_overrides.get(video_id)
 
-        if override_title:
-            display_title = override_title
+        if override and override["title"]:
+            display_title = override["title"]
         elif isinstance(stored_title, str) and stored_title.strip():
             display_title = stored_title.strip()
         else:
             display_title = clean_song_title(title, effective_artists)
+
+        if titles_ok and video_id not in overrides:
+            entry = {"title": display_title, "artists": effective_artists}
+            titles_raw[video_id] = entry
+            overrides[video_id] = entry
+            titles_dirty = True
+
 
 
         artist_info = get_notification_artist_info(effective_artists)
@@ -1569,7 +1587,7 @@ def main():
 
         new_entry = {
             "title": display_title,
-            "artists": auto_artists,
+            "artists": effective_artists,
             "unit": video.get("unit", ""),
             "views": views,
             "history": history,
@@ -1614,6 +1632,17 @@ def main():
     )
 
     save_data(data)
+
+    if titles_ok and titles_dirty:
+        with open(TITLE_FILE, "w", encoding="utf-8") as f:
+            json.dump(titles_raw, f, ensure_ascii=False, indent=2)
+        print("📝 titles.json에 새 영상 자동 추가")
+
+    if not titles_ok:
+        send_telegram(
+            "⚠️ titles.json 형식 오류로 읽지 못함\n"
+            "오버라이드 무시 + 자동추가 건너뜀. 문법 확인 필요."
+        )
 
     top_videos = get_top_growth_videos(
         data,
