@@ -62,6 +62,8 @@ YOUTUBE_REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
 # ======================
 
 DATA_FILE = "views.json"
+TITLE_FILE = "titles.json"
+
 HISTORY_LIMIT = 30
 
 
@@ -501,6 +503,34 @@ def extract_video_id(value):
     if match:
         return match.group(1)
     return value.strip()
+
+def load_title_overrides():
+    try:
+        with open(TITLE_FILE, "r", encoding="utf-8") as f:
+            raw = json.load(f)
+    except Exception:
+        return {}
+    if not isinstance(raw, dict):
+        return {}
+    result = {}
+    for key, value in raw.items():
+        vid = extract_video_id(key)
+        if not vid:
+            continue
+        if isinstance(value, str):          # "id": "제목"
+            title = value
+        elif isinstance(value, dict):       # "id": {"title": "...", "note": "..."}
+            title = value.get("title", "")
+        else:
+            title = ""
+        if isinstance(title, str) and title.strip():
+            result[vid] = title.strip()
+    return result
+
+
+
+title_overrides = load_title_overrides()
+
 
 def get_excluded_video_ids():
     result = set()
@@ -1451,11 +1481,15 @@ def main():
         )
 
         stored_title = stored_entry.get("title")
+        override_title = title_overrides.get(video_id)
 
-        if isinstance(stored_title, str) and stored_title.strip():
+        if override_title:
+            display_title = override_title
+        elif isinstance(stored_title, str) and stored_title.strip():
             display_title = stored_title.strip()
         else:
             display_title = clean_song_title(title, effective_artists)
+
 
         artist_info = get_notification_artist_info(effective_artists)
 
