@@ -146,20 +146,29 @@ def _fallback_fonts(size):
         "base": _font("Pretendard-Bold.otf", size),          # 한글·영문·숫자
         "cjk":  _font_at("NotoSansCJKkr-Bold.otf", size),    # 한자·일본어·☆·로마숫자
         "math": _font_at("STIXTwoMath-Regular.otf", size),   # STIX
+        "symbol": _font_at("NotoSansSymbols2-Regular.ttf", size)
     }
 
 def _kind(ch):
     o = ord(ch)
-    if 0x1D400 <= o <= 0x1D7FF:                       # 수학 알파벳·숫자
+    if 0x1D400 <= o <= 0x1D7FF:
         return "math"
-    if 0x1F000 <= o <= 0x1FAFF or 0x1F1E6 <= o <= 0x1F1FF:  # 컬러 이모지
+    if 0x1F000 <= o <= 0x1FAFF or 0x1F1E6 <= o <= 0x1F1FF:
         return "emoji"
-    if (0x2E80 <= o <= 0x9FFF or 0x3040 <= o <= 0x30FF or   # 한자·가나
-        0xFF00 <= o <= 0xFFEF or 0x2150 <= o <= 0x218F or   # 전각·로마숫자
-        0x2460 <= o <= 0x24FF or 0x2600 <= o <= 0x27BF or   # 원문자·☆ 등 기호
-        0x2B00 <= o <= 0x2BFF or 0x3000 <= o <= 0x303F):    # ⭐ 등·CJK 구두점
+    if (0x2600 <= o <= 0x27BF or       # ✧✦☁★ 등 기호·딩벳
+        0x2B00 <= o <= 0x2BFF or       # ⭐ 등
+        0x2190 <= o <= 0x21FF or       # 화살표
+        0x2300 <= o <= 0x23FF):        # 기타 기호
+        return "symbol"
+    if (0x2E80 <= o <= 0x9FFF or        # 한자
+        0x3040 <= o <= 0x30FF or        # 가나
+        0xFF00 <= o <= 0xFFEF or        # 전각
+        0x2150 <= o <= 0x218F or        # 로마숫자
+        0x2460 <= o <= 0x24FF or        # 원문자
+        0x3000 <= o <= 0x303F):         # CJK 구두점
         return "cjk"
     return "base"
+
 
 def _emoji_img(mark, target_h):
     if not mark:
@@ -187,8 +196,10 @@ def _emoji_img(mark, target_h):
 def _draw_rich_text(base, draw, pos, text, size, fill, emoji_h=None):
     fonts = _fallback_fonts(size)
     emoji_h = emoji_h or int(size * 0.9)
-    x, y = pos                                        # y = baseline (anchor 'ls')
+    x, y = pos
     for ch in text:
+        if ord(ch) in (0xFE0E, 0xFE0F, 0x200D):   # 변이선택자·ZWJ 무시
+            continue
         k = _kind(ch)
         if k == "emoji":
             img = _emoji_img(ch, emoji_h)
@@ -200,6 +211,20 @@ def _draw_rich_text(base, draw, pos, text, size, fill, emoji_h=None):
         draw.text((x, y), ch, font=f, fill=fill, anchor="ls")
         x += draw.textlength(ch, font=f)
 
+def _measure_rich(draw, text, size):
+    fonts = _fallback_fonts(size)
+    emoji_h = int(size * 0.9)
+    w = 0
+    for ch in text:
+        if ord(ch) in (0xFE0E, 0xFE0F, 0x200D):
+            continue
+        k = _kind(ch)
+        if k == "emoji":
+            w += emoji_h + 4
+            continue
+        f = fonts.get(k) or fonts["base"]
+        w += draw.textlength(ch, font=f)
+    return w
 
 
 def make_milestone_card(video_id, title, artist, views_text, out_path,
@@ -262,7 +287,12 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
     draw.text((MX, y), artist, font=f_artist, fill=soft, anchor="ls")
 
     y -= asc(f_artist) + GAP
-    _draw_rich_text(base, draw, (MX, y), title, 74, white)
+    max_w = W - MX * 2
+    title_size = 74
+    while title_size > 38 and _measure_rich(draw, title, title_size) > max_w:
+        title_size -= 3
+    _draw_rich_text(base, draw, (MX, y), title, title_size, white)
+
 
     num_fill = accent if is_grand else white     
     y -= asc(f_title) + GAP + 8
