@@ -24,6 +24,10 @@ jobs:
     # 비정상적으로 오래 걸리는 경우 중단
     timeout-minutes: 5
 
+    # ⏯️ 스케쥴 토글: 수동 실행은 항상 허용,
+    # 정기 실행은 변수 SCHEDULE_ENABLED가 'false'일 때만 멈춤
+    if: github.event_name != 'schedule' || vars.SCHEDULE_ENABLED != 'false'
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,7 +56,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add views.json
+          git add views.json titles.json
           if git diff --cached --quiet; then
             echo "변경 없음 — 커밋 생략"
             exit 0

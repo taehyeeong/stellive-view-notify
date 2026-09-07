@@ -377,6 +377,20 @@ def expand_artists(artist_list):
             result.append(name)
     return result
 
+def collapse_artists(artist_list):
+    """한 유닛의 멤버가 전부 들어있으면 그 멤버들을 유닛명 하나로 합친다."""
+    remaining = list(artist_list)
+    result = []
+    for unit, members in UNITS.items():
+        member_names = list(members.keys())
+        if len(member_names) < 2:      # 스텔라이브(단일)는 합치지 않음
+            continue
+        if all(m in remaining for m in member_names):
+            result.append(unit)
+            remaining = [a for a in remaining if a not in member_names]
+    result.extend(remaining)           # 유닛으로 안 묶인 개별 아티스트는 그대로
+    return result
+
 
 def _is_hangul_char(ch):
     return bool(ch) and (
@@ -1529,7 +1543,7 @@ def main():
         if titles_ok and video_id not in overrides:
             entry = {
                 "title": display_title,
-                "artists": effective_artists,
+                "artists": collapse_artists(effective_artists),
                 "orig": title,
                 "url": f"https://youtu.be/{video_id}"
             }
