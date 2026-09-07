@@ -43,6 +43,8 @@ from config import (
     UNIT_NICKNAMES
 )
 
+from card import make_milestone_card
+
 
 
 # ======================
@@ -143,6 +145,29 @@ def send_telegram_photo(message, video_id, reply_markup=None):
 
     return response.ok
 
+def send_card_photo(image_path, caption, reply_markup=None):
+
+    url = (
+        f"https://api.telegram.org/"
+        f"bot{TELEGRAM_TOKEN}/sendPhoto"
+    )
+
+    data = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "caption": caption
+    }
+    if reply_markup:
+        data["reply_markup"] = json.dumps(reply_markup)
+
+    with open(image_path, "rb") as f:
+        response = requests.post(
+            url, data=data, files={"photo": f}, timeout=30
+        )
+
+    print("===== Telegram Card 결과 =====")
+    print(response.status_code, response.text)
+    return response.ok
+
 
 def make_x_button(text):
     tweet_url = "https://twitter.com/intent/tweet?text=" + quote(text)
@@ -153,14 +178,29 @@ def make_x_button(text):
     }
 
 
-def send_notification(message, video_id=None):
+def send_notification(message, video_id=None, card_info=None):
 
     markup = make_x_button(message)
+
+    if video_id and card_info:
+        try:
+            card_path = make_milestone_card(
+                video_id,
+                card_info["title"],
+                card_info["artist"],
+                card_info["views_text"],
+                f"/tmp/card_{video_id}.png"
+            )
+            if send_card_photo(card_path, message, reply_markup=markup):
+                return
+        except Exception as e:
+            print(f"⚠️ 카드 생성/전송 실패 → 기본 썸네일로 대체: {e}")
 
     if video_id and send_telegram_photo(message, video_id, reply_markup=markup):
         return
 
     send_telegram(message, reply_markup=markup)
+
 
 
 
@@ -996,13 +1036,8 @@ def get_notification_artist_info(artist_names):
 # ======================
 
 def check_milestone(
-    old_views,
-    views,
-    title,
-    url,
-    notified,
-    artist_info,
-    video_id
+    old_views, views, title, url, notified,
+    artist_info, video_id, artist_display=""
 ):
 
     alerts = []
@@ -1017,44 +1052,35 @@ def check_milestone(
     if new_step > old_step:
         for i in range(old_step + 1, new_step + 1):
             count = i * VIEW_STEP
-
             if count in MILESTONES:
                 continue
-
             if count not in notified:
-                alerts.append(
-                    {
-                        "message": MILESTONE_TEMPLATE.format(
-                            keyword=keywords,
-                            nickname=nicknames,
-                            title=title,
-                            views_text=f"{count / 10000:g}만",
-                            url=url
-                        ),
-                        "video_id": video_id
-                    }
-                )
-
-            new_notified.append(count)
+                views_text = f"{count / 10000:g}만"
+                alerts.append({
+                    "message": MILESTONE_TEMPLATE.format(
+                        keyword=keywords, nickname=nicknames,
+                        title=title, views_text=views_text, url=url
+                    ),
+                    "video_id": video_id,
+                    "title": title,
+                    "artist": artist_display,
+                    "views_text": views_text
+                })
+                new_notified.append(count)
 
     for milestone in set(MILESTONES):
-        if (
-            old_views < milestone <= views
-            and milestone not in notified
-        ):
-            alerts.append(
-                {
-                    "message": MILESTONE_TEMPLATE.format(
-                        keyword=keywords,
-                        nickname=nicknames,
-                        title=title,
-                        views_text=f"{milestone / 10000:g}만",
-                        url=url
-                    ),
-                    "video_id": video_id
-                }
-            )
-
+        if old_views < milestone <= views and milestone not in notified:
+            views_text = f"{milestone / 10000:g}만"
+            alerts.append({
+                "message": MILESTONE_TEMPLATE.format(
+                    keyword=keywords, nickname=nicknames,
+                    title=title, views_text=views_text, url=url
+                ),
+                "video_id": video_id,
+                "title": title,
+                "artist": artist_display,
+                "views_text": views_text
+            })
         if old_views < milestone <= views:
             new_notified.append(milestone)
 
@@ -1612,17 +1638,23 @@ def main():
             new_notified = []
         else:
             messages, new_notified = check_milestone(
-                old_views,
-                views,
-                display_title,
-                url,
+                old_views, views, display_title, url,
                 data.get(video_id, {}).get("notified", []),
-                artist_info,
-                video_id
+                artist_info, video_id,
+                " · ".join(collapse_artists(effective_artists))
             )
 
         for alert in messages:
-            send_notification(alert["message"], alert["video_id"])
+            send_notification(
+                alert["message"],
+                alert["video_id"],
+                card_info={
+                    "title": alert["title"],
+                    "artist": alert["artist"],
+                    "views_text": alert["views_text"]
+                }
+            )
+
 
         if is_new and (INITIAL_SETUP or baseline_mode):
             notified = get_reached_milestones(views)
