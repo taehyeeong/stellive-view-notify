@@ -191,8 +191,8 @@ def send_notification(message, video_id=None, card_info=None):
                 card_info["artist"],
                 card_info["views_text"],
                 f"/tmp/card_{video_id}.png",
-                song_type=card_info.get("song_type", "")
-
+                song_type=card_info.get("song_type", ""),
+                card_opts=card_info.get("card_opts")
             )
             if send_card_photo(card_path, message, reply_markup=markup):
                 return
@@ -593,7 +593,7 @@ def build_override_map(titles_raw):
         if not vid:
             continue
         if isinstance(value, str):
-            result[vid] = {"title": value.strip(), "artists": []}
+            result[vid] = {"title": value.strip(), "artists": [], "card": None}
         elif isinstance(value, dict):
             t = value.get("title", "")
             a = value.get("artists", [])
@@ -601,9 +601,11 @@ def build_override_map(titles_raw):
                 "title": t.strip() if isinstance(t, str) else "",
                 "artists": [x.strip() for x in a
                             if isinstance(x, str) and x.strip()]
-                           if isinstance(a, list) else []
+                           if isinstance(a, list) else [],
+                "card": value.get("card") if isinstance(value.get("card"), dict) else None
             }
     return result
+
 
 
 
@@ -1665,8 +1667,8 @@ def main():
                     "title": alert["title"],
                     "artist": alert["artist"],
                     "views_text": alert["views_text"],
-                    "song_type": detect_song_type(title) if SHOW_SONG_TYPE_BADGE else ""
-
+                    "song_type": detect_song_type(title) if SHOW_SONG_TYPE_BADGE else "",
+                    "card_opts": (overrides.get(video_id) or {}).get("card")
                 }
             )
 

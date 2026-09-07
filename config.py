@@ -25,7 +25,7 @@ SYNC_GROWTH_PLAYLIST = True
 GROWTH_PLAYLIST_REMOVE_MISSING = True
 
 # 카드 상단 ORIGINAL / COVER 배지 표시 여부
-SHOW_SONG_TYPE_BADGE = True
+SHOW_SONG_TYPE_BADGE = False
 
 
 # 음악 영상으로 판단할 제목 키워드
