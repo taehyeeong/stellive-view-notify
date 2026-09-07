@@ -367,15 +367,13 @@ def get_channel_id(handle):
 
 
 def sort_artists_by_config_order(artist_names):
-
     ordered_names = []
-
-    for unit, artists in UNITS.items():
-        for artist_name in artists.keys():
+    for unit, unit_data in UNITS.items():
+        for artist_name in unit_data["members"].keys():
             if artist_name in artist_names:
                 ordered_names.append(artist_name)
-
     return ordered_names
+
 
 
 # =========================
@@ -398,25 +396,21 @@ def is_excluded(title):
 # =========================
 
 def get_artist_info(artist_name):
-
-    for unit, artists in UNITS.items():
-        if artist_name in artists:
-            return artists[artist_name]
-
-    # 기본 예외 대체 사전 제공 (에러 방지)
+    for unit, unit_data in UNITS.items():
+        members = unit_data["members"]
+        if artist_name in members:
+            return members[artist_name]
     return {
-        "channel": "",
-        "display": artist_name,
-        "keyword": "",
-        "nickname": artist_name,
-        "aliases": [artist_name]
+        "channel": "", "display": artist_name, "keyword": "",
+        "nickname": artist_name, "aliases": [artist_name],
+        "color": "", "mark": ""
     }
 
 def expand_artists(artist_list):
     result = []
     for name in artist_list:
-        if name in UNITS:                     # 유닛명이면 멤버 전체로 확장
-            for member in UNITS[name].keys():
+        if name in UNITS:
+            for member in UNITS[name]["members"].keys():
                 if member not in result:
                     result.append(member)
         elif name not in result:
@@ -424,18 +418,18 @@ def expand_artists(artist_list):
     return result
 
 def collapse_artists(artist_list):
-    """한 유닛의 멤버가 전부 들어있으면 그 멤버들을 유닛명 하나로 합친다."""
     remaining = list(artist_list)
     result = []
-    for unit, members in UNITS.items():
-        member_names = list(members.keys())
-        if len(member_names) < 2:      # 스텔라이브(단일)는 합치지 않음
+    for unit, unit_data in UNITS.items():
+        member_names = list(unit_data["members"].keys())
+        if len(member_names) < 2:
             continue
         if all(m in remaining for m in member_names):
             result.append(unit)
             remaining = [a for a in remaining if a not in member_names]
-    result.extend(remaining)           # 유닛으로 안 묶인 개별 아티스트는 그대로
+    result.extend(remaining)
     return result
+
 
 
 def _is_hangul_char(ch):
@@ -490,6 +484,12 @@ def normalize_artists(artists):
     ]
     return list(dict.fromkeys(cleaned))
 
+def resolve_artist_mark(artist_display, effective_artists):
+    for name in [artist_display] + list(effective_artists):
+        m = get_artist_info(name).get("mark")
+        if m:
+            return m
+    return ""
 
 def resolve_effective_artists(auto_artists, override):
     """
@@ -503,17 +503,12 @@ def resolve_effective_artists(auto_artists, override):
 
 
 def get_artists_from_title(title):
-
     title_lower = title.lower()
     matched_artists = []
-
-    for unit, artists in UNITS.items():
-
+    for unit, unit_data in UNITS.items():
         if unit == "스텔라이브":
             continue
-
-        for artist_name, artist_info in artists.items():
-
+        for artist_name, artist_info in unit_data["members"].items():
             aliases = [
                 artist_name,
                 artist_info.get("display", artist_name),
@@ -521,16 +516,9 @@ def get_artists_from_title(title):
                 artist_info.get("nickname", ""),
                 *artist_info.get("aliases", [])
             ]
-
-            if any(
-                isinstance(alias, str) and alias_in_title(alias, title_lower)
-                for alias in aliases
-            ):
+            if any(isinstance(a, str) and alias_in_title(a, title_lower) for a in aliases):
                 matched_artists.append(artist_name)
-
-    return sort_artists_by_config_order(
-        list(dict.fromkeys(matched_artists))
-    )
+    return sort_artists_by_config_order(list(dict.fromkeys(matched_artists)))
 
 
 
@@ -642,7 +630,7 @@ def get_playlist_videos():
         if unit not in checked_units:
             checked_units.append(unit)
 
-        for artist_name, info in artists.items():
+        for artist_name, info in artists["members"].items():
 
             if artist_name not in checked_artists:
                 checked_artists.append(artist_name)
@@ -709,7 +697,7 @@ def get_playlist_videos():
 
 
     # 2단계: 스텔라이브 본계 재생목록
-    stellive_artists = UNITS.get("스텔라이브", {})
+    stellive_artists = UNITS.get("스텔라이브", {}).get("members", {})
 
     for artist_name, info in stellive_artists.items():
 
@@ -799,7 +787,7 @@ def get_playlist_videos():
 
     # 각 아티스트에 직접 추가한 개별 영상 주입 (UNITS의 "videos")
     for unit, artists in UNITS.items():
-        for artist_name, info in artists.items():
+        for artist_name, info in artists["members"].items():
             for raw_video in info.get("videos", []):
                 manual_id = extract_video_id(raw_video)
                 if not manual_id:
@@ -1165,9 +1153,11 @@ def resolve_artist_color(artist_display, effective_artists):
     if not USE_ARTIST_COLOR:
         return None
     for name in [artist_display] + list(effective_artists):
-        if ARTIST_COLORS.get(name):
-            return ARTIST_COLORS[name]
+        c = get_artist_info(name).get("color")
+        if c:
+            return c
     return None
+
 
 
 def clean_song_title(title, artist_names=None):
@@ -1616,7 +1606,8 @@ def main():
             unit_names = [n for n in override["artists"] if n in UNITS]
             if unit_names:
                 artist_info = dict(artist_info)
-                artist_info["nickname"] = UNIT_NICKNAMES.get(unit_names[0], "얘들아 !!")
+                artist_info["nickname"] = UNITS[unit_names[0]].get("nickname", "얘들아 !!")
+
 
 
         url = f"https://www.youtube.com/watch?v={video_id}"
@@ -1730,7 +1721,7 @@ def main():
                 "eta_days": growth["eta_days"]
             },
             "growth_score": score,
-            "notified": list(set(notified)),
+            "notified": sorted(set(notified)),
             "updated": str(now_kst())
         }
 

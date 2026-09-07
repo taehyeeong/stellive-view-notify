@@ -4,9 +4,13 @@ import io
 import os
 import colorsys
 import requests
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+
+
 
 FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+
+EMOJI_FONT_PATH = os.path.join(FONT_DIR, "NotoColorEmoji.ttf")
 
 
 def _font(name, size):
@@ -95,6 +99,16 @@ def _dominant_pair(palette):
     return top, second
 
 
+def _glow(size, center, radius, color, alpha):
+    layer = Image.new("RGBA", size, (0, 0, 0, 0))
+    d = ImageDraw. Draw(layer)
+    x, y = center
+    d.ellipse([x - radius, y - radius, x + radius, y + radius],
+              fill=(color[0], color[1], color[2], alpha))
+    return layer.filter(ImageFilter.GaussianBlur(radius * 0.5))
+
+
+
 def _scale(rgb, f):
     return tuple(max(0, min(255, int(c * f))) for c in rgb)
 
@@ -118,6 +132,74 @@ def _lin_gradient(size, horizontal, a0, a1, edge):
             t = min(1.0, (y / h) / edge) if edge > 0 else 1.0
             px[0, y] = int(a0 + (a1 - a0) * t)
     return line.resize((w, h))
+
+
+
+def _font_at(name, size):
+    try:
+        return ImageFont.truetype(os.path.join(FONT_DIR, name), size)
+    except Exception:
+        return None
+
+def _fallback_fonts(size):
+    return {
+        "base": _font("Pretendard-Bold.otf", size),          # 한글·영문·숫자
+        "cjk":  _font_at("NotoSansCJKkr-Bold.otf", size),    # 한자·일본어·☆·로마숫자
+        "math": _font_at("NotoSansMath-Regular.ttf", size),  # 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭
+    }
+
+def _kind(ch):
+    o = ord(ch)
+    if 0x1D400 <= o <= 0x1D7FF:                       # 수학 알파벳·숫자
+        return "math"
+    if 0x1F000 <= o <= 0x1FAFF or 0x1F1E6 <= o <= 0x1F1FF:  # 컬러 이모지
+        return "emoji"
+    if (0x2E80 <= o <= 0x9FFF or 0x3040 <= o <= 0x30FF or   # 한자·가나
+        0xFF00 <= o <= 0xFFEF or 0x2150 <= o <= 0x218F or   # 전각·로마숫자
+        0x2460 <= o <= 0x24FF or 0x2600 <= o <= 0x27BF or   # 원문자·☆ 등 기호
+        0x2B00 <= o <= 0x2BFF or 0x3000 <= o <= 0x303F):    # ⭐ 등·CJK 구두점
+        return "cjk"
+    return "base"
+
+def _emoji_img(mark, target_h):
+    if not mark:
+        return None
+    f = None
+    for sz in (137, 136, 109):
+        try:
+            f = ImageFont.truetype(EMOJI_FONT_PATH, sz); break
+        except Exception:
+            f = None
+    if f is None:
+        return None
+    try:
+        tmp = Image.new("RGBA", (170, 170), (0, 0, 0, 0))
+        ImageDraw.Draw(tmp).text((6, 6), mark, font=f, embedded_color=True)
+        bbox = tmp.getbbox()
+        if not bbox:
+            return None
+        glyph = tmp.crop(bbox)
+        scale = target_h / glyph.height
+        return glyph.resize((max(1, int(glyph.width * scale)), target_h), Image.LANCZOS)
+    except Exception:
+        return None
+
+def _draw_rich_text(base, draw, pos, text, size, fill, emoji_h=None):
+    fonts = _fallback_fonts(size)
+    emoji_h = emoji_h or int(size * 0.9)
+    x, y = pos                                        # y = baseline (anchor 'ls')
+    for ch in text:
+        k = _kind(ch)
+        if k == "emoji":
+            img = _emoji_img(ch, emoji_h)
+            if img:
+                base.paste(img, (int(x), int(y - emoji_h)), img)
+                x += img.width + 4
+            continue
+        f = fonts.get(k) or fonts["base"]
+        draw.text((x, y), ch, font=f, fill=fill, anchor="ls")
+        x += draw.textlength(ch, font=f)
+
 
 
 def make_milestone_card(video_id, title, artist, views_text, out_path,
@@ -150,6 +232,13 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
     base = Image.composite(tint_left, base, _lin_gradient((W, H), True, left_a, 0, 0.72)) # left_a 스크림 진하기(글자 안 보일 때)
     base = Image.composite(tint_bot, base, _lin_gradient((W, H), False, 0, bot_a, 0.5))
 
+    # 특별 카드: 숫자 뒤 은은한 광
+    is_grand = bool(card_opts.get("grand"))
+    if is_grand:
+        glow = _glow((W, H), (MX + 220, int(H * 0.40)), 360, accent, 130)
+        base = Image.alpha_composite(base.convert("RGBA"), glow).convert("RGB")
+
+
     draw = ImageDraw.Draw(base)
 
     f_num = _font("Pretendard-ExtraBold.otf", 200)
@@ -173,13 +262,14 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
     draw.text((MX, y), artist, font=f_artist, fill=soft, anchor="ls")
 
     y -= asc(f_artist) + GAP
-    draw.text((MX, y), title, font=f_title, fill=white, anchor="ls")
+    _draw_rich_text(base, draw, (MX, y), title, 74, white)
 
+    num_fill = accent if is_grand else white     
     y -= asc(f_title) + GAP + 8
-    draw.text((MX, y), num_part, font=f_num, fill=white, anchor="ls")
+    draw.text((MX, y), num_part, font=f_num, fill=num_fill, anchor="ls")
     if unit_part:
         nw = draw.textlength(num_part, font=f_num)
-        draw.text((MX + nw + 14, y), unit_part, font=f_unit, fill=white, anchor="ls")
+        draw.text((MX + nw + 14, y), unit_part, font=f_unit, fill=num_fill, anchor="ls")
 
     # 배지: tagline(오버라이드) > song_type
     badge_text = card_opts.get("tagline") or song_type
@@ -188,12 +278,6 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
         r = 10
         draw.ellipse((MX, y - r * 2, MX + r * 2, y), fill=accent)
         draw.text((MX + r * 2 + 16, y), badge_text, font=f_badge, fill=soft, anchor="ls")
-
-
-    # 특별 카드 테두리 (100만·1000만 등)
-    if card_opts.get("frame"):
-        m = 34
-        draw.rectangle([m, m, W - m, H - m], outline=accent, width=3)
 
 
     base.save(out_path, "PNG")

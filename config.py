@@ -26,37 +26,24 @@ SHOW_SONG_TYPE_BADGE = False
 
 # ── 아티스트별 대표 색 (원하는 것만 채우기, 비우면 자동 추출) ──
 USE_ARTIST_COLOR = True
-ARTIST_COLORS = {
-    "유니버스": "",     # 유닛 색도 가능
-    "에버리스": "",
-    "클리셰": "",
-    "아야츠노 유니": "",
-    "사키하네 후야": "",
-    "시라유키 히나": "",
-    "네네코 마시로": "",
-    "아카네 리제": "",
-    "아라하시 타비": "",
-    "텐코 시부키": "",
-    "아오쿠모 린": "",
-    "하나코 나나": "",
-    "유즈하 리코": ""
-}
+
 
 # ── 특별 축하 카드 (마일스톤값: 스타일). 500만 추가하려면 5000000 항목만 추가 ──
 SPECIAL_MILESTONES = {
     1000000: {                    # 100만
-        "tagline": "🎉 100만 축하해",
+        "tagline": "100만 축하해",
         "accent": "#f5c451",      # 골드
         "tint": "#2a2114",
-        "frame": True,
+        "grand": True,
     },
     10000000: {                   # 1000만
-        "tagline": "1000만",
+        "tagline": "1000만 돌파",
         "accent": "#7fe7ff",      # 다이아 블루
         "tint": "#0e2230",
-        "frame": True,
+        "grand": True,
     },
 }
+
 
 
 # 음악 영상으로 판단할 제목 키워드
@@ -150,281 +137,269 @@ BOT_SELECT_MEMBER_TEXT = (
 )
 
 
-UNIT_NICKNAMES = {
-    "스텔라이브": "얘들아 !!",
-    "에버리스": "얘들아 !!",
-    "유니버스": "얘들아 !!",
-    "클리셰": "얘들아 !!",
-}
-
-
 
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
 
     "스텔라이브": {
-       "스텔라이브": {
-            "channel": "@stellive_official",
-            "display": "스텔라이브",
-            "keyword": "#stellive",
-            "nickname": "애들아 !!",
-
-            "aliases": [
-                "스텔라이브",
-                "Stellive",
-                "STELLIVE"
-            ],
-
-            "playlists": [
-                "PLLjd981H8qSMGC4Nir0hD2Gj9n9PDUoHX", # 오리곡
-                "PLLjd981H8qSN9PQ8-X6wINqBF1GjGxusy"  # 노래
-            ],
-            "videos": [
-                "https://youtu.be/_BrWJ31tzYs?si=HW5gG6IhWdQdPG_O", # 유니버스 3D BLACKHOLE 커버
-                "https://youtu.be/imggwZXeePQ?si=NJQI49wCXUxbqVHq"  # 유니버스 3D 학원천국 커버              
-            ]
+        "nickname": "얘들아 !!",
+        "members": {
+            "스텔라이브": {
+                "channel": "@stellive_official",
+                "display": "스텔라이브",
+                "keyword": "#stellive",
+                "nickname": "애들아 !!",
+                "color": "",
+                "mark": "",
+                "aliases": [
+                    "스텔라이브",
+                    "Stellive", 
+                    "STELLIVE",
+                ],
+                "playlists": [
+                    "PLLjd981H8qSMGC4Nir0hD2Gj9n9PDUoHX", #오리곡
+                    "PLLjd981H8qSN9PQ8-X6wINqBF1GjGxusy" #노래
+                ],
+                "videos": [
+                    "https://youtu.be/_BrWJ31tzYs?si=HW5gG6IhWdQdPG_O", # 유니버스 3D BLACKHOLE 커버
+                    "https://youtu.be/imggwZXeePQ?si=NJQI49wCXUxbqVHq"  # 유니버스 3D 학원천국 커버
+                ]
+            }
         }
     },
-
-
     "에버리스": {
-       "아야츠노 유니": {
-            "channel": "@ayatsunoyuni",
-            "display": "아야츠노 유니",
-            "keyword": "#yunikki",
-            "nickname": "유니야",
+        "nickname": "얘들아 !!",
+        "members": {
+            "아야츠노 유니": {
+                "channel": "@ayatsunoyuni",
+                "display": "아야츠노 유니",
+                "keyword": "#yunikki",
+                "nickname": "유니야",
+                "color": "",
+                "mark": "☪️,🤍",
+                "aliases": [
+                    "아야츠노 유니", 
+                    "Ayatsuno Yuni", 
+                    "AYATSUNO YUNI", 
+                    "유니"
+                ],
+                "playlists": [
+                    "PL3HtH_xx9h_4ulddfVG8DdD_EwKUMBqvL", # 오리곡
+                    "PL3HtH_xx9h_7ZGoZ9zMUQ-MPumwe21_cc"  # 노래
+                ],
+                "videos": [
 
-            "aliases": [
-                "아야츠노 유니",
-                "Ayatsuno Yuni",
-                "AYATSUNO YUNI",
-                "유니"
-            ],
+                ]
+            },
+            "사키하네 후야": {
+                "channel": "@Sakihanechannel",
+                "display": "사키하네 후야",
+                "keyword": "#huya_live",
+                "nickname": "후야야",
+                "color": "",
+                "mark": "💜,🐲",
+                "aliases": [
+                    "사키하네 후야", 
+                    "Sakihane Huya", 
+                    "SAKIHANE HUYA", 
+                    "후야"
+                ],
+                "playlists": [
+                    "PL3rF5rqFNO48ZMgPuZ6XbQ1J9IT3TQtcs" #커버곡
+                    ],
+                "videos": [
 
-            "playlists": [
-                "PL3HtH_xx9h_4ulddfVG8DdD_EwKUMBqvL", # 오리곡
-                "PL3HtH_xx9h_7ZGoZ9zMUQ-MPumwe21_cc"  # 노래
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
-        },
-       "사키하네 후야": {
-            "channel": "@Sakihanechannel",
-            "display": "사키하네 후야",
-            "keyword": "#huya_live",
-            "nickname": "후야야",
-
-            "aliases": [
-                "사키하네 후야",
-                "Sakihane Huya",
-                "SAKIHANE HUYA",
-                "후야"
-            ],
-
-            "playlists": [
-                "PL3rF5rqFNO48ZMgPuZ6XbQ1J9IT3TQtcs" # 커버곡
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
+                ]
+            }
         }
-    },
-    
+    }, 
     "유니버스": {
-        "시라유키 히나": {
-                    "channel": "@shirayukihina",
-                    "display": "시라유키 히나",
-                    "keyword": "#daily_hina",
-                    "nickname": "히나얌",
+        "nickname": "얘들아 !!",
+        "members": {
+            "시라유키 히나": {
+                "channel": "@shirayukihina",
+                "display": "시라유키 히나",
+                "keyword": "#daily_hina",
+                "nickname": "히나얌",
+                "color": "",
+                "mark": "🎀,❄️",
+                "aliases": [
+                    "시라유키 히나", 
+                    "Shirayuki Hina", 
+                    "SHIRAYUKI HINA", 
+                    "히나"
+                ],
+                "playlists": [
+                    "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L", # 오리곡
+                    "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc", # 커버곡
+                    "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나의 Playlist
+                    "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO" # 3D
+                ],
+                "videos": [
 
-                    "aliases": [
-                        "시라유키 히나",
-                        "Shirayuki Hina",
-                        "SHIRAYUKI HINA",
-                        "히나"
-                    ],
+                ]
+            },
+            "네네코 마시로": {
+                "channel": "@neneko_mashiro",
+                "display": "네네코 마시로",
+                "keyword": "#dayshiro",
+                "nickname": "찌로야",
+                "color": "",
+                "mark": "🧇,🥛",
+                "aliases": [
+                    "네네코 마시로", 
+                    "Neneko Mashiro", 
+                    "NENEKO MASHIRO", 
+                    "마시로"
+                ],
+                "playlists": [
+                    "PLWwhuXFHGLvgHQY8lryIUP7vf9i8-TJrk", #오리곡
+                    "PLWwhuXFHGLvhgZZb5_rmQEMI1B0ysKJxG" #커버곡
+                ],
+                "videos": [
 
-                    "playlists": [
-                        "PLzdLDJsHzz2OzXsHwt35PHjDq7r93xM1L",  # 오리곡
-                        "PLzdLDJsHzz2NiuwjyW6QgSck4PrwlSyOc",  # 커버곡
-                        "PLzdLDJsHzz2N49b_83u_ug3Lwq7HHWx2W", # 히나 Playlist
-                        "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO"  # 3D Live
-                    ],
-                    "videos": [
-                        # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                        
-                    ]
-                },
-         "네네코 마시로": {
-            "channel": "@neneko_mashiro",
-            "display": "네네코 마시로",
-            "keyword": "#dayshiro",
-            "nickname": "찌로야",
+                ]
+            },
+            "아카네 리제": {
+                "channel": "@akanelize",
+                "display": "아카네 리제",
+                "keyword": "#Lize_daze",
+                "nickname": "리제야",
+                "color": "",
+                "mark": "🩸,🍷",
+                "aliases": [
+                    "아카네 리제", 
+                    "Akane Rize", 
+                    "AKANE RIZE", 
+                    "리제"
+                ],
+                "playlists": [
+                    "PL-DHk0WpiRNSHxQzKx88q2kmJVwlCQCNq", #오리곡
+                    "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX" #커버곡
+                ],
+                "videos": [
+                    "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU" #SYNC 100%
+                ]
+            },
+            "아라하시 타비": {
+                "channel": "@arahashitabi",
+                "display": "아라하시 타비",
+                "keyword": "#luv_tabi",
+                "nickname": "따비야",
+                "color": "",
+                "mark": "🌊,🧭",
+                "aliases": [
+                    "아라하시 타비", 
+                    "Arahashi Tabi", 
+                    "ARAHASHI TABI", 
+                    "타비"
+                ],
+                "playlists": [
+                    "PLbIDsfX2JRA2Qoddb0eKan9yFJ0_MR8Nk", #3D
+                    "PLbIDsfX2JRA0TXoG69AT8Iu9QEB9lUC2s", #오리곡
+                    "PLbIDsfX2JRA0oawGN209gpd_nz9IMvUlb" #커버곡
+                ],
+                "videos": [
 
-            "aliases": [
-                "네네코 마시로",
-                "Neneko Mashiro",
-                "NENEKO MASHIRO",
-                "마시로"
-            ],
-
-            "playlists": [
-                "PLWwhuXFHGLvgHQY8lryIUP7vf9i8-TJrk", # 오리곡
-                "PLWwhuXFHGLvhgZZb5_rmQEMI1B0ysKJxG"  # 커버곡
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
-        },
-         "아카네 리제": {
-            "channel": "@akanelize",
-            "display": "아카네 리제",
-            "keyword": "#Lize_daze",
-            "nickname": "리제야",
-
-            "aliases": [
-                "아카네 리제",
-                "Akane Rize",
-                "AKANE RIZE",
-                "리제"
-            ],
-
-            "playlists": [
-                "PL-DHk0WpiRNSHxQzKx88q2kmJVwlCQCNq", # 오리곡
-                "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX"  # 커버곡
-            ],
-            "videos": [
-                "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU", #SYNC 100%
-                
-                
-            ]
-        },
-        "아라하시 타비": {
-            "channel": "@arahashitabi",
-            "display": "아라하시 타비",
-            "keyword": "#luv_tabi",
-            "nickname": "따비야",
-
-            "aliases": [
-                "아라하시 타비",
-                "Arahashi Tabi",
-                "ARAHASHI TABI",
-                "타비"
-            ],
-
-            "playlists": [
-                "PLbIDsfX2JRA2Qoddb0eKan9yFJ0_MR8Nk", # 3D
-                "PLbIDsfX2JRA0TXoG69AT8Iu9QEB9lUC2s", # 오리곡
-                "PLbIDsfX2JRA0oawGN209gpd_nz9IMvUlb"  # 커버곡
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
+                ]
+            }
         }
     },
-
     "클리셰": {
-        "텐코 시부키": {
-            "channel": "@tenkoshibuki",
-            "display": "텐코 시부키",
-            "keyword": "#for_shibuki",
-            "nickname": "요우신~",
+        "nickname": "얘들아 !!",
+        "members": {
+            "텐코 시부키": {
+                "channel": "@tenkoshibuki",
+                "display": "텐코 시부키",
+                "keyword": "#for_shibuki",
+                "nickname": "요우신~",
+                "color": "",
+                "mark": "⛩️,🕹️",
+                "aliases": [
+                    "텐코 시부키", 
+                    "Tenko Shibuki", 
+                    "TENKO SHIBUKI", 
+                    "시부키", 
+                    "텐코"
+                ],
+                "playlists": [
+                    "PLanLo2fF2MkY",                      #오리곡
+                    "PLKVNBOcsLJlVii-8YwoZTD3o4gh5CnIND", #커버곡
+                    "PLKVNBOcsLJlVmzvd2SpmwHZt6KOkcaarD" #3D
+                ],
+                "videos": [
 
-            "aliases": [
-                "텐코 시부키",
-                "Tenko Shibuki",
-                "TENKO SHIBUKI",
-                "시부키",
-                "텐코"
-            ],
+                ]
+            },
+            "아오쿠모 린": {
+                "channel": "@aokumorin",
+                "display": "아오쿠모 린",
+                "keyword": "#happy_rin",
+                "nickname": "린~",
+                "color": "",
+                "mark": "☁️,🛼",
+                "aliases": [
+                    "아오쿠모 린", 
+                    "Aokumo Rin", 
+                    "AOKUMO RIN", 
+                    "린"
+                ],
+                "playlists": [
+                    "PLSDRWR15h-o7xvAej539Ggs2Kjb22y3_M", #오리곡
+                    "PLSDRWR15h-o4uWNeoLv0upOUUGj12f-yU", #커버곡
+                    "PLSDRWR15h-o5YHBDW4fvHU8UlSCfSuV3r" #3D
+                ],
+                "videos": [
 
-            "playlists": [
-                "PLanLo2fF2MkY",                    # 오리곡
-                "PLKVNBOcsLJlVii-8YwoZTD3o4gh5CnIND", # 커버곡
-                "PLKVNBOcsLJlVmzvd2SpmwHZt6KOkcaarD"  # 3D
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
-        },
-        "아오쿠모 린": {
-            "channel": "@aokumorin",
-            "display": "아오쿠모 린",
-            "keyword": "#happy_rin",
-            "nickname": "린~",
+                ]
+            },
+            "하나코 나나": {
+                "channel": "@hanako_nana",
+                "display": "하나코 나나",
+                "keyword": "#nanaiary",
+                "nickname": "나나야",
+                "color": "",
+                "mark": "🔫,🐰",
+                "aliases": [
+                    "하나코 나나", 
+                    "Hanako Nana", 
+                    "HANAKO NANA", 
+                    "나나"
+                ],
+                "playlists": [
+                    "PLJWmDIpvwe7DSCq5McjxHXQCWfrahkIEE", #3D
+                    "PLJWmDIpvwe7AjKVPmgswsIVg1ETJyzGvB", #콜라보
+                    "PLJWmDIpvwe7CQTYQdGqEipTd7IMX10VHm", #오리곡
+                    "PLJWmDIpvwe7AQ3z5-jML31bfMf4QFEx4T", #Nana Drive
+                    "PLJWmDIpvwe7Cri29xtAyQXLC1RLwOChpA" #커버곡
+                ],
+                "videos": [
 
-            "aliases": [
-                "아오쿠모 린",
-                "Aokumo Rin",
-                "AOKUMO RIN",
-                "린",
-            ],
+                ]
+            },
+            "유즈하 리코": {
+                "channel": "@yuzuhariko",
+                "display": "유즈하 리코",
+                "keyword": "#riko_diary",
+                "nickname": "리코코!",
+                "color": "",
+                "mark": "🍀,⚔️",
+                "aliases": [
+                    "유즈하 리코", 
+                    "Yuzuhariko", 
+                    "YUZUHARIKO", 
+                    "리코"
+                ],
+                "playlists": [
+                    "PL_D2YrKeYY2U6GvgRx8Ai-VaddWQarbnL", # Riko Cloud
+                    "PL_D2YrKeYY2UvRIw_SW3lQXzBDO7aBeii" # 커버곡
+                ],
+                "videos": [
 
-            "playlists": [
-                "PLSDRWR15h-o7xvAej539Ggs2Kjb22y3_M", # 오리곡
-                "PLSDRWR15h-o4uWNeoLv0upOUUGj12f-yU", # 커버곡
-                "PLSDRWR15h-o5YHBDW4fvHU8UlSCfSuV3r"  # 3D
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
-        },
-         "하나코 나나": {
-            "channel": "@hanako_nana",
-            "display": "하나코 나나",
-            "keyword": "#nanaiary",
-            "nickname": "나나야",
-
-            "aliases": [
-                "하나코 나나",
-                "Hanako Nana",
-                "HANAKO NANA",
-                "나나"
-            ],
-
-            "playlists": [
-                "PLJWmDIpvwe7DSCq5McjxHXQCWfrahkIEE", # 3D
-                "PLJWmDIpvwe7AjKVPmgswsIVg1ETJyzGvB", # 콜라보
-                "PLJWmDIpvwe7CQTYQdGqEipTd7IMX10VHm", # 오리곡
-                "PLJWmDIpvwe7AQ3z5-jML31bfMf4QFEx4T", # Nana Drive
-                "PLJWmDIpvwe7Cri29xtAyQXLC1RLwOChpA"  # 커버곡
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
-        },
-        "유즈하 리코": {
-            "channel": "@yuzuhariko",
-            "display": "유즈하 리코",
-            "keyword": "#riko_diary",
-            "nickname": "리코코!",
-
-            "aliases": [
-                "유즈하 리코",
-                "Yuzuhariko",
-                "YUZUHARIKO",
-                "리코"
-            ],
-
-            "playlists": [
-                "PL_D2YrKeYY2U6GvgRx8Ai-VaddWQarbnL", # Riko Cloud
-                "PL_D2YrKeYY2UvRIw_SW3lQXzBDO7aBeii"  # 커버곡
-            ],
-            "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
-            ]
+                ]
+            }
         }
     }
-}
 
 
 
