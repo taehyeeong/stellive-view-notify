@@ -189,7 +189,8 @@ def send_notification(message, video_id=None, card_info=None):
                 card_info["title"],
                 card_info["artist"],
                 card_info["views_text"],
-                f"/tmp/card_{video_id}.png"
+                f"/tmp/card_{video_id}.png",
+                views_count=card_info.get("views_count")
             )
             if send_card_photo(card_path, message, reply_markup=markup):
                 return
@@ -1064,7 +1065,8 @@ def check_milestone(
                     "video_id": video_id,
                     "title": title,
                     "artist": artist_display,
-                    "views_text": views_text
+                    "views_text": views_text,
+                    "views_count": views
                 })
                 new_notified.append(count)
 
@@ -1079,7 +1081,8 @@ def check_milestone(
                 "video_id": video_id,
                 "title": title,
                 "artist": artist_display,
-                "views_text": views_text
+                "views_text": views_text,
+                "views_count": views
             })
         if old_views < milestone <= views:
             new_notified.append(milestone)
@@ -1651,7 +1654,8 @@ def main():
                 card_info={
                     "title": alert["title"],
                     "artist": alert["artist"],
-                    "views_text": alert["views_text"]
+                    "views_text": alert["views_text"],
+                    "views_count": alert["views_count"]
                 }
             )
 

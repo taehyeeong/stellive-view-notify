@@ -68,7 +68,7 @@ def _apply_scrim(img):
     return img
 
 
-def make_milestone_card(video_id, title, artist, views_text, out_path):
+def make_milestone_card(video_id, title, artist, views_text, out_path, views_count=None):
     W, H = 1600, 900
     MX, MB, GAP = 96, 96, 24                # 여백·줄간격 (조정 가능)
 
@@ -79,6 +79,7 @@ def make_milestone_card(video_id, title, artist, views_text, out_path):
     f_unit   = _font("Pretendard-Bold.otf", 82)
     f_title  = _font("Pretendard-Bold.otf", 74)
     f_artist = _font("Pretendard-Medium.otf", 44)
+    f_count  = _font("Pretendard-Medium.otf", 36)
 
     white, soft = (255, 255, 255), (232, 232, 232)
 
@@ -94,8 +95,13 @@ def make_milestone_card(video_id, title, artist, views_text, out_path):
     y = H - MB
     draw.text((MX, y), artist, font=f_artist, fill=soft, anchor="ls")
 
-    y -= asc(f_artist) + GAP
-    draw.text((MX, y), title, font=f_title, fill=white, anchor="ls")
+    # 아래에서 위로 쌓기
+    y = H - MB
+    if views_count is not None:
+        draw.text((MX, y), f"현재 {views_count:,}회", font=f_count,
+                  fill=(205, 205, 205), anchor="ls")
+        y -= asc(f_count) + GAP
+    draw.text((MX, y), artist, font=f_artist, fill=soft, anchor="ls")
 
     y -= asc(f_title) + GAP + 8
     draw.text((MX, y), num_part, font=f_num, fill=white, anchor="ls")
