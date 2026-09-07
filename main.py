@@ -39,7 +39,8 @@ from config import (
     GROWTH_PLAYLIST_REMOVE_MISSING,
     MAX_PLAYLIST_OPS_PER_RUN,
     EXCLUDED_VIDEO_IDS,
-    GROWTH_PLAYLIST_PINNED
+    GROWTH_PLAYLIST_PINNED,
+    UNIT_NICKNAMES
 )
 
 
@@ -960,6 +961,7 @@ def calculate_growth_score(views, growth):
 
 def get_notification_artist_info(artist_names):
 
+
     artist_infos = [
         get_artist_info(artist_name)
         for artist_name in artist_names
@@ -1540,6 +1542,13 @@ def main():
 
 
         artist_info = get_notification_artist_info(effective_artists)
+
+        # titles.json artists에 유닛명을 적었으면 알림 nickname을 유닛 호칭으로 교체
+        if override and override["artists"]:
+            unit_names = [n for n in override["artists"] if n in UNITS]
+            if unit_names:
+                artist_info = dict(artist_info)
+                artist_info["nickname"] = UNIT_NICKNAMES.get(unit_names[0], "얘들아 !!")
 
 
         url = f"https://www.youtube.com/watch?v={video_id}"
