@@ -123,7 +123,7 @@ def make_milestone_card(video_id, title, artist, views_text, out_path, song_type
 
     # 상단 배지: ORIGINAL / COVER
     if song_type:
-        y -= asc(f_num) + GAP + 6
+        y -= asc(f_num) + GAP + 5
         r = 10
         draw.ellipse((MX, y - r * 2, MX + r * 2, y), fill=accent)
         draw.text((MX + r * 2 + 16, y), song_type, font=f_badge, fill=soft, anchor="ls")

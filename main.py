@@ -40,7 +40,8 @@ from config import (
     MAX_PLAYLIST_OPS_PER_RUN,
     EXCLUDED_VIDEO_IDS,
     GROWTH_PLAYLIST_PINNED,
-    UNIT_NICKNAMES
+    UNIT_NICKNAMES,
+    SHOW_SONG_TYPE_BADGE
 )
 
 from card import make_milestone_card
@@ -1664,7 +1665,8 @@ def main():
                     "title": alert["title"],
                     "artist": alert["artist"],
                     "views_text": alert["views_text"],
-                    "song_type": detect_song_type(title)
+                    "song_type": detect_song_type(title) if SHOW_SONG_TYPE_BADGE else ""
+
                 }
             )
 
