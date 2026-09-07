@@ -67,6 +67,22 @@ def _apply_scrim(img):
     img = Image.composite(black, img, _lin_gradient((w, h), True, 180, 0, 0.72))   # 왼쪽
     return img
 
+def _accent_color(img):
+    """썸네일에서 채도 높은 주요 색 하나 추출 (배지 강조용)."""
+    small = img.resize((64, 64))
+    pal = small.convert("P", palette=Image.ADAPTIVE, colors=8)
+    palette = pal.getpalette()
+    best, best_score = (255, 215, 106), -1
+    for count, idx in pal.getcolors():
+        r, g, b = palette[idx * 3: idx * 3 + 3]
+        mx, mn = max(r, g, b), min(r, g, b)
+        if mx < 70:                       # 너무 어두운 색 제외
+            continue
+        score = (mx - mn) * 2 + mx + count * 0.02
+        if score > best_score:
+            best_score, best = score, (r, g, b)
+    return best
+
 
 def make_milestone_card(video_id, title, artist, views_text, out_path, song_type=""):
     W, H = 1600, 900
