@@ -189,5 +189,12 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
         draw.ellipse((MX, y - r * 2, MX + r * 2, y), fill=accent)
         draw.text((MX + r * 2 + 16, y), badge_text, font=f_badge, fill=soft, anchor="ls")
 
+
+    # 특별 카드 테두리 (100만·1000만 등)
+    if card_opts.get("frame"):
+        m = 34
+        draw.rectangle([m, m, W - m, H - m], outline=accent, width=3)
+
+
     base.save(out_path, "PNG")
     return out_path

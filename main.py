@@ -41,7 +41,10 @@ from config import (
     EXCLUDED_VIDEO_IDS,
     GROWTH_PLAYLIST_PINNED,
     UNIT_NICKNAMES,
-    SHOW_SONG_TYPE_BADGE
+    SHOW_SONG_TYPE_BADGE,
+    USE_ARTIST_COLOR,
+    ARTIST_COLORS,
+    SPECIAL_MILESTONES
 )
 
 from card import make_milestone_card
@@ -1070,7 +1073,8 @@ def check_milestone(
                     "title": title,
                     "artist": artist_display,
                     "views_text": views_text,
-                    "views_count": views
+                    "views_count": views,
+                    "milestone": count
                 })
                 new_notified.append(count)
 
@@ -1086,7 +1090,8 @@ def check_milestone(
                 "title": title,
                 "artist": artist_display,
                 "views_text": views_text,
-                "views_count": views
+                "views_count": views,
+                "milestone": milestone
             })
         if old_views < milestone <= views:
             new_notified.append(milestone)
@@ -1155,6 +1160,14 @@ def detect_song_type(raw_title):
         if kw in t:
             return "COVER"
     return "ORIGINAL"
+
+def resolve_artist_color(artist_display, effective_artists):
+    if not USE_ARTIST_COLOR:
+        return None
+    for name in [artist_display] + list(effective_artists):
+        if ARTIST_COLORS.get(name):
+            return ARTIST_COLORS[name]
+    return None
 
 
 def clean_song_title(title, artist_names=None):
@@ -1660,6 +1673,20 @@ def main():
             )
 
         for alert in messages:
+            song_card = {
+                k: v for k, v in
+                (((overrides.get(video_id) or {}).get("card")) or {}).items() if v
+            }
+            special = SPECIAL_MILESTONES.get(alert.get("milestone"), {})
+            artist_color = resolve_artist_color(alert["artist"], effective_artists)
+
+            opts = {}
+            if artist_color:                 # 낮은 우선순위
+                opts["accent"] = artist_color
+                opts["tint"] = artist_color
+            opts.update(special)             # 특별 마일스톤이 위
+            opts.update(song_card)           # 곡별 지정이 최우선
+
             send_notification(
                 alert["message"],
                 alert["video_id"],
@@ -1668,9 +1695,10 @@ def main():
                     "artist": alert["artist"],
                     "views_text": alert["views_text"],
                     "song_type": detect_song_type(title) if SHOW_SONG_TYPE_BADGE else "",
-                    "card_opts": (overrides.get(video_id) or {}).get("card")
+                    "card_opts": opts
                 }
             )
+
 
 
         if is_new and (INITIAL_SETUP or baseline_mode):
