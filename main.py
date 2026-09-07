@@ -190,7 +190,8 @@ def send_notification(message, video_id=None, card_info=None):
                 card_info["artist"],
                 card_info["views_text"],
                 f"/tmp/card_{video_id}.png",
-                views_count=card_info.get("views_count")
+                song_type=card_info.get("song_type", "")
+
             )
             if send_card_photo(card_path, message, reply_markup=markup):
                 return
@@ -1145,6 +1146,14 @@ def get_top_growth_videos(data, limit=None):
     return candidates[:limit]
 
 
+def detect_song_type(raw_title):
+    t = (raw_title or "").lower()
+    for kw in ["cover", "커버", "歌ってみた", "カバー", "カヴァー"]:
+        if kw in t:
+            return "COVER"
+    return "ORIGINAL"
+
+
 def clean_song_title(title, artist_names=None):
 
     cleaned = title.strip()
@@ -1655,7 +1664,7 @@ def main():
                     "title": alert["title"],
                     "artist": alert["artist"],
                     "views_text": alert["views_text"],
-                    "views_count": alert["views_count"]
+                    "song_type": detect_song_type(title)
                 }
             )
 

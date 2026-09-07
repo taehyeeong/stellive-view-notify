@@ -68,18 +68,19 @@ def _apply_scrim(img):
     return img
 
 
-def make_milestone_card(video_id, title, artist, views_text, out_path, views_count=None):
+def make_milestone_card(video_id, title, artist, views_text, out_path, song_type=""):
     W, H = 1600, 900
-    MX, MB, GAP = 96, 96, 24                # 여백·줄간격 (조정 가능)
+    MX, MB, GAP = 96, 96, 24
 
     img = _apply_scrim(_cover(_load_thumb(video_id), W, H))
+    accent = _accent_color(img)
     draw = ImageDraw.Draw(img)
 
     f_num    = _font("Pretendard-ExtraBold.otf", 200)
     f_unit   = _font("Pretendard-Bold.otf", 82)
     f_title  = _font("Pretendard-Bold.otf", 74)
     f_artist = _font("Pretendard-Medium.otf", 44)
-    f_count  = _font("Pretendard-Medium.otf", 36)
+    f_badge  = _font("Pretendard-Bold.otf", 32)
 
     white, soft = (255, 255, 255), (232, 232, 232)
 
@@ -95,13 +96,8 @@ def make_milestone_card(video_id, title, artist, views_text, out_path, views_cou
     y = H - MB
     draw.text((MX, y), artist, font=f_artist, fill=soft, anchor="ls")
 
-    # 아래에서 위로 쌓기
-    y = H - MB
-    if views_count is not None:
-        draw.text((MX, y), f"현재 {views_count:,}회", font=f_count,
-                  fill=(205, 205, 205), anchor="ls")
-        y -= asc(f_count) + GAP
-    draw.text((MX, y), artist, font=f_artist, fill=soft, anchor="ls")
+    y -= asc(f_artist) + GAP
+    draw.text((MX, y), title, font=f_title, fill=white, anchor="ls")
 
     y -= asc(f_title) + GAP + 8
     draw.text((MX, y), num_part, font=f_num, fill=white, anchor="ls")
@@ -109,7 +105,12 @@ def make_milestone_card(video_id, title, artist, views_text, out_path, views_cou
         nw = draw.textlength(num_part, font=f_num)
         draw.text((MX + nw + 14, y), unit_part, font=f_unit, fill=white, anchor="ls")
 
-    
+    # 상단 배지: ORIGINAL / COVER
+    if song_type:
+        y -= asc(f_num) + GAP + 6
+        r = 10
+        draw.ellipse((MX, y - r * 2, MX + r * 2, y), fill=accent)
+        draw.text((MX + r * 2 + 16, y), song_type, font=f_badge, fill=soft, anchor="ls")
 
     img.save(out_path, "PNG")
     return out_path
