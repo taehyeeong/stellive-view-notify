@@ -149,8 +149,8 @@ UNITS = {
                 "PLLjd981H8qSN9PQ8-X6wINqBF1GjGxusy"  # 노래
             ],
             "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
-                
+                "https://youtu.be/_BrWJ31tzYs?si=HW5gG6IhWdQdPG_O", # 유니버스 3D BLACKHOLE 커버
+                "https://youtu.be/imggwZXeePQ?si=NJQI49wCXUxbqVHq"  # 유니버스 3D 학원천국 커버              
             ]
         }
     },
