@@ -42,23 +42,6 @@ def _cover(img, w, h):
     return img.crop((left, top, left + w, top + h))
 
 
-def _accent_color(img):
-    """썸네일에서 채도 높은 주요 색 하나 추출 (배지 강조용)."""
-    small = img.resize((64, 64))
-    pal = small.convert("P", palette=Image.ADAPTIVE, colors=8)
-    palette = pal.getpalette()
-    best, best_score = (255, 215, 106), -1
-    for count, idx in pal.getcolors():
-        r, g, b = palette[idx * 3: idx * 3 + 3]
-        mx, mn = max(r, g, b), min(r, g, b)
-        if mx < 70:                       # 너무 어두운 색 제외
-            continue
-        score = (mx - mn) * 2 + mx + count * 0.02
-        if score > best_score:
-            best_score, best = score, (r, g, b)
-    return best
-
-
 def _lin_gradient(size, horizontal, a0, a1, edge):
     """단방향 알파 그라데이션 마스크."""
     w, h = size
@@ -90,14 +73,12 @@ def make_milestone_card(video_id, title, artist, views_text, out_path):
     MX, MB, GAP = 96, 96, 24                # 여백·줄간격 (조정 가능)
 
     img = _apply_scrim(_cover(_load_thumb(video_id), W, H))
-    accent = _accent_color(img)
     draw = ImageDraw.Draw(img)
 
     f_num    = _font("Pretendard-ExtraBold.otf", 200)
     f_unit   = _font("Pretendard-Bold.otf", 82)
     f_title  = _font("Pretendard-Bold.otf", 74)
     f_artist = _font("Pretendard-Medium.otf", 44)
-    f_badge  = _font("Pretendard-Bold.otf", 32)
 
     white, soft = (255, 255, 255), (232, 232, 232)
 
@@ -122,10 +103,7 @@ def make_milestone_card(video_id, title, artist, views_text, out_path):
         nw = draw.textlength(num_part, font=f_num)
         draw.text((MX + nw + 14, y), unit_part, font=f_unit, fill=white, anchor="ls")
 
-    y -= asc(f_num) + GAP + 6
-    r = 10
-    draw.ellipse((MX, y - r * 2, MX + r * 2, y), fill=accent)
-    draw.text((MX + r * 2 + 16, y), "MILESTONE", font=f_badge, fill=soft, anchor="ls")
+    
 
     img.save(out_path, "PNG")
     return out_path
