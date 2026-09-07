@@ -265,7 +265,7 @@ UNITS = {
                 "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX"  # 커버곡
             ],
             "videos": [
-                "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU",
+                "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU", #SYNC 100%
                 
                 
             ]
