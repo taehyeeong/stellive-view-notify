@@ -145,7 +145,7 @@ def _fallback_fonts(size):
     return {
         "base": _font("Pretendard-Bold.otf", size),          # 한글·영문·숫자
         "cjk":  _font_at("NotoSansCJKkr-Bold.otf", size),    # 한자·일본어·☆·로마숫자
-        "math": _font_at("NotoSansMath-Regular.ttf", size),  # 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭
+        "math": _font_at("STIXTwoMath-Regular.otf", size),   # STIX
     }
 
 def _kind(ch):
