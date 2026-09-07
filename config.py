@@ -258,7 +258,8 @@ UNITS = {
                 "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX"  # 커버곡
             ],
             "videos": [
-                # 직접 추가할 개별 영상 (URL 또는 ID 아무거나)
+                "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU",
+                
                 
             ]
         },
