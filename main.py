@@ -980,8 +980,8 @@ def calculate_growth_score(views, growth):
         return 0
 
     # ① 상대 성장률: 조회수 대비 얼마나 빠른가 (작은 곡일수록 유리)
-    relative = speed / max(1, views ** 0.6) # 0.6 올리면 묻힌 곡 더 강하게 나옴
-    relative_score = min(100, relative * 60) # 60 올리면 묻힌 곡 더 강하게 나옴
+    relative = speed / max(1, views ** 0.7) # 0.6 올리면 묻힌 곡 더 강하게 나옴
+    relative_score = min(100, relative * 65) # 60 올리면 묻힌 곡 더 강하게 나옴
 
     # ② 절대 속도 (유명곡도 조금 반영, 가중치 낮음)
     speed_score = min(100, speed / 1500)
@@ -992,9 +992,9 @@ def calculate_growth_score(views, growth):
 
     # ④ 저평가 보너스 (조회수 낮은데 성장 중)
     if views < 100000:
-        underdog = 15                   # 15 올리면 묻힌 곡 더 강하게 나옴
+        underdog = 17                   # 15 올리면 묻힌 곡 더 강하게 나옴
     elif views < 300000:
-        underdog = 8                    # 8 올리면 묻힌 곡 더 강하게 나옴
+        underdog = 9                    # 8 올리면 묻힌 곡 더 강하게 나옴
     else:
         underdog = 0
 

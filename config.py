@@ -3,7 +3,7 @@
 VIEW_STEP = 50000
 
 # 성장 가능성 플리에 넣을 최대 영상 수
-MAX_GROWTH_PLAYLIST_VIDEOS = 50
+MAX_GROWTH_PLAYLIST_VIDEOS = 30
 
 
 # 한 번 실행에서 허용할 플리 추가+삭제 총 횟수 (쿼터 보호)
