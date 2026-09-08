@@ -37,6 +37,11 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Playwright Chromium
+        run: |
+          pip install playwright pillow
+          python -m playwright install --with-deps chromium
+
       - name: Install packages
         run: |
           pip install -r requirements.txt

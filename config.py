@@ -15,6 +15,9 @@ GROWTH_PLAYLIST_ID = "PLQ45s5Ix3Lmk"
 # 성장 플리 자동 갱신 켜기/끄기
 SYNC_GROWTH_PLAYLIST = True
 
+# 특별 카드(100만/1000만 세로 HTML 카드) on/off. 끄면 평상시 가로 카드로 나옴.
+SPECIAL_CARD_ENABLED = False
+
 # TOP에 없는 영상을 플리에서 제거할지
 # True  = 플리를 TOP 목록과 똑같이 맞춤 (없는 건 삭제) ← 진짜 "최신화"
 # False = 추가만 하고 기존 영상은 절대 안 지움 (처음 테스트용으로 안전)

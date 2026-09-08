@@ -6,6 +6,7 @@ import re
 import time
 import random
 from datetime import datetime, timezone, timedelta
+from render_card import make_special_card
 
 class QuotaExceededError(Exception):
     pass
@@ -45,7 +46,8 @@ from config import (
     USE_ARTIST_COLOR,
     SPECIAL_MILESTONES,
     PLAYLIST_ROTATE_COUNT,
-    PLAYLIST_ROTATE_HOURS
+    PLAYLIST_ROTATE_HOURS,
+    SPECIAL_CARD_ENABLED
 )
 
 from card import make_milestone_card
@@ -184,30 +186,47 @@ def make_x_button(text):
 
 
 def send_notification(message, video_id=None, card_info=None):
-
     markup = make_x_button(message)
-
     if video_id and card_info:
         try:
-            card_path = make_milestone_card(
-                video_id,
-                card_info["title"],
-                card_info["artist"],
-                card_info["views_text"],
-                f"/tmp/card_{video_id}.png",
-                song_type=card_info.get("song_type", ""),
-                card_opts=card_info.get("card_opts")
-            )
+            milestone = card_info.get("milestone")
+
+            if SPECIAL_CARD_ENABLED and milestone in SPECIAL_MILESTONES:
+                # 특별 카드 ON → 세로 HTML 카드
+                card_path = make_special_card(
+                    video_id,
+                    card_info["title"],
+                    card_info["artist"],
+                    f"/tmp/card_{video_id}.png",
+                    milestone=milestone,
+                )
+            else:
+                # 평상시 카드 (가로 Pillow).
+                # 특별 카드가 꺼져 있으면 grand(글로우·골드) 옵션을 벗겨서
+                # 100만/1000만도 그냥 평상시처럼 나오게 한다.
+                card_opts = card_info.get("card_opts")
+                if isinstance(card_opts, dict) and card_opts.get("grand"):
+                    card_opts = {
+                        k: v for k, v in card_opts.items()
+                        if k not in ("grand", "accent", "tint", "tagline")
+                    } or None
+                card_path = make_milestone_card(
+                    video_id,
+                    card_info["title"],
+                    card_info["artist"],
+                    card_info["views_text"],
+                    f"/tmp/card_{video_id}.png",
+                    song_type=card_info.get("song_type", ""),
+                    card_opts=card_opts,
+                )
+
             if send_card_photo(card_path, message, reply_markup=markup):
                 return
         except Exception as e:
             print(f"⚠️ 카드 생성/전송 실패 → 기본 썸네일로 대체: {e}")
-
     if video_id and send_telegram_photo(message, video_id, reply_markup=markup):
         return
-
     send_telegram(message, reply_markup=markup)
-
 
 
 
