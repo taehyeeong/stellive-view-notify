@@ -20,6 +20,14 @@ SYNC_GROWTH_PLAYLIST = True
 # False = 추가만 하고 기존 영상은 절대 안 지움 (처음 테스트용으로 안전)
 GROWTH_PLAYLIST_REMOVE_MISSING = True
 
+
+# 성장 플리 회전: 하위 N곡은 주기적으로 교체(신선함), 나머지는 고정(안정)
+PLAYLIST_ROTATE_COUNT = 10     # 매 주기 교체할 곡 수
+PLAYLIST_ROTATE_HOURS = 3      # 회전 주기(시간). 이 시간마다 교체 셋이 바뀜
+
+
+
+
 # 카드 상단 ORIGINAL / COVER 배지 표시 여부
 SHOW_SONG_TYPE_BADGE = False
 

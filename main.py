@@ -4,6 +4,7 @@ import json
 import requests
 import re
 import time
+import random
 from datetime import datetime, timezone, timedelta
 
 class QuotaExceededError(Exception):
@@ -42,7 +43,9 @@ from config import (
     GROWTH_PLAYLIST_PINNED,
     SHOW_SONG_TYPE_BADGE,
     USE_ARTIST_COLOR,
-    SPECIAL_MILESTONES
+    SPECIAL_MILESTONES,
+    PLAYLIST_ROTATE_COUNT,
+    PLAYLIST_ROTATE_HOURS
 )
 
 from card import make_milestone_card
@@ -947,59 +950,50 @@ def get_growth_stats(history, views):
 
 
 def calculate_growth_score(views, growth):
-
-    remaining = growth["remaining"]
-
     daily_1d = growth["daily_1d"]
     daily_3d = growth["daily_3d"]
     daily_7d = growth["daily_7d"]
-
     acceleration = growth["acceleration"]
+    remaining = growth["remaining"]
 
-    speed = (
-        daily_1d * 0.50
-        + daily_3d * 0.30
-        + daily_7d * 0.20
-    )
-
+    speed = daily_1d * 0.5 + daily_3d * 0.3 + daily_7d * 0.2
     if speed <= 0:
         return 0
 
-    progress = 1 - (remaining / VIEW_STEP)
-    progress = max(0, min(1, progress))
+    # ① 상대 성장률: 조회수 대비 얼마나 빠른가 (작은 곡일수록 유리)
+    relative = speed / max(1, views ** 0.6) # 0.6 올리면 묻힌 곡 더 강하게 나옴
+    relative_score = min(100, relative * 60) # 60 올리면 묻힌 곡 더 강하게 나옴
 
+    # ② 절대 속도 (유명곡도 조금 반영, 가중치 낮음)
+    speed_score = min(100, speed / 1500)
+
+    # ③ 다음 목표 근접도
+    progress = max(0, min(1, 1 - (remaining / VIEW_STEP)))
     distance_score = (progress ** 2) * 100
 
-    eta_days = remaining / speed
-
-    if eta_days <= 1:
-        eta_score = 100
-    elif eta_days <= 3:
-        eta_score = 100 - (eta_days - 1) * 20
-    elif eta_days <= 7:
-        eta_score = 60 - (eta_days - 3) * 8
+    # ④ 저평가 보너스 (조회수 낮은데 성장 중)
+    if views < 100000:
+        underdog = 15                   # 15 올리면 묻힌 곡 더 강하게 나옴
+    elif views < 300000:
+        underdog = 8                    # 8 올리면 묻힌 곡 더 강하게 나옴
     else:
-        eta_score = max(0, 28 - (eta_days - 7) * 2)
+        underdog = 0
 
-    eta_score = max(0, min(100, eta_score))
-
-    speed_score = min(100, speed / 1000)
-
-    acceleration_bonus = 0
+    # ⑤ 가속 보너스
     if acceleration > 1.2:
-        acceleration_bonus = 10
-    elif acceleration > 1.05:
-        acceleration_bonus = 5
+        acc = 8
     elif acceleration < 0.7:
-        acceleration_bonus = -10
+        acc = -8
+    else:
+        acc = 0
 
     score = (
-        distance_score * 0.35
-        + eta_score * 0.40
-        + speed_score * 0.20
-        + acceleration_bonus
+        relative_score * 0.45      # 상대 성장 최우선
+        + distance_score * 0.20
+        + speed_score * 0.15
+        + underdog
+        + acc
     )
-
     return round(max(0, min(100, score)), 2)
 
 
@@ -1090,54 +1084,52 @@ def check_milestone(
 # ======================
 
 def get_top_growth_videos(data, limit=None):
-    candidates = []
-
     if limit is None:
         limit = MAX_GROWTH_PLAYLIST_VIDEOS
 
+    candidates = []
     for video_id, info in data.items():
-
-        if video_id.startswith("_"):
+        if video_id.startswith("_") or not isinstance(info, dict):
             continue
-
-        if not isinstance(info, dict):
-            continue
-
         if "growth" not in info:
             continue
 
-        score = info.get("growth_score", 0)
-        views = info.get("views", 0)
-
         override = normalize_artists(info.get("artists_override"))
-
         if override:
             artists = override
         else:
-            raw_artists = info.get("artists", [])
-            if not isinstance(raw_artists, list):
-                raw_artists = []
-            artists = sort_artists_by_config_order(
-                list(dict.fromkeys(raw_artists))
-            )
-
+            raw = info.get("artists", [])
+            raw = raw if isinstance(raw, list) else []
+            artists = sort_artists_by_config_order(list(dict.fromkeys(raw)))
 
         candidates.append({
             "video_id": video_id,
             "title": info.get("title", ""),
             "artists": artists,
             "unit": info.get("unit", ""),
-            "views": views,
-            "score": score,
+            "views": info.get("views", 0),
+            "score": info.get("growth_score", 0),
             "eta_days": info["growth"].get("eta_days")
         })
 
-    candidates.sort(
-        key=lambda x: x["score"],
-        reverse=True
-    )
+    candidates.sort(key=lambda x: x["score"], reverse=True)
 
-    return candidates[:limit]
+    rotate_n = min(PLAYLIST_ROTATE_COUNT, limit)
+    core_n = limit - rotate_n
+    core = candidates[:core_n]                          # 상위 = 고정(안정)
+
+    # 회전 풀: 코어 바로 아래 구간의 '점수 있는' 곡들 (묻힌 곡)     # 120 -> 240으로 늘리면 묻힌 곡 더 잘 잡힘
+    pool = [c for c in candidates[core_n:core_n + 120] if c["score"] > 0]
+
+    # 시간 블록 시드 → 같은 블록 동안은 고정, 블록 바뀔 때만 교체 (쿼터 보호)
+    now = datetime.now(KST)
+    block = (now.timetuple().tm_yday * 24 + now.hour) // max(1, PLAYLIST_ROTATE_HOURS)
+    rng = random.Random(block)
+    rng.shuffle(pool)
+    rotating = pool[:rotate_n]
+
+    return (core + rotating)[:limit]
+
 
 
 def detect_song_type(raw_title):
@@ -1375,7 +1367,8 @@ def _is_quota_error(error):
     return "quotaExceeded" in text or "dailyLimitExceeded" in text
 
 
-def sync_growth_playlist(top_videos):
+def sync_growth_playlist(top_videos, title_map=None):
+    title_map = title_map or {}
     if not SYNC_GROWTH_PLAYLIST:
         return  # 기능을 꺼둔 경우엔 조용히 넘어감
 
@@ -1422,6 +1415,8 @@ def sync_growth_playlist(top_videos):
         added = 0
         ops = 0
         quota_hit = False
+        added_titles = []       
+        removed_titles = []
 
         if GROWTH_PLAYLIST_REMOVE_MISSING:
             for item in current_items:
@@ -1433,6 +1428,7 @@ def sync_growth_playlist(top_videos):
                     playlist_delete(access_token, item["playlist_item_id"])
                     removed += 1
                     ops += 1
+                    removed_titles.append(title_map.get(item.get("video_id"), item.get("video_id")))
                 except Exception as e:
                     if _is_quota_error(e):
                         quota_hit = True
@@ -1454,6 +1450,7 @@ def sync_growth_playlist(top_videos):
                     )
                     added += 1
                     ops += 1
+                    added_titles.append(title_map.get(video_id, video_id))
                 except Exception as e:
                     if _is_quota_error(e):
                         quota_hit = True
@@ -1485,14 +1482,23 @@ def sync_growth_playlist(top_videos):
             note = ""
 
         # 변경이 없어도 항상 상태 알림 전송
+        def _fmt(titles, cap=15): # 15곡까지만 보이고 있는 중
+            if not titles:
+                return ""
+            body = "\n".join(f"  · {t}" for t in titles[:cap])
+            if len(titles) > cap:
+                body += f"\n  …외 {len(titles) - cap}곡"
+            return "\n" + body
+
         send_telegram(
             "🎶 성장 플리 자동 갱신\n\n"
             f"🕒 {now_kst()}\n"
-            f"➕ 추가: {added}곡\n"
-            f"➖ 삭제: {removed}곡\n"
+            f"➕ 추가: {added}곡{_fmt(added_titles)}\n\n"
+            f"➖ 삭제: {removed}곡{_fmt(removed_titles)}\n\n"
             f"📼 목표: {len(desired_ids)}곡"
             f"{note}"
         )
+
 
     except Exception as e:
         print(f"⚠️ 성장 플리 동기화 중 오류: {e}")
@@ -1801,7 +1807,14 @@ def main():
 
     save_data(data)
 
-    sync_growth_playlist(top_videos)
+    title_map = {
+        vid: (info.get("title") or vid)
+        for vid, info in data.items()
+        if isinstance(info, dict)
+    }
+    
+    sync_growth_playlist(top_videos, title_map)
+
 
 
 if __name__ == "__main__":
