@@ -197,7 +197,7 @@ def send_notification(message, video_id=None, card_info=None):
                     video_id,
                     card_info["title"],
                     card_info["artist"],
-                    f"/tmp/card_{video_id}.png",
+                    f"/tmp/card_{video_id}.jpg",
                     milestone=milestone,
                 )
             else:
@@ -215,7 +215,7 @@ def send_notification(message, video_id=None, card_info=None):
                     card_info["title"],
                     card_info["artist"],
                     card_info["views_text"],
-                    f"/tmp/card_{video_id}.png",
+                    f"/tmp/card_{video_id}.jpg",
                     song_type=card_info.get("song_type", ""),
                     card_opts=card_opts,
                 )

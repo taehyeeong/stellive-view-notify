@@ -150,7 +150,7 @@ def make_special_card(video_id, title, artist, out_path,
             )
             pg.goto(pathlib.Path(tmp_path).as_uri())
             pg.wait_for_timeout(350)   # 폰트/이미지/자동축소 스크립트 완료 대기
-            pg.screenshot(path=out_path)
+            pg.screenshot(path=out_path, type="jpeg", quality=92)
             browser.close()
     finally:
         try:

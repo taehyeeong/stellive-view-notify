@@ -310,5 +310,6 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
         draw.text((MX + r * 2 + 16, y), badge_text, font=f_badge, fill=soft, anchor="ls")
 
 
-    base.save(out_path, "PNG")
+    base.convert("RGB").save(out_path, "JPEG", quality=92)
     return out_path
+
