@@ -147,7 +147,7 @@ UNITS = {
             "스텔라이브": {
                 "channel": "@stellive_official",
                 "display": "스텔라이브",
-                "keyword": "#stellive",
+                "keyword": "#스텔라이브",
                 "nickname": "애들아 !!",
                 "color": "",
                 "mark": "",
