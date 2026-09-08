@@ -4,6 +4,8 @@ import io
 import os
 import colorsys
 import requests
+import unicodedata
+
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 
@@ -232,6 +234,9 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
     W, H = 1600, 900
     MX, MB, GAP = 96, 96, 24
     card_opts = card_opts or {}
+    title = unicodedata.normalize("NFC", title or "")
+    artist = unicodedata.normalize("NFC", artist or "")
+
 
     base = _cover(_load_thumb(video_id), W, H)
 
