@@ -26,6 +26,24 @@ def now_kst():
         "%Y-%m-%d %H:%M:%S"
     )
 
+def next_quota_reset_kst():
+    """YouTube 할당량은 태평양 자정에 리셋됨. 다음 리셋 시각을 KST로 반환."""
+    try:
+        from zoneinfo import ZoneInfo
+        now_pt = datetime.now(ZoneInfo("America/Los_Angeles"))
+        nxt = (now_pt + timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        return nxt.astimezone(KST)
+    except Exception:
+        # 폴백: PT를 UTC-8로 가정 (자정 PST = 08:00 UTC = 17:00 KST)
+        now_utc = datetime.now(timezone.utc)
+        nxt = (now_utc + timedelta(days=1)).replace(
+            hour=8, minute=0, second=0, microsecond=0
+        )
+        return nxt.astimezone(KST)
+
+
 
 from config import (
     VIEW_STEP,
@@ -323,12 +341,17 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
                 or "quotaExceeded" in response.text
                 or "dailyLimitExceeded" in response.text
             ):
+                reset_kst = next_quota_reset_kst()
+                hours_left = (reset_kst - datetime.now(KST)).total_seconds() / 3600
                 message = (
                     "🚨 YouTube API quota 초과\n\n"
                     f"🕒 시간: {now_kst()}\n"
                     f"📌 요청: {description}\n\n"
-                    "⛔ 오늘의 API quota가 초과되어 실행을 중단했습니다."
+                    "⛔ 오늘의 API quota가 초과되어 실행을 중단했습니다.\n"
+                    f"🔄 예상 리셋: {reset_kst.strftime('%m/%d %H:%M')} KST "
+                    f"(약 {hours_left:.0f}시간 뒤)"
                 )
+
                 print(message)
                 send_telegram(message)
                 raise QuotaExceededError("YouTube API quotaExceeded")
