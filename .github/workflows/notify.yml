@@ -49,6 +49,8 @@ jobs:
       - name: Run monitor
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YOUTUBE_API_KEY_2: ${{ secrets.YOUTUBE_API_KEY_2 }}
+          # YOUTUBE_API_KEY_3: ${{ secrets.YOUTUBE_API_KEY_3 }}
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}

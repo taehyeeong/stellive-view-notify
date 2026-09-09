@@ -44,7 +44,6 @@ def next_quota_reset_kst():
         return nxt.astimezone(KST)
 
 
-
 from config import (
     VIEW_STEP,
     MILESTONES,
@@ -76,7 +75,24 @@ from card import make_milestone_card
 # 환경 변수
 # ======================
 
-YOUTUBE_API_KEY = os.environ["YOUTUBE_API_KEY"]
+# 여러 API 키 지원 (할당량 소진 시 자동 전환)
+# ⚠️ 2번 키는 반드시 "다른 GCP 프로젝트"에서 발급해야 할당량이 늘어남!
+YOUTUBE_API_KEYS = [
+    k.strip() for k in (
+        os.environ.get("YOUTUBE_API_KEY", ""),
+        os.environ.get("YOUTUBE_API_KEY_2", "")
+        # os.environ.get("YOUTUBE_API_KEY_3", "")
+    ) if k.strip()
+]
+if not YOUTUBE_API_KEYS:
+    raise RuntimeError("YOUTUBE_API_KEY 환경변수가 없습니다.")
+
+YOUTUBE_API_KEY = YOUTUBE_API_KEYS[0]   # 하위호환 (youtube_get이 실제 키를 덮어씀)
+_current_key_index = 0
+
+def current_api_key():
+    return YOUTUBE_API_KEYS[_current_key_index]
+
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
@@ -298,12 +314,13 @@ def get_reached_milestones(views):
 # ======================
 
 def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
-
+    global _current_key_index
     for attempt in range(max_retries + 1):
+        req_params = {**params, "key": current_api_key()}
         try:
             response = requests.get(
                 url,
-                params=params,
+                params=req_params,
                 timeout=10
             )
         except RequestException as e:
@@ -341,20 +358,32 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
                 or "quotaExceeded" in response.text
                 or "dailyLimitExceeded" in response.text
             ):
+                # 다음 키가 있으면 자동 전환 후 같은 요청 재시도
+                if _current_key_index + 1 < len(YOUTUBE_API_KEYS):
+                    old_no = _current_key_index + 1
+                    _current_key_index += 1
+                    new_no = _current_key_index + 1
+                    send_telegram(
+                        "🔑 API 키 자동 전환\n\n"
+                        f"🕒 시간: {now_kst()}\n"
+                        f"{old_no}번 키 할당량 소진 → {new_no}번 키로 전환합니다."
+                    )
+                    continue
+                # 남은 키 없음 → 리셋 안내 후 중단
                 reset_kst = next_quota_reset_kst()
                 hours_left = (reset_kst - datetime.now(KST)).total_seconds() / 3600
                 message = (
                     "🚨 YouTube API quota 초과\n\n"
                     f"🕒 시간: {now_kst()}\n"
                     f"📌 요청: {description}\n\n"
-                    "⛔ 오늘의 API quota가 초과되어 실행을 중단했습니다.\n"
+                    "⛔ 모든 API 키의 할당량이 소진되어 실행을 중단했습니다.\n"
                     f"🔄 예상 리셋: {reset_kst.strftime('%m/%d %H:%M')} KST "
                     f"(약 {hours_left:.0f}시간 뒤)"
                 )
-
                 print(message)
                 send_telegram(message)
                 raise QuotaExceededError("YouTube API quotaExceeded")
+
 
         if response.status_code in {409, 500, 502, 503, 504}:
             if attempt < max_retries:
