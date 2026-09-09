@@ -6,3 +6,6 @@ client_secret_*.json
 
 oauth_setup.py
 .DS_Store
+
+__pycache__/
+.vscode/
