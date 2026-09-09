@@ -33,14 +33,25 @@
         .wrap {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 28px 18px 80px
+            padding: 22px 18px 80px
         }
 
         header h1 {
             font-size: 22px;
             font-weight: 800;
             margin: 0 0 4px;
-            letter-spacing: -.01em
+            letter-spacing: -.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            width: fit-content
+        }
+
+        header h1 img {
+            height: 24px;
+            width: auto;
+            border-radius: 5px
         }
 
         header .sub {
@@ -52,7 +63,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin: 22px 0 14px
+            margin: 20px 0 14px
         }
 
         .controls input,
@@ -73,15 +84,15 @@
 
         #chartCard {
             position: sticky;
-            top: 10px;
-            z-index: 10;
+            top: 0;
+            z-index: 20;
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 14px;
             padding: 14px 16px 12px;
             margin-bottom: 18px;
             display: none;
-            box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .7)
+            box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .75)
         }
 
         #chartCard .head {
@@ -120,18 +131,17 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 14px;
-            align-items: stretch
+            align-items: start
         }
 
         .chartBox {
             position: relative;
-            height: 220px
+            height: 200px
         }
 
         .videoBox {
             position: relative;
-            aspect-ratio: 16/9;
-            min-height: 0
+            aspect-ratio: 16/9
         }
 
         .videoBox iframe {
@@ -149,7 +159,7 @@
             }
 
             .chartBox {
-                height: 190px
+                height: 170px
             }
         }
 
@@ -236,7 +246,7 @@
 <body>
     <div class="wrap">
         <header>
-            <h1>🌟 STELLIVE 성장 대시보드</h1>
+            <h1 id="homeBtn"><img src="logo.png" alt="" onerror="this.remove()">STELLIVE 성장 대시보드</h1>
             <div class="sub" id="updated">불러오는 중…</div>
         </header>
 
@@ -274,16 +284,12 @@
     </div>
 
     <script>
-        let SONGS = [], SNAPS = {}, chart = null, activeId = null;
+        let SONGS = [], chart = null, activeId = null;
 
         async function load() {
             try {
-                const [vRes, sRes] = await Promise.all([
-                    fetch("views.json", { cache: "no-store" }),
-                    fetch("snapshots.json", { cache: "no-store" }).catch(() => null)
-                ]);
-                const views = await vRes.json();
-                SNAPS = sRes && sRes.ok ? await sRes.json() : {};
+                const res = await fetch("views.json", { cache: "no-store" });
+                const views = await res.json();
 
                 let lastUpdated = "";
                 for (const [id, info] of Object.entries(views)) {
@@ -305,9 +311,12 @@
                 document.getElementById("updated").textContent =
                     "마지막 갱신 " + ((gp && gp.updated) || lastUpdated || "-") + " · " + SONGS.length + "곡 추적 중";
 
-                const units = [...new Set(SONGS.map(s => s.unit).filter(Boolean))].sort();
+                const ORDER = ["스텔라이브", "에버리스", "유니버스", "클리셰", "콜라보", "기타"];
+                const present = new Set(SONGS.map(s => s.unit).filter(Boolean));
+                const ordered = [...ORDER.filter(u => present.has(u)),
+                ...[...present].filter(u => !ORDER.includes(u)).sort()];
                 const uf = document.getElementById("unitFilter");
-                units.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; uf.appendChild(o); });
+                ordered.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; uf.appendChild(o); });
 
                 render();
             } catch (e) {
@@ -339,7 +348,7 @@
             list.slice(0, 100).forEach((s, i) => {
                 const row = document.createElement("div");
                 row.className = "row" + (s.id === activeId ? " active" : "");
-                const etaTxt = isFinite(s.eta) ? ` · 다음 목표 D-${Math.max(0, Math.round(s.eta))}` : "";
+                const etaTxt = isFinite(s.eta) ? ` · 다음 5만까지 D-${Math.max(0, Math.round(s.eta))}` : "";
                 row.innerHTML =
                     `<div class="no ${i < 3 ? 'top' : ''}">${i + 1}</div>
        <div><div class="title">${esc(s.title)}</div>
@@ -352,18 +361,17 @@
         }
 
         function showChart(s) {
+            if (activeId === s.id) { closeCard(); return; }
             activeId = s.id;
-            let labels = [], vals = [];
-            const snap = SNAPS[s.id];
-            if (snap && Object.keys(snap).length >= 2) {
-                Object.keys(snap).sort().forEach(d => { labels.push(d.slice(5)); vals.push(snap[d]); });
-            } else {
-                s.history.forEach(h => { labels.push(h.updated.slice(5, 16)); vals.push(h.views); });
-            }
+
+            const hist = s.history.slice().sort((a, b) => (a.updated > b.updated ? 1 : -1));
+            const labels = hist.map(h => h.updated.slice(5, 16));
+            const vals = hist.map(h => h.views);
+
             document.getElementById("chartCard").style.display = "block";
             document.getElementById("chartTitle").textContent = s.title;
             document.getElementById("chartMeta").textContent =
-                `${s.artists} · 현재 ${s.views.toLocaleString()}회 · 하루 +${Math.round(s.daily).toLocaleString()}`;
+                `${s.artists} · 현재 ${s.views.toLocaleString()}회 · 하루 조회수 +${Math.round(s.daily).toLocaleString()}`;
             document.getElementById("ytFrame").src = "https://www.youtube.com/embed/" + s.id;
 
             const ctx = document.getElementById("chart");
@@ -383,15 +391,15 @@
                         legend: { display: false },
                         tooltip: {
                             displayColors: false,
-                            callbacks: {
-                                title: (items) => items[0].label,
-                                label: (c) => " " + c.parsed.y.toLocaleString() + "회"
-                            }
+                            callbacks: { title: (it) => it[0].label, label: (c) => " " + c.parsed.y.toLocaleString() + "회" }
                         }
                     },
                     scales: {
-                        x: { ticks: { color: "#9a9aae", maxTicksLimit: 8 }, grid: { display: false } },
-                        y: { ticks: { color: "#9a9aae", callback: v => v.toLocaleString() }, grid: { color: "#26263180" } }
+                        x: { ticks: { color: "#9a9aae", maxTicksLimit: 7 }, grid: { display: false } },
+                        y: {
+                            beginAtZero: false, ticks: { color: "#9a9aae", maxTicksLimit: 5, callback: v => v.toLocaleString() },
+                            grid: { color: "#26263180" }
+                        }
                     }
                 }
             });
@@ -405,9 +413,18 @@
             render();
         }
 
+        function goHome() {
+            document.getElementById("search").value = "";
+            document.getElementById("unitFilter").value = "";
+            document.getElementById("sortBy").value = "score";
+            closeCard();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
         function esc(t) { return (t + "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
         document.getElementById("closeBtn").addEventListener("click", closeCard);
+        document.getElementById("homeBtn").addEventListener("click", goHome);
         ["search", "unitFilter", "sortBy"].forEach(id =>
             document.getElementById(id).addEventListener("input", render));
         load();
