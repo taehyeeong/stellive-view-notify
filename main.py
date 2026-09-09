@@ -1638,6 +1638,8 @@ def sync_growth_playlist(top_videos, title_map=None):
                 1 for it in current_items
                 if it.get("video_id") not in desired_set
             ) - removed
+        still_to_add = sum(1 for vid in desired_ids if vid not in current_set) - added
+        leftover = max(0, still_to_remove) + max(0, still_to_add)
 
         print(
             f"🎶 플리 동기화 | 추가 {added} · 삭제 {removed} · "
@@ -1646,15 +1648,16 @@ def sync_growth_playlist(top_videos, title_map=None):
 
         if quota_hit:
             note = "\n\n⚠️ 오늘 API 쿼터 소진 — 남은 정리는 리셋 후 이어감."
-        elif still_to_remove > 0 or ops >= MAX_PLAYLIST_OPS_PER_RUN:
+        elif leftover > 0:
             note = (
                 f"\n\n⏳ 이번 실행 한도({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 — "
-                f"남은 건 다음 실행에서 이어감."
+                f"남은 {leftover}곡은 다음 실행에서 이어감."
             )
         elif added == 0 and removed == 0:
             note = "\n\n✅ 변경 없음 (플리가 이미 최신 상태)"
         else:
             note = ""
+
 
         # 변경이 없어도 항상 상태 알림 전송
         def _fmt(titles, cap=15): # 15곡까지만 보이고 있는 중
