@@ -1893,7 +1893,16 @@ def sync_growth_playlist(top_videos, title_map=None):
         desired_set = set(desired_ids)
 
 
-        current_items = fetch_playlist_items(access_token, GROWTH_PLAYLIST_ID)
+        # 현재 플리 목록 읽기 (쿼터 소진 시 OAuth 프로젝트 전환)
+        while True:
+            try:
+                current_items = fetch_playlist_items(access_token, GROWTH_PLAYLIST_ID)
+                break
+            except Exception as e:
+                if _is_quota_error(e) and _advance_oauth():
+                    access_token = get_youtube_access_token()
+                    continue
+                raise
         current_set = {
             it["video_id"] for it in current_items if it.get("video_id")
         }
@@ -2007,11 +2016,19 @@ def sync_growth_playlist(top_videos, title_map=None):
 
     except Exception as e:
         print(f"⚠️ 성장 플리 동기화 중 오류: {e}")
-        send_telegram(
-            "⚠️ 성장 플리 동기화 실패\n\n"
-            f"🕒 {now_kst()}\n"
-            f"❌ {e}"
-        )
+        if _is_quota_error(e):
+            send_telegram(
+                "⏳ 성장 플리 동기화 보류\n\n"
+                f"🕒 {now_kst()}\n"
+                f"❌ 모든 프로젝트 쿼터 소진 — {next_quota_reset_kst()} 리셋 후 재개."
+            )
+        else:
+            send_telegram(
+                "⚠️ 성장 플리 동기화 실패\n\n"
+                f"🕒 {now_kst()}\n"
+                f"❌ {e}"
+            )
+
 
 
 
