@@ -5,16 +5,18 @@ import requests
 import re
 import time
 import random
-from datetime import datetime, timezone, timedelta
+
+from datetime import datetime, timezone, timedelta, date
 from render_card import make_special_card
+from requests import RequestException
+from dotenv import load_dotenv
+from urllib.parse import quote
+
+
 
 class QuotaExceededError(Exception):
     pass
 
-
-from requests import RequestException
-from dotenv import load_dotenv
-from urllib.parse import quote
 
 def main():
     global _current_key_index, _current_oauth_index
@@ -68,6 +70,117 @@ def _save_state(**kw):
     except Exception as e:
         print("⚠️ bot_state 저장 실패:", e)
 
+
+def get_active_auto_pins():
+    """만료 안 지난 신곡 자동핀 video_id 목록. 만료된 건 정리해서 저장."""
+    state = _load_state()
+    pins = state.get("auto_pinned", {})
+    if not pins:
+        return []
+    today = date.today()
+    kept = {}
+    for vid, added in pins.items():
+        try:
+            added_date = date.fromisoformat(added)
+        except (ValueError, TypeError):
+            continue
+        if (today - added_date).days < AUTO_PIN_NEW_SONG_DAYS:
+            kept[vid] = added
+    if kept != pins:                      # 만료된 게 있으면 정리 후 저장
+        _save_state(auto_pinned=kept)
+    return list(kept.keys())
+
+def add_auto_pin(video_id):
+    """신곡 감지 시 호출. 이미 등록돼 있으면 날짜 유지(무시)."""
+    if AUTO_PIN_NEW_SONG_DAYS <= 0:
+        return
+    state = _load_state()
+    pins = state.get("auto_pinned", {})
+    if video_id in pins:
+        return
+    pins[video_id] = date.today().isoformat()
+    _save_state(auto_pinned=pins)
+
+def _views_n_days_ago(history, days=7):
+    """history에서 days일 전 시점에 가장 가까운(그 이전) 조회수. 7일치 안 되면 가장 오래된 값."""
+    if not history:
+        return None
+    cutoff = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S") - timedelta(days=days)
+    older = [h for h in history
+             if datetime.strptime(h["updated"], "%Y-%m-%d %H:%M:%S") <= cutoff]
+    if older:
+        return older[-1]["views"]      # cutoff 이전 중 가장 최근
+    return history[0]["views"]          # 아직 7일 안 됐으면 가장 오래된 값
+
+
+def maybe_send_weekly_recap(data):
+    """일요일 21시 이후 첫 실행에 지난 7일 결산 1회 전송 (bot_state 중복 방지)."""
+    now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
+    if now.weekday() != 6 or now.hour < 21:   # 월=0 … 일=6
+        return
+    today = now_kst()[:10]
+    if _load_state().get("last_weekly_recap") == today:
+        return
+
+    rows = []
+    for vid, info in data.items():
+        if vid.startswith("_") or not isinstance(info, dict):
+            continue
+        past = _views_n_days_ago(info.get("history", []), 7)
+        if past is None:
+            continue
+        now_v = info.get("views", 0)
+        delta = now_v - past
+        if delta <= 0:
+            continue
+        rows.append({
+            "title": info.get("title", vid),
+            "artist": ", ".join(info.get("artists", [])),
+            "delta": delta, "now": now_v, "past": past,
+            "pct": (delta / past * 100) if past > 0 else 0,
+        })
+
+    if rows:
+        rows.sort(key=lambda r: r["delta"], reverse=True)
+
+        milestones = []
+        for r in rows:
+            start = ((r["past"] // 50000) + 1) * 50000
+            for m in range(start, r["now"] + 1, 50000):
+                label = f"{m // 10000}만" if m % 10000 == 0 else f"{m:,}"
+                milestones.append((r["title"], m, label))
+        milestones.sort(key=lambda x: x[1], reverse=True)
+
+        top = "\n".join(
+            f"{i}. {r['title']} — +{r['delta']:,}회 (+{r['pct']:.1f}%)  ({r['artist']})"
+            for i, r in enumerate(rows[:5], 1)
+        )
+        rate_rows = sorted([r for r in rows if r["past"] >= 10000],
+                           key=lambda r: r["pct"], reverse=True)
+        rate_top = "\n".join(
+            f"{i}. {r['title']} — +{r['pct']:.1f}% (+{r['delta']:,}회)  ({r['artist']})"
+            for i, r in enumerate(rate_rows[:3], 1)
+        )
+        total = sum(r["delta"] for r in rows)
+
+        msg = (
+            "📊 주간 결산\n\n"
+            f"🕒 {today} 기준 · 지난 7일\n\n"
+            f"📈 최다 상승 5곡\n{top}\n\n"
+        )
+        if rate_top:
+            msg += f"🚀 급상승률 3곡\n{rate_top}\n\n"
+        if milestones:
+            ms = "\n".join(f"  · {t} — {label} 돌파" for t, m, label in milestones[:8])
+            msg += f"🎉 이번 주 새 기록\n{ms}\n\n"
+        msg += f"🔥 전체 합산 상승: +{total:,}회"
+        send_telegram(msg)
+
+    _save_state(last_weekly_recap=today)   # 대상 없어도 오늘 체크 완료 기록
+
+
+
+
 def load_start_indices():
     s = _load_state()
     if s.get("pt_date") == _pt_quota_date():
@@ -91,7 +204,6 @@ def _advance_oauth():
         _save_state(oauth_index=_current_oauth_index)
         return True
     return False
-
 
 def next_quota_reset_kst():
     """YouTube 할당량은 태평양 자정에 리셋됨. 다음 리셋 시각을 KST로 반환."""
@@ -131,7 +243,15 @@ from config import (
     SPECIAL_MILESTONES,
     PLAYLIST_ROTATE_COUNT,
     PLAYLIST_ROTATE_HOURS,
-    SPECIAL_CARD_ENABLED
+    SPECIAL_CARD_ENABLED,
+    AUTO_PIN_NEW_SONG_DAYS,
+    GROWTH_BOOST,
+    BOOST_DEFAULT_DAYS,
+    DDAY_THRESHOLD_DAYS,
+    DDAY_ALERT_HOUR,
+    IMMINENT_HOURS,
+    SPIKE_MULT,
+    SPIKE_MIN_DAILY
 )
 
 from card import make_milestone_card
@@ -202,6 +322,107 @@ def save_start_key_index(idx):
     except Exception as e:
         print(f"⚠️ key_state 저장 실패: {e}")
 
+def maybe_send_dday_digest(data):
+    """다음 목표 임박 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
+    now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
+    if now.hour < DDAY_ALERT_HOUR:
+        return
+    today = now_kst()[:10]
+    if _load_state().get("last_dday_date") == today:
+        return
+
+    rows = []
+    for vid, info in data.items():
+        if vid.startswith("_") or not isinstance(info, dict):
+            continue
+        g = info.get("growth", {})
+        eta = g.get("eta_days")
+        if eta is None or eta == float("inf") or eta > DDAY_THRESHOLD_DAYS:
+            continue
+        rows.append({
+            "title": info.get("title", vid),
+            "artist": ", ".join(info.get("artists", [])),
+            "target": g.get("next_target", 0),
+            "eta": eta,
+            "speed": g.get("daily_avg", 0),
+        })
+
+    if rows:
+        rows.sort(key=lambda r: r["eta"])
+        def _fmt(t):
+            return f"{t // 10000}만" if t and t % 10000 == 0 else f"{t:,}"
+        lines = []
+        for r in rows[:10]:
+            dday = max(0, round(r["eta"]))
+            tag = "오늘·내일 중" if dday <= 1 else f"D-{dday}"
+            lines.append(
+                f"· {r['title']} — {_fmt(r['target'])}까지 {tag} "
+                f"(하루 +{r['speed']:,.0f})  ({r['artist']})"
+            )
+        send_telegram("🔜 곧 달성 예정\n\n🕒 " + today + "\n\n" + "\n".join(lines))
+
+    _save_state(last_dday_date=today)   # 대상 없어도 오늘 체크 완료로 기록
+
+def send_imminent_alerts(data):
+    """다음 목표까지 IMMINENT_HOURS 이내인 곡을 즉시 알림 (곡·목표별 1회)."""
+    alerted = dict(_load_state().get("imminent_alerted", {}))   # {video_id: target}
+    changed = False
+    for vid, info in data.items():
+        if vid.startswith("_") or not isinstance(info, dict):
+            continue
+        g = info.get("growth", {})
+        eta = g.get("eta_days")
+        if eta is None or eta == float("inf"):
+            continue
+        hours = eta * 24
+        if hours > IMMINENT_HOURS:
+            continue
+        views = info.get("views", 0)
+        target = views + g.get("remaining", 0)
+        if alerted.get(vid) == target:      # 이 목표는 이미 알림함 → skip
+            continue
+        title = info.get("title", vid)
+        artist = ", ".join(info.get("artists", []))
+        tgt = f"{target // 10000}만" if target % 10000 == 0 else f"{target:,}"
+        when = "1시간 내 ⚡" if hours < 1 else f"약 {round(hours)}시간 내"
+        send_telegram(
+            f"⚡ 곧 달성!\n\n"
+            f"🎵 {title}  ({artist})\n"
+            f"🎯 {tgt}까지 {when} 예상\n"
+            f"📊 현재 {views:,}회 · 하루 +{g.get('daily_avg', 0):,.0f}"
+        )
+        alerted[vid] = target
+        changed = True
+    if changed:
+        _save_state(imminent_alerted=alerted)
+
+def send_spike_alerts(data):
+    """최근 성장 속도가 평소보다 급등한 곡을 즉시 알림 (곡별 하루 1회)."""
+    today = now_kst()[:10]
+    fired = dict(_load_state().get("spike_fired", {}))   # {video_id: "YYYY-MM-DD"}
+    changed = False
+    for vid, info in data.items():
+        if vid.startswith("_") or not isinstance(info, dict):
+            continue
+        g = info.get("growth", {})
+        d1 = g.get("daily_1d", 0)
+        base = g.get("daily_7d", 0) or g.get("daily_3d", 0)   # 7일 없으면 3일 기준
+        if base <= 0 or d1 < SPIKE_MIN_DAILY or d1 < SPIKE_MULT * base:
+            continue
+        if fired.get(vid) == today:      # 오늘 이미 알림 → skip (하루 1회 쿨다운)
+            continue
+        title = info.get("title", vid)
+        artist = ", ".join(info.get("artists", []))
+        send_telegram(
+            f"🚀 떡상 감지!\n\n"
+            f"🎵 {title}  ({artist})\n"
+            f"📈 최근 속도 평소의 {d1 / base:.1f}배\n"
+            f"📊 하루 +{d1:,.0f}회 (현재 {info.get('views', 0):,}회)"
+        )
+        fired[vid] = today
+        changed = True
+    if changed:
+        _save_state(spike_fired=fired)
 
 # ======================
 # 파일 저장
@@ -209,6 +430,7 @@ def save_start_key_index(idx):
 
 DATA_FILE = "views.json"
 TITLE_FILE = "titles.json"
+SNAPSHOTS_FILE = "snapshots.json"
 
 HISTORY_LIMIT = 30
 
@@ -350,6 +572,19 @@ def send_notification(message, video_id=None, card_info=None):
     send_telegram(message, reply_markup=markup)
 
 
+def log_daily_snapshot(video_id, views):
+    """하루 1개만 조회수 스냅샷 저장 (연말결산용, 절대 안 지움)."""
+    today = now_kst()[:10]   # "2026-09-09"
+    try:
+        with open(SNAPSHOTS_FILE, encoding="utf-8") as f:
+            snaps = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        snaps = {}
+    day = snaps.setdefault(video_id, {})
+    if today not in day:               # 그날 첫 기록만 (하루 1회만 파일 씀)
+        day[today] = views
+        with open(SNAPSHOTS_FILE, "w", encoding="utf-8") as f:
+            json.dump(snaps, f, ensure_ascii=False)
 
 
 def send_error(error):
@@ -696,6 +931,49 @@ def is_excluded_stellive_video(title):
         alias and alias.lower() in title_lower
         for alias in excluded_aliases
     )
+
+
+def _boost_multiplier(video_id, artists):
+    """오늘 기준 유효한 부스트 배율. 여러 개 겹치면 곱함. 기본 1.0."""
+    today = now_kst()[:10]
+    starts = _load_state().get("boost_starts", {})
+    mult = 1.0
+    for b in GROWTH_BOOST:
+        btype, target = b.get("type"), b.get("target")
+        hit = (btype == "song"   and target == video_id) or \
+              (btype == "artist" and target in (artists or []))
+        if not hit:
+            continue
+        until = str(b.get("until", "")).strip()
+        if until:
+            active = until >= today                          # 종료일 당일까지 유효
+        else:
+            start = starts.get(f"{btype}:{target}", today)   # 종료일 없으면 처음 본 날부터
+            elapsed = (datetime.strptime(today, "%Y-%m-%d")
+                       - datetime.strptime(start, "%Y-%m-%d")).days
+            active = elapsed < BOOST_DEFAULT_DAYS             # 10일간
+        if active:
+            mult *= 1.0 + b.get("pct", 0) / 100.0
+    return mult
+
+def refresh_boost_starts():
+    """until 없는 부스트의 시작일을 bot_state에 기록/정리 (실행당 1회)."""
+    today = now_kst()[:10]
+    starts = dict(_load_state().get("boost_starts", {}))
+    current = {
+        f"{b.get('type')}:{b.get('target')}"
+        for b in GROWTH_BOOST
+        if not str(b.get("until", "")).strip()    # 종료일 없는 것만 추적
+    }
+    changed = False
+    for key in current:                            # 새로 등록된 건 오늘 stamp
+        if key not in starts:
+            starts[key] = today; changed = True
+    for key in list(starts):                       # config에서 빠진 건 정리(재등록 시 새 10일)
+        if key not in current:
+            del starts[key]; changed = True
+    if changed:
+        _save_state(boost_starts=starts)
 
 
 # =========================
@@ -1278,16 +1556,23 @@ def get_top_growth_videos(data, limit=None):
     core = candidates[:core_n]                          # 상위 = 고정(안정)
 
     # 회전 풀: 코어 바로 아래 구간의 '점수 있는' 곡들 (묻힌 곡)     # 120 -> 240으로 늘리면 묻힌 곡 더 잘 잡힘
-    pool = [c for c in candidates[core_n:core_n + 120] if c["score"] > 0]
+    pool = [c for c in candidates[core_n:core_n + 150] if c["score"] > 0]
 
-    # 시간 블록 시드 → 같은 블록 동안은 고정, 블록 바뀔 때만 교체 (쿼터 보호)
+    # 회전: 풀을 '하루 단위'로 한 번만 섞어 순서 고정 → 창(window)을 시간마다 뒤로 밀며 꺼냄.
+    # 한 번 빠진 곡은 풀을 한 바퀴 돌기 전엔 다시 안 나옴 → 삭제→즉시 재추가(flip-flop) 방지.
     now = datetime.now(KST)
-    block = (now.timetuple().tm_yday * 24 + now.hour) // max(1, PLAYLIST_ROTATE_HOURS)
-    rng = random.Random(block)
-    rng.shuffle(pool)
-    rotating = pool[:rotate_n]
+    if pool and rotate_n > 0:
+        day_seed = now.timetuple().tm_yday
+        random.Random(day_seed).shuffle(pool)              # 그날 순서 고정
+        block = (now.timetuple().tm_yday * 24 + now.hour) // max(1, PLAYLIST_ROTATE_HOURS)
+        offset = (block * rotate_n) % len(pool)            # 시간마다 rotate_n칸씩 전진
+        take = min(rotate_n, len(pool))
+        rotating = [pool[(offset + i) % len(pool)] for i in range(take)]
+    else:
+        rotating = []
 
     return (core + rotating)[:limit]
+
 
 
 
@@ -1561,6 +1846,11 @@ def sync_growth_playlist(top_videos, title_map=None):
             if vid and vid not in pinned:
                 pinned.append(vid)
 
+        # 신곡 자동핀 (10일 한정) — 수동 고정곡 다음에 항상 포함
+        for vid in get_active_auto_pins():
+            if vid and vid not in pinned:
+                pinned.append(vid)
+
         desired_ids = pinned + [vid for vid in desired_ids if vid not in pinned]
 
         desired_set = set(desired_ids)
@@ -1650,9 +1940,10 @@ def sync_growth_playlist(top_videos, title_map=None):
             note = "\n\n⚠️ 오늘 API 쿼터 소진 — 남은 정리는 리셋 후 이어감."
         elif leftover > 0:
             note = (
-                f"\n\n⏳ 이번 실행 한도({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 — "
-                f"남은 {leftover}곡은 다음 실행에서 이어감."
+                f"\n\n⏳ 변경 상한({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 "
+                f"(고정곡·코어 우선). 남은 {leftover}곡은 다음 실행 때 그 시점 기준으로 재정리."
             )
+
         elif added == 0 and removed == 0:
             note = "\n\n✅ 변경 없음 (플리가 이미 최신 상태)"
         else:
@@ -1696,6 +1987,7 @@ def sync_growth_playlist(top_videos, title_map=None):
 # ======================
 
 def main():
+    refresh_boost_starts()
 
     checked_playlists = 0
     error_playlists = 0
@@ -1809,6 +2101,8 @@ def main():
                 f"📊 현재 조회수: {views:,}회\n\n"
                 f"🔗 {url}"
             )
+            add_auto_pin(extract_video_id(url))   # 신곡 → 성장 플리 10일 자동핀
+            send_telegram(f"🎼 플리 자동 등록 (D-{AUTO_PIN_NEW_SONG_DAYS})")
 
         old_views = data.get(video_id, {}).get("views", views)
 
@@ -1822,6 +2116,9 @@ def main():
         growth = get_growth_stats(history, views)
 
         score = calculate_growth_score(views, growth)
+        score *= _boost_multiplier(video_id, effective_artists)   # ← 추가: 부스트 배율 적용
+
+        
 
         print(
             f"📊 {display_title}\n"
@@ -1887,7 +2184,7 @@ def main():
             "updated": now_kst()
         })
 
-        history = history[-200:]
+        history = history[-300:] # 주간 결산용 요유 (-12일치)
 
         new_entry = {
             "title": display_title,
@@ -1907,6 +2204,7 @@ def main():
             "notified": sorted(set(notified)),
             "updated": str(now_kst())
         }
+        
 
         # 내가 지정한 수정본은 다음 실행에서도 유지되도록 그대로 보존
         preserved_override = normalize_artists(
@@ -1916,6 +2214,8 @@ def main():
             new_entry["artists_override"] = preserved_override
 
         data[video_id] = new_entry
+        log_daily_snapshot(video_id, views)   # 연말결산용 일일 스냅샷
+
 
 
     status = (
@@ -1993,6 +2293,12 @@ def main():
     }
     
     sync_growth_playlist(top_videos, title_map)
+
+    maybe_send_weekly_recap(data)   # 주간 결산 (일요일)
+    maybe_send_dday_digest(data)    # 하루 결산 (매일 21시) ← 유지
+    send_imminent_alerts(data)      # 임박 즉시 알림 ← 추가    
+    send_spike_alerts(data)
+
 
 
 

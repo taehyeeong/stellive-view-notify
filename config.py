@@ -28,6 +28,35 @@ PLAYLIST_ROTATE_HOURS = 1               # 회전 주기(시간). 이 시간마�
 MAX_GROWTH_PLAYLIST_VIDEOS = 30         # 성장 가능성 플리에 넣을 최대 영상 수
 MAX_PLAYLIST_OPS_PER_RUN = 20           # 10곡 = 삭제10+추가10. 이게 시간당 쓰기 상한
 
+# 신곡 자동핀: 감지된 신곡을 성장 플리에 자동 등록해두는 기간(일). 0이면 기능 끔.
+AUTO_PIN_NEW_SONG_DAYS = 10
+
+# 성장 점수 부스트 — 지정한 곡/아티스트를 플리에 더 자주 나오게.
+#   type : "artist"(아티스트 이름) 또는 "song"(video_id)
+#   target: 아티스트 이름 or video_id
+#   pct  : 부스트 % (예: 30 → 점수 +30%)
+#   until: (선택) 종료일 "YYYY-MM-DD". 없으면 처음 등록된 날부터 10일간.
+GROWTH_BOOST = [
+    # {"type": "artist", "target": "아야츠노 유니", "pct": 30},                       # ← until 없으면 10일
+    # {"type": "song",   "target": "rQaluJS-Tc0",   "pct": 50, "until": "2026-09-30"}, # ← 날짜 지정
+]
+
+BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
+
+# 성장 플리에 항상 넣을 개인 선곡 (URL 또는 ID)
+GROWTH_PLAYLIST_PINNED = [
+    # "https://www.youtube.com/watch?v=xxxx",
+]
+
+# D-Day 알림 설정
+DDAY_THRESHOLD_DAYS = 3    # 다음 목표까지 이 일수 이내면 '곧 달성'
+DDAY_ALERT_HOUR = 21       # 매일 이 시각(KST) 이후 첫 실행에 1회
+IMMINENT_HOURS = 3   # 다음 목표까지 이 시간 이내면 즉시 알림
+
+# 떡상 알림 설정
+SPIKE_MULT = 2.5        # 최근 속도가 평소의 이 배 이상이면 떡상
+SPIKE_MIN_DAILY = 1500  # 하루 최소 이만큼은 늘어야 떡상 (노이즈 컷)
+
 
 
 # 카드 상단 ORIGINAL / COVER 배지 표시 여부
@@ -119,10 +148,8 @@ EXCLUDED_VIDEO_IDS = [
     # "https://www.youtube.com/watch?v=xxxxxxxxxxx",  # 아이리 칸나 커버 A
 ]
 
-# 성장 플리에 항상 넣을 개인 선곡 (URL 또는 ID)
-GROWTH_PLAYLIST_PINNED = [
-    # "https://www.youtube.com/watch?v=xxxx",
-]
+
+
 
 
 
