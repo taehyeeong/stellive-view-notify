@@ -1,4 +1,8 @@
 {
   "last_dday_date": "2026-09-09",
-  "pt_date": "2026-09-09"
+  "pt_date": "2026-09-09",
+  "imminent_alerted": {
+    "PBh8a0GaNFs": 2900000,
+    "nknH0KshgpY": 1350000
+  }
 }
