@@ -1589,7 +1589,8 @@ def sync_growth_playlist(top_videos, title_map=None):
                     try:
                         playlist_delete(access_token, item["playlist_item_id"])
                         removed += 1; ops += 1
-                        removed_titles.append(title_map.get(item.get("video_id"), item.get("video_id")))
+                        vid = item.get("video_id")
+                        removed_titles.append(f"{title_map.get(vid, vid)}  ({vid})")
                         break
                     except Exception as e:
                         if _is_quota_error(e):
@@ -1615,7 +1616,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                     try:
                         playlist_insert(access_token, GROWTH_PLAYLIST_ID, video_id, position=target_position)
                         added += 1; ops += 1
-                        added_titles.append(title_map.get(video_id, video_id))
+                        added_titles.append(f"{title_map.get(video_id, video_id)}  ({video_id})")
                         break
                     except Exception as e:
                         if _is_quota_error(e):
@@ -1669,7 +1670,8 @@ def sync_growth_playlist(top_videos, title_map=None):
             f"🕒 {now_kst()}\n"
             f"➕ 추가: {added}곡{_fmt(added_titles)}\n\n"
             f"➖ 삭제: {removed}곡{_fmt(removed_titles)}\n\n"
-            f"📼 목표: {len(desired_ids)}곡"
+            f"📼 목표: {len(desired_ids)}곡\n"
+            f"🔑 쓰기 프로젝트: {_current_oauth_index + 1}번\n"
             f"{note}"
         )
 
