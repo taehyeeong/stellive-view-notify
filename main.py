@@ -366,37 +366,49 @@ def maybe_send_dday_digest(data):
 
 
 def send_imminent_alerts(data):
-    """다음 목표까지 IMMINENT_HOURS 이내인 곡을 즉시 알림 (곡·목표별 1회)."""
-    alerted = dict(_load_state().get("imminent_alerted", {}))   # {video_id: target}
-    changed = False
+    """다음 목표 임박 곡을 한 메시지로 모아 알림 (곡·목표별 1회)."""
+    now = datetime.now(KST)
+    alerted = dict(_load_state().get("imminent_alerted", {}))
+    picks, changed = [], False
     for vid, info in data.items():
         if vid.startswith("_") or not isinstance(info, dict):
             continue
         g = info.get("growth", {})
         eta = g.get("eta_days")
-        if eta is None or eta == float("inf"):
-            continue
-        hours = eta * 24
-        if hours > IMMINENT_HOURS:
+        if eta is None or eta == float("inf") or eta * 24 > IMMINENT_HOURS:
             continue
         views = info.get("views", 0)
         target = views + g.get("remaining", 0)
-        if alerted.get(vid) == target:      # 이 목표는 이미 알림함 → skip
+        if alerted.get(vid) == target:      # 이 목표는 이미 알림 → skip
             continue
-        title = info.get("title", vid)
-        artist = ", ".join(info.get("artists", []))
-        tgt = f"{target // 10000}만" if target % 10000 == 0 else f"{target:,}"
-        when = "1시간 내 ⚡" if hours < 1 else f"약 {round(hours)}시간 내"
-        send_telegram(
-            f"⚡ 곧 달성!\n\n"
-            f"🎵 {title}  ({artist})\n"
-            f"🎯 {tgt}까지 {when} 예상\n"
-            f"📊 현재 {views:,}회 · 하루 +{g.get('daily_avg', 0):,.0f}"
-        )
+        picks.append((eta, vid, info, target))
         alerted[vid] = target
         changed = True
+
+    if picks:
+        picks.sort(key=lambda x: x[0])
+        lines = []
+        for eta, vid, info, target in picks:
+            when = now + timedelta(days=eta)
+            if when.date() == now.date():
+                day = "오늘"
+            elif when.date() == (now + timedelta(days=1)).date():
+                day = "내일"
+            else:
+                day = when.strftime("%m/%d")
+            tgt = f"{target // 10000}만" if target % 10000 == 0 else f"{target:,}"
+            title = info.get("title", vid)
+            artist = ", ".join(info.get("artists", []))
+            lines.append(
+                f"· {title} — {tgt} ({day} {when.hour}시경 예상)\n"
+                f"  {artist}\n"
+                f"  https://youtu.be/{vid}"
+            )
+        send_telegram("⚡ 곧 달성 예정\n\n" + "\n\n".join(lines))
+
     if changed:
         _save_state(imminent_alerted=alerted)
+
 
 def send_spike_alerts(data):
     """최근 성장 속도가 평소보다 급등한 곡을 즉시 알림 (곡별 하루 1회)."""
@@ -714,11 +726,6 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
                     save_start_key_index(_current_key_index)
                     new_no = _current_key_index + 1
                     if _advance_key():
-                        send_telegram(
-                            "🔑 API 키 자동 전환\n\n"
-                            f"🕒 {now_kst()}\n"
-                            f"읽기 키 소진 → {_current_key_index + 1}번 키로 전환합니다."
-                        )
                         continue
                 reset_kst = next_quota_reset_kst()
                 hours_left = (reset_kst - datetime.now(KST)).total_seconds() / 3600
@@ -1915,7 +1922,6 @@ def sync_growth_playlist(top_videos, title_map=None):
                     except Exception as e:
                         if _is_quota_error(e):
                             if _advance_oauth():
-                                send_telegram(f"🔑 쓰기 OAuth 전환 → {_current_oauth_index + 1}번 프로젝트\n🕒 {now_kst()}")
                                 access_token = get_youtube_access_token()
                                 continue
                             quota_hit = True
@@ -1941,7 +1947,6 @@ def sync_growth_playlist(top_videos, title_map=None):
                     except Exception as e:
                         if _is_quota_error(e):
                             if _advance_oauth():
-                                send_telegram(f"🔑 쓰기 OAuth 전환 → {_current_oauth_index + 1}번 프로젝트\n🕒 {now_kst()}")
                                 access_token = get_youtube_access_token()
                                 continue
                             quota_hit = True
@@ -1995,7 +2000,7 @@ def sync_growth_playlist(top_videos, title_map=None):
             f"➕ 추가: {added}곡{_fmt(added_titles)}\n\n"
             f"➖ 삭제: {removed}곡{_fmt(removed_titles)}\n\n"
             f"📼 목표: {len(desired_ids)}곡\n"
-            f"🔑 쓰기 프로젝트: {_current_oauth_index + 1}번\n"
+            f"🔑 읽기 프로젝트: {_current_key_index + 1}번 · 쓰기 프로젝트: {_current_oauth_index + 1}번\n"
             f"{note}"
         )
 
