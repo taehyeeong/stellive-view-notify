@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STELLIVE 성장 대시보드</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg: #0e0e14;
+            --card: #181820;
+            --line: #26263180;
+            --text: #e9e9f0;
+            --muted: #9a9aae;
+            --accent: #8b7bf0;
+            --accent2: #f06ba8;
+            --good: #5ad19b;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+            line-height: 1.5
+        }
+
+        .wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 28px 18px 80px
+        }
+
+        header h1 {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 0 0 4px;
+            letter-spacing: -.01em
+        }
+
+        header .sub {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 22px 0 14px
+        }
+
+        .controls input,
+        .controls select {
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--text);
+            padding: 9px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none
+        }
+
+        .controls input {
+            flex: 1;
+            min-width: 160px
+        }
+
+        #chartCard {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 16px 16px 8px;
+            margin-bottom: 20px;
+            display: none
+        }
+
+        #chartCard h2 {
+            font-size: 15px;
+            margin: 0 0 2px
+        }
+
+        #chartCard .meta {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 10px
+        }
+
+        .rank {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 34px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: border-color .15s
+        }
+
+        .row:hover {
+            border-color: var(--accent)
+        }
+
+        .row .no {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--muted);
+            text-align: center
+        }
+
+        .row .no.top {
+            color: var(--accent)
+        }
+
+        .row .title {
+            font-weight: 700;
+            font-size: 15px
+        }
+
+        .row .artist {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px
+        }
+
+        .row .right {
+            text-align: right
+        }
+
+        .row .views {
+            font-weight: 700;
+            font-size: 14px
+        }
+
+        .row .score {
+            color: var(--good);
+            font-size: 12px;
+            margin-top: 2px
+        }
+
+        .empty {
+            color: var(--muted);
+            text-align: center;
+            padding: 40px
+        }
+
+        footer {
+            color: var(--muted);
+            font-size: 11px;
+            text-align: center;
+            margin-top: 30px
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <header>
+            <h1>🌟 STELLIVE 성장 대시보드</h1>
+            <div class="sub" id="updated">불러오는 중…</div>
+        </header>
+
+        <div class="controls">
+            <input id="search" placeholder="곡·아티스트 검색">
+            <select id="unitFilter">
+                <option value="">전체 유닛</option>
+            </select>
+            <select id="sortBy">
+                <option value="score">성장 점수순</option>
+                <option value="views">조회수순</option>
+                <option value="eta">달성 임박순</option>
+            </select>
+        </div>
+
+        <div id="chartCard">
+            <h2 id="chartTitle"></h2>
+            <div class="meta" id="chartMeta"></div>
+            <canvas id="chart" height="230"></canvas>
+        </div>
+
+        <div class="rank" id="rank">
+            <div class="empty">데이터 불러오는 중…</div>
+        </div>
+
+        <footer>매시간 자동 갱신 · Drafted with Dia</footer>
+    </div>
+
+    <script>
+        let SONGS = [], SNAPS = {}, chart = null;
+
+        async function load() {
+            try {
+                const [vRes, sRes] = await Promise.all([
+                    fetch("views.json", { cache: "no-store" }),
+                    fetch("snapshots.json", { cache: "no-store" }).catch(() => null)
+                ]);
+                const views = await vRes.json();
+                SNAPS = sRes && sRes.ok ? await sRes.json() : {};
+
+                let lastUpdated = "";
+                for (const [id, info] of Object.entries(views)) {
+                    if (id.startsWith("_") || typeof info !== "object") continue;
+                    SONGS.push({
+                        id,
+                        title: info.title || id,
+                        artists: (info.artists || []).join(", "),
+                        unit: info.unit || "",
+                        views: info.views || 0,
+                        score: info.growth_score || 0,
+                        eta: (info.growth && info.growth.eta_days != null) ? info.growth.eta_days : Infinity,
+                        daily: (info.growth && info.growth.daily_avg) || 0,
+                        history: info.history || []
+                    });
+                    if (info.updated && info.updated > lastUpdated) lastUpdated = info.updated;
+                }
+                const gp = views["_growth_playlist"];
+                document.getElementById("updated").textContent =
+                    "마지막 갱신 " + ((gp && gp.updated) || lastUpdated || "-") + " · " + SONGS.length + "곡 추적 중";
+
+                const units = [...new Set(SONGS.map(s => s.unit).filter(Boolean))].sort();
+                const uf = document.getElementById("unitFilter");
+                units.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; uf.appendChild(o); });
+
+                render();
+            } catch (e) {
+                document.getElementById("rank").innerHTML =
+                    '<div class="empty">데이터를 불러오지 못했어요. (views.json 경로 확인)</div>';
+                document.getElementById("updated").textContent = "불러오기 실패";
+            }
+        }
+
+        function render() {
+            const q = document.getElementById("search").value.trim().toLowerCase();
+            const unit = document.getElementById("unitFilter").value;
+            const sortBy = document.getElementById("sortBy").value;
+
+            let list = SONGS.filter(s => {
+                if (unit && s.unit !== unit) return false;
+                if (q && !(s.title.toLowerCase().includes(q) || s.artists.toLowerCase().includes(q))) return false;
+                return true;
+            });
+            list.sort((a, b) => {
+                if (sortBy === "views") return b.views - a.views;
+                if (sortBy === "eta") return a.eta - b.eta;
+                return b.score - a.score;
+            });
+
+            const el = document.getElementById("rank");
+            if (!list.length) { el.innerHTML = '<div class="empty">결과 없음</div>'; return; }
+            el.innerHTML = "";
+            list.slice(0, 100).forEach((s, i) => {
+                const row = document.createElement("div");
+                row.className = "row";
+                const etaTxt = isFinite(s.eta) ? ` · 다음 목표 D-${Math.max(0, Math.round(s.eta))}` : "";
+                row.innerHTML =
+                    `<div class="no ${i < 3 ? 'top' : ''}">${i + 1}</div>
+       <div><div class="title">${esc(s.title)}</div>
+         <div class="artist">${esc(s.artists)}${s.unit ? ` · ${esc(s.unit)}` : ''}</div></div>
+       <div class="right"><div class="views">${s.views.toLocaleString()}회</div>
+         <div class="score">점수 ${s.score.toFixed(1)}${etaTxt}</div></div>`;
+                row.onclick = () => showChart(s);
+                el.appendChild(row);
+            });
+        }
+
+        function showChart(s) {
+            let labels = [], vals = [];
+            const snap = SNAPS[s.id];
+            if (snap && Object.keys(snap).length >= 2) {
+                Object.keys(snap).sort().forEach(d => { labels.push(d.slice(5)); vals.push(snap[d]); });
+            } else {
+                s.history.forEach(h => { labels.push(h.updated.slice(5, 16)); vals.push(h.views); });
+            }
+            document.getElementById("chartCard").style.display = "block";
+            document.getElementById("chartTitle").textContent = s.title;
+            document.getElementById("chartMeta").textContent =
+                `${s.artists} · 현재 ${s.views.toLocaleString()}회 · 하루 +${Math.round(s.daily).toLocaleString()}`;
+            const ctx = document.getElementById("chart");
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels, datasets: [{
+                        data: vals, borderColor: "#8b7bf0",
+                        backgroundColor: "rgba(139,123,240,.12)", fill: true, tension: .3, pointRadius: 0, borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: "#9a9aae", maxTicksLimit: 8 }, grid: { display: false } },
+                        y: { ticks: { color: "#9a9aae" }, grid: { color: "#26263180" } }
+                    }
+                }
+            });
+            document.getElementById("chartCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        function esc(t) { return (t + "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+
+        ["search", "unitFilter", "sortBy"].forEach(id =>
+            document.getElementById(id).addEventListener("input", render));
+        load();
+    </script>
+</body>
+
+</html>
