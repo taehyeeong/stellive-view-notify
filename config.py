@@ -49,8 +49,9 @@ GROWTH_PLAYLIST_PINNED = [
 ]
 
 # D-Day 알림 설정
-DDAY_THRESHOLD_DAYS = 3    # 다음 목표까지 이 일수 이내면 '곧 달성'
+DDAY_THRESHOLD_DAYS = 10    # 다음 목표까지 이 일수 이내면 '곧 달성'
 DDAY_ALERT_HOUR = 21       # 매일 이 시각(KST) 이후 첫 실행에 1회
+DDAY_MAJOR_STEP = 1_000_000   # 100만 단위 목표만
 IMMINENT_HOURS = 3   # 다음 목표까지 이 시간 이내면 즉시 알림
 
 # 떡상 알림 설정

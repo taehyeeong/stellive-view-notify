@@ -251,7 +251,8 @@ from config import (
     DDAY_ALERT_HOUR,
     IMMINENT_HOURS,
     SPIKE_MULT,
-    SPIKE_MIN_DAILY
+    SPIKE_MIN_DAILY,
+    DDAY_MAJOR_STEP
 )
 
 from card import make_milestone_card
@@ -323,7 +324,7 @@ def save_start_key_index(idx):
         print(f"⚠️ key_state 저장 실패: {e}")
 
 def maybe_send_dday_digest(data):
-    """다음 목표 임박 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
+    """100만 단위 목표 임박 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
     now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
     if now.hour < DDAY_ALERT_HOUR:
         return
@@ -335,33 +336,33 @@ def maybe_send_dday_digest(data):
     for vid, info in data.items():
         if vid.startswith("_") or not isinstance(info, dict):
             continue
-        g = info.get("growth", {})
-        eta = g.get("eta_days")
-        if eta is None or eta == float("inf") or eta > DDAY_THRESHOLD_DAYS:
+        speed = info.get("growth", {}).get("daily_avg", 0)
+        if speed <= 0:
+            continue
+        views = info.get("views", 0)
+        target = ((views // DDAY_MAJOR_STEP) + 1) * DDAY_MAJOR_STEP   # 다음 100만
+        eta = (target - views) / speed
+        if eta > DDAY_THRESHOLD_DAYS:
             continue
         rows.append({
             "title": info.get("title", vid),
             "artist": ", ".join(info.get("artists", [])),
-            "target": g.get("next_target", 0),
-            "eta": eta,
-            "speed": g.get("daily_avg", 0),
+            "target": target, "eta": eta, "speed": speed,
         })
 
     if rows:
         rows.sort(key=lambda r: r["eta"])
-        def _fmt(t):
-            return f"{t // 10000}만" if t and t % 10000 == 0 else f"{t:,}"
         lines = []
         for r in rows[:10]:
-            dday = max(0, round(r["eta"]))
-            tag = "오늘·내일 중" if dday <= 1 else f"D-{dday}"
+            tag = "오늘·내일" if r["eta"] < 1.5 else f"D-{round(r['eta'])}"
             lines.append(
-                f"· {r['title']} — {_fmt(r['target'])}까지 {tag} "
+                f"· {r['title']} — {r['target'] // 10000}만 {tag} "
                 f"(하루 +{r['speed']:,.0f})  ({r['artist']})"
             )
-        send_telegram("🔜 곧 달성 예정\n\n🕒 " + today + "\n\n" + "\n".join(lines))
+        send_telegram("🔜 곧 달성 예정 (100만 단위)\n\n🕒 " + today + "\n\n" + "\n".join(lines))
 
-    _save_state(last_dday_date=today)   # 대상 없어도 오늘 체크 완료로 기록
+    _save_state(last_dday_date=today)
+
 
 def send_imminent_alerts(data):
     """다음 목표까지 IMMINENT_HOURS 이내인 곡을 즉시 알림 (곡·목표별 1회)."""
@@ -1940,8 +1941,8 @@ def sync_growth_playlist(top_videos, title_map=None):
             note = "\n\n⚠️ 오늘 API 쿼터 소진 — 남은 정리는 리셋 후 이어감."
         elif leftover > 0:
             note = (
-                f"\n\n⏳ 변경 상한({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 "
-                f"(고정곡·코어 우선). 남은 {leftover}곡은 다음 실행 때 그 시점 기준으로 재정리."
+                f"\n\n⏳ 변경 상한({MAX_PLAYLIST_OPS_PER_RUN})까지만 처리 (고정곡·코어 우선) "
+                f"\n\n남은 {leftover}곡은 다음 실행 때 그 시점 기준으로 재정리"
             )
 
         elif added == 0 and removed == 0:
