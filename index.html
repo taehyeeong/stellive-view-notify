@@ -72,23 +72,85 @@
         }
 
         #chartCard {
+            position: sticky;
+            top: 10px;
+            z-index: 10;
             background: var(--card);
             border: 1px solid var(--line);
             border-radius: 14px;
-            padding: 16px 16px 8px;
-            margin-bottom: 20px;
-            display: none
+            padding: 14px 16px 12px;
+            margin-bottom: 18px;
+            display: none;
+            box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .7)
+        }
+
+        #chartCard .head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px
         }
 
         #chartCard h2 {
             font-size: 15px;
-            margin: 0 0 2px
+            margin: 0
         }
 
         #chartCard .meta {
             color: var(--muted);
             font-size: 12px;
-            margin-bottom: 10px
+            margin: 2px 0 10px
+        }
+
+        #closeBtn {
+            background: none;
+            border: 0;
+            color: var(--muted);
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 4px
+        }
+
+        #closeBtn:hover {
+            color: var(--text)
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            align-items: stretch
+        }
+
+        .chartBox {
+            position: relative;
+            height: 220px
+        }
+
+        .videoBox {
+            position: relative;
+            aspect-ratio: 16/9;
+            min-height: 0
+        }
+
+        .videoBox iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            border-radius: 10px
+        }
+
+        @media(max-width:640px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            .chartBox {
+                height: 190px
+            }
         }
 
         .rank {
@@ -112,6 +174,11 @@
 
         .row:hover {
             border-color: var(--accent)
+        }
+
+        .row.active {
+            border-color: var(--accent);
+            background: #1f1d2e
         }
 
         .row .no {
@@ -186,9 +253,17 @@
         </div>
 
         <div id="chartCard">
-            <h2 id="chartTitle"></h2>
-            <div class="meta" id="chartMeta"></div>
-            <canvas id="chart" height="230"></canvas>
+            <div class="head">
+                <div>
+                    <h2 id="chartTitle"></h2>
+                    <div class="meta" id="chartMeta"></div>
+                </div>
+                <button id="closeBtn" title="닫기">✕</button>
+            </div>
+            <div class="grid">
+                <div class="chartBox"><canvas id="chart"></canvas></div>
+                <div class="videoBox"><iframe id="ytFrame" allow="encrypted-media" allowfullscreen></iframe></div>
+            </div>
         </div>
 
         <div class="rank" id="rank">
@@ -199,7 +274,7 @@
     </div>
 
     <script>
-        let SONGS = [], SNAPS = {}, chart = null;
+        let SONGS = [], SNAPS = {}, chart = null, activeId = null;
 
         async function load() {
             try {
@@ -263,7 +338,7 @@
             el.innerHTML = "";
             list.slice(0, 100).forEach((s, i) => {
                 const row = document.createElement("div");
-                row.className = "row";
+                row.className = "row" + (s.id === activeId ? " active" : "");
                 const etaTxt = isFinite(s.eta) ? ` · 다음 목표 D-${Math.max(0, Math.round(s.eta))}` : "";
                 row.innerHTML =
                     `<div class="no ${i < 3 ? 'top' : ''}">${i + 1}</div>
@@ -277,6 +352,7 @@
         }
 
         function showChart(s) {
+            activeId = s.id;
             let labels = [], vals = [];
             const snap = SNAPS[s.id];
             if (snap && Object.keys(snap).length >= 2) {
@@ -288,29 +364,50 @@
             document.getElementById("chartTitle").textContent = s.title;
             document.getElementById("chartMeta").textContent =
                 `${s.artists} · 현재 ${s.views.toLocaleString()}회 · 하루 +${Math.round(s.daily).toLocaleString()}`;
+            document.getElementById("ytFrame").src = "https://www.youtube.com/embed/" + s.id;
+
             const ctx = document.getElementById("chart");
             if (chart) chart.destroy();
             chart = new Chart(ctx, {
                 type: "line",
                 data: {
                     labels, datasets: [{
-                        data: vals, borderColor: "#8b7bf0",
+                        label: "조회수", data: vals, borderColor: "#8b7bf0",
                         backgroundColor: "rgba(139,123,240,.12)", fill: true, tension: .3, pointRadius: 0, borderWidth: 2
                     }]
                 },
                 options: {
-                    responsive: true, plugins: { legend: { display: false } },
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: "index", intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            displayColors: false,
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (c) => " " + c.parsed.y.toLocaleString() + "회"
+                            }
+                        }
+                    },
                     scales: {
                         x: { ticks: { color: "#9a9aae", maxTicksLimit: 8 }, grid: { display: false } },
-                        y: { ticks: { color: "#9a9aae" }, grid: { color: "#26263180" } }
+                        y: { ticks: { color: "#9a9aae", callback: v => v.toLocaleString() }, grid: { color: "#26263180" } }
                     }
                 }
             });
-            document.getElementById("chartCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+            render();
+        }
+
+        function closeCard() {
+            document.getElementById("chartCard").style.display = "none";
+            document.getElementById("ytFrame").src = "";
+            activeId = null;
+            render();
         }
 
         function esc(t) { return (t + "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
+        document.getElementById("closeBtn").addEventListener("click", closeCard);
         ["search", "unitFilter", "sortBy"].forEach(id =>
             document.getElementById(id).addEventListener("input", render));
         load();

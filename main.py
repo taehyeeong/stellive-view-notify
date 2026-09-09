@@ -252,7 +252,8 @@ from config import (
     IMMINENT_HOURS,
     SPIKE_MULT,
     SPIKE_MIN_DAILY,
-    DDAY_MAJOR_STEP
+    DDAY_MAJOR_STEP,
+    UNITS
 )
 
 from card import make_milestone_card
@@ -424,6 +425,34 @@ def send_spike_alerts(data):
         changed = True
     if changed:
         _save_state(spike_fired=fired)
+
+
+# 아티스트 이름/별칭 → 유닛 역매핑 (모듈 로드 시 1회 구성)
+_ARTIST_UNIT = {}
+for _uname, _u in UNITS.items():
+    for _mname, _m in _u.get("members", {}).items():
+        _ARTIST_UNIT[_mname] = _uname
+        for _alias in _m.get("aliases", []):
+            _ARTIST_UNIT[_alias] = _uname
+
+
+def resolve_unit(artists):
+    """솔로/한유닛 → 그 유닛, 여러 유닛 → 콜라보, 스텔라이브 크레딧 → 스텔라이브."""
+    found = set()
+    for a in (artists or []):
+        u = _ARTIST_UNIT.get(a)
+        if u:
+            found.add(u)
+    if "스텔라이브" in found:          # 공식 그룹 곡
+        return "스텔라이브"
+    real = found - {"스텔라이브"}
+    if len(real) == 1:
+        return next(iter(real))       # 단일 유닛
+    if len(real) >= 2:
+        return "듀엣"               # 크로스유닛 콜라보
+    return ""
+
+
 
 # ======================
 # 파일 저장
@@ -2190,7 +2219,7 @@ def main():
         new_entry = {
             "title": display_title,
             "artists": effective_artists,
-            "unit": video.get("unit", ""),
+            "unit": resolve_unit(effective_artists) or "기타",
             "views": views,
             "history": history,
             "growth": {
