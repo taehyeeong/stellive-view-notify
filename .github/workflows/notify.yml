@@ -63,7 +63,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add views.json titles.json
+          git add views.json titles.json key_state.json bot_state.json
           if git diff --cached --quiet; then
             echo "변경 없음 — 커밋 생략"
             exit 0

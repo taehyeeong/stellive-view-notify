@@ -16,6 +16,12 @@ from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
 
+def main():
+    global _current_key_index, _current_oauth_index
+    _current_key_index, _current_oauth_index = load_start_indices()
+    ...
+
+
 
 load_dotenv()
 
@@ -25,6 +31,67 @@ def now_kst():
     return datetime.now(KST).strftime(
         "%Y-%m-%d %H:%M:%S"
     )
+
+BOT_STATE_FILE = "bot_state.json"
+
+def _pt_quota_date():
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
+    except Exception:
+        return (datetime.now(timezone.utc) - timedelta(hours=8)).strftime("%Y-%m-%d")
+
+def next_quota_reset_kst():
+    try:
+        from zoneinfo import ZoneInfo
+        nxt = (datetime.now(ZoneInfo("America/Los_Angeles")) + timedelta(days=1)).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+        return nxt.astimezone(KST)
+    except Exception:
+        return (datetime.now(timezone.utc) + timedelta(days=1)).replace(
+            hour=8, minute=0, second=0, microsecond=0).astimezone(KST)
+
+def _load_state():
+    try:
+        with open(BOT_STATE_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def _save_state(**kw):
+    s = _load_state()
+    s.update(kw)
+    s["pt_date"] = _pt_quota_date()
+    try:
+        with open(BOT_STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump(s, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print("⚠️ bot_state 저장 실패:", e)
+
+def load_start_indices():
+    s = _load_state()
+    if s.get("pt_date") == _pt_quota_date():
+        ki = max(0, min(int(s.get("key_index", 0)), len(YOUTUBE_API_KEYS) - 1))
+        oi = max(0, min(int(s.get("oauth_index", 0)), len(YOUTUBE_OAUTH) - 1))
+        return ki, oi
+    return 0, 0
+
+def _advance_key():
+    global _current_key_index
+    if _current_key_index + 1 < len(YOUTUBE_API_KEYS):
+        _current_key_index += 1
+        _save_state(key_index=_current_key_index)
+        return True
+    return False
+
+def _advance_oauth():
+    global _current_oauth_index
+    if _current_oauth_index + 1 < len(YOUTUBE_OAUTH):
+        _current_oauth_index += 1
+        _save_state(oauth_index=_current_oauth_index)
+        return True
+    return False
+
 
 def next_quota_reset_kst():
     """YouTube 할당량은 태평양 자정에 리셋됨. 다음 리셋 시각을 KST로 반환."""
@@ -75,31 +142,65 @@ from card import make_milestone_card
 # 환경 변수
 # ======================
 
-# 여러 API 키 지원 (할당량 소진 시 자동 전환)
-# ⚠️ 2번 키는 반드시 "다른 GCP 프로젝트"에서 발급해야 할당량이 늘어남!
+TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
+TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+
+# ===== API 키 (읽기) — 소진 시 자동 전환 =====
 YOUTUBE_API_KEYS = [
     k.strip() for k in (
         os.environ.get("YOUTUBE_API_KEY", ""),
-        os.environ.get("YOUTUBE_API_KEY_2", "")
-        # os.environ.get("YOUTUBE_API_KEY_3", "")
+        os.environ.get("YOUTUBE_API_KEY_2", ""),
+        os.environ.get("YOUTUBE_API_KEY_3", ""),
     ) if k.strip()
 ]
 if not YOUTUBE_API_KEYS:
     raise RuntimeError("YOUTUBE_API_KEY 환경변수가 없습니다.")
-
-YOUTUBE_API_KEY = YOUTUBE_API_KEYS[0]   # 하위호환 (youtube_get이 실제 키를 덮어씀)
+YOUTUBE_API_KEY = YOUTUBE_API_KEYS[0]   # 하위호환
 _current_key_index = 0
 
 def current_api_key():
     return YOUTUBE_API_KEYS[_current_key_index]
 
-TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
-TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+# ===== OAuth (쓰기) — 소진 시 자동 전환 =====
+YOUTUBE_OAUTH = []
+for _sfx in ("", "_2", "_3"):
+    _cid = os.environ.get(f"YOUTUBE_CLIENT_ID{_sfx}")
+    _csec = os.environ.get(f"YOUTUBE_CLIENT_SECRET{_sfx}")
+    _rtok = os.environ.get(f"YOUTUBE_REFRESH_TOKEN{_sfx}")
+    if _cid and _csec and _rtok:
+        YOUTUBE_OAUTH.append({"client_id": _cid, "client_secret": _csec, "refresh_token": _rtok})
+_current_oauth_index = 0
 
-YOUTUBE_CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
-YOUTUBE_CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
-YOUTUBE_REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
 
+KEY_STATE_FILE = "key_state.json"
+
+def _pt_quota_date():
+    """태평양 기준 오늘 날짜 (할당량 리셋 경계)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
+    except Exception:
+        return (datetime.now(timezone.utc) - timedelta(hours=8)).strftime("%Y-%m-%d")
+
+def load_start_key_index():
+    """오늘(PT) 소진돼서 넘어간 키 번호를 불러옴. 날짜 바뀌면 0부터."""
+    try:
+        with open(KEY_STATE_FILE, "r", encoding="utf-8") as f:
+            state = json.load(f)
+        if state.get("pt_date") == _pt_quota_date():
+            idx = int(state.get("start_key_index", 0))
+            return max(0, min(idx, len(YOUTUBE_API_KEYS) - 1))
+    except Exception:
+        pass
+    return 0
+
+def save_start_key_index(idx):
+    try:
+        with open(KEY_STATE_FILE, "w", encoding="utf-8") as f:
+            json.dump({"pt_date": _pt_quota_date(), "start_key_index": idx},
+                      f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"⚠️ key_state 저장 실패: {e}")
 
 
 # ======================
@@ -224,36 +325,22 @@ def send_notification(message, video_id=None, card_info=None):
     if video_id and card_info:
         try:
             milestone = card_info.get("milestone")
-
             if SPECIAL_CARD_ENABLED and milestone in SPECIAL_MILESTONES:
-                # 특별 카드 ON → 세로 HTML 카드
                 card_path = make_special_card(
-                    video_id,
-                    card_info["title"],
-                    card_info["artist"],
-                    f"/tmp/card_{video_id}.jpg",
-                    milestone=milestone,
+                    video_id, card_info["title"], card_info["artist"],
+                    f"/tmp/card_{video_id}.jpg", milestone=milestone,
                 )
             else:
-                # 평상시 카드 (가로 Pillow).
-                # 특별 카드가 꺼져 있으면 grand(글로우·골드) 옵션을 벗겨서
-                # 100만/1000만도 그냥 평상시처럼 나오게 한다.
                 card_opts = card_info.get("card_opts")
                 if isinstance(card_opts, dict) and card_opts.get("grand"):
-                    card_opts = {
-                        k: v for k, v in card_opts.items()
-                        if k not in ("grand", "accent", "tint", "tagline")
-                    } or None
+                    card_opts = {k: v for k, v in card_opts.items()
+                                 if k not in ("grand", "accent", "tint", "tagline")} or None
                 card_path = make_milestone_card(
-                    video_id,
-                    card_info["title"],
-                    card_info["artist"],
-                    card_info["views_text"],
-                    f"/tmp/card_{video_id}.jpg",
+                    video_id, card_info["title"], card_info["artist"],
+                    card_info["views_text"], f"/tmp/card_{video_id}.jpg",
                     song_type=card_info.get("song_type", ""),
                     card_opts=card_opts,
                 )
-
             if send_card_photo(card_path, message, reply_markup=markup):
                 return
         except Exception as e:
@@ -261,6 +348,7 @@ def send_notification(message, video_id=None, card_info=None):
     if video_id and send_telegram_photo(message, video_id, reply_markup=markup):
         return
     send_telegram(message, reply_markup=markup)
+
 
 
 
@@ -318,11 +406,7 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
     for attempt in range(max_retries + 1):
         req_params = {**params, "key": current_api_key()}
         try:
-            response = requests.get(
-                url,
-                params=req_params,
-                timeout=10
-            )
+            response = requests.get(url, params=req_params, timeout=10)
         except RequestException as e:
             if attempt < max_retries:
                 wait = 2 ** attempt
@@ -362,27 +446,29 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
                 if _current_key_index + 1 < len(YOUTUBE_API_KEYS):
                     old_no = _current_key_index + 1
                     _current_key_index += 1
+                    save_start_key_index(_current_key_index)
                     new_no = _current_key_index + 1
-                    send_telegram(
-                        "🔑 API 키 자동 전환\n\n"
-                        f"🕒 시간: {now_kst()}\n"
-                        f"{old_no}번 키 할당량 소진 → {new_no}번 키로 전환합니다."
-                    )
-                    continue
-                # 남은 키 없음 → 리셋 안내 후 중단
+                    if _advance_key():
+                        send_telegram(
+                            "🔑 API 키 자동 전환\n\n"
+                            f"🕒 {now_kst()}\n"
+                            f"읽기 키 소진 → {_current_key_index + 1}번 키로 전환합니다."
+                        )
+                        continue
                 reset_kst = next_quota_reset_kst()
                 hours_left = (reset_kst - datetime.now(KST)).total_seconds() / 3600
                 message = (
                     "🚨 YouTube API quota 초과\n\n"
                     f"🕒 시간: {now_kst()}\n"
                     f"📌 요청: {description}\n\n"
-                    "⛔ 모든 API 키의 할당량이 소진되어 실행을 중단했습니다.\n"
+                    "⛔ 모든 읽기 키의 할당량이 소진되어 중단했습니다.\n"
                     f"🔄 예상 리셋: {reset_kst.strftime('%m/%d %H:%M')} KST "
                     f"(약 {hours_left:.0f}시간 뒤)"
                 )
                 print(message)
                 send_telegram(message)
                 raise QuotaExceededError("YouTube API quotaExceeded")
+
 
 
         if response.status_code in {409, 500, 502, 503, 504}:
@@ -1183,7 +1269,9 @@ def get_top_growth_videos(data, limit=None):
             "eta_days": info["growth"].get("eta_days")
         })
 
-    candidates.sort(key=lambda x: x["score"], reverse=True)
+    # 점수 5점 버킷 정렬 → 미세 출렁임으로 코어가 매시간 뒤집히는 것 방지.
+    # 같은 버킷에선 조회수 낮은(묻힌) 곡 우선.
+    candidates.sort(key=lambda x: (round(x["score"] / 5), -x["views"]), reverse=True)
 
     rotate_n = min(PLAYLIST_ROTATE_COUNT, limit)
     core_n = limit - rotate_n
@@ -1305,19 +1393,20 @@ YOUTUBE_PLAYLIST_ITEMS_URL = "https://www.googleapis.com/youtube/v3/playlistItem
 
 
 def get_youtube_access_token():
-    """refresh token으로 access token 발급."""
-    response = requests.post(
+    creds = YOUTUBE_OAUTH[_current_oauth_index]
+    resp = requests.post(
         "https://oauth2.googleapis.com/token",
         data={
-            "client_id": YOUTUBE_CLIENT_ID,
-            "client_secret": YOUTUBE_CLIENT_SECRET,
-            "refresh_token": YOUTUBE_REFRESH_TOKEN,
+            "client_id": creds["client_id"],
+            "client_secret": creds["client_secret"],
+            "refresh_token": creds["refresh_token"],
             "grant_type": "refresh_token",
         },
         timeout=10,
     )
-    response.raise_for_status()
-    return response.json()["access_token"]
+    resp.raise_for_status()
+    return resp.json()["access_token"]
+
 
 
 def fetch_playlist_items(access_token, playlist_id):
@@ -1443,7 +1532,7 @@ def sync_growth_playlist(top_videos, title_map=None):
     if not SYNC_GROWTH_PLAYLIST:
         return  # 기능을 꺼둔 경우엔 조용히 넘어감
 
-    if not (YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET and YOUTUBE_REFRESH_TOKEN):
+    if not YOUTUBE_OAUTH:
         send_telegram(
             "⚠️ 성장 플리 동기화 건너뜀\n\n"
             f"🕒 {now_kst()}\n"
@@ -1489,44 +1578,58 @@ def sync_growth_playlist(top_videos, title_map=None):
         added_titles = []       
         removed_titles = []
 
+        # ── 삭제 ──
         if GROWTH_PLAYLIST_REMOVE_MISSING:
             for item in current_items:
                 if item.get("video_id") in desired_set:
                     continue
                 if ops >= MAX_PLAYLIST_OPS_PER_RUN:
                     break
-                try:
-                    playlist_delete(access_token, item["playlist_item_id"])
-                    removed += 1
-                    ops += 1
-                    removed_titles.append(title_map.get(item.get("video_id"), item.get("video_id")))
-                except Exception as e:
-                    if _is_quota_error(e):
-                        quota_hit = True
+                while True:
+                    try:
+                        playlist_delete(access_token, item["playlist_item_id"])
+                        removed += 1; ops += 1
+                        removed_titles.append(title_map.get(item.get("video_id"), item.get("video_id")))
                         break
-                    print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
+                    except Exception as e:
+                        if _is_quota_error(e):
+                            if _advance_oauth():
+                                send_telegram(f"🔑 쓰기 OAuth 전환 → {_current_oauth_index + 1}번 프로젝트\n🕒 {now_kst()}")
+                                access_token = get_youtube_access_token()
+                                continue
+                            quota_hit = True
+                            break
+                        print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
+                        break
+                if quota_hit:
+                    break
 
+        # ── 추가 ──
         if not quota_hit:
             for target_position, video_id in enumerate(desired_ids):
                 if video_id in current_set:
                     continue
                 if ops >= MAX_PLAYLIST_OPS_PER_RUN:
                     break
-                try:
-                    playlist_insert(
-                        access_token,
-                        GROWTH_PLAYLIST_ID,
-                        video_id,
-                        position=target_position,
-                    )
-                    added += 1
-                    ops += 1
-                    added_titles.append(title_map.get(video_id, video_id))
-                except Exception as e:
-                    if _is_quota_error(e):
-                        quota_hit = True
+                while True:
+                    try:
+                        playlist_insert(access_token, GROWTH_PLAYLIST_ID, video_id, position=target_position)
+                        added += 1; ops += 1
+                        added_titles.append(title_map.get(video_id, video_id))
                         break
-                    print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
+                    except Exception as e:
+                        if _is_quota_error(e):
+                            if _advance_oauth():
+                                send_telegram(f"🔑 쓰기 OAuth 전환 → {_current_oauth_index + 1}번 프로젝트\n🕒 {now_kst()}")
+                                access_token = get_youtube_access_token()
+                                continue
+                            quota_hit = True
+                            break
+                        print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
+                        break
+                if quota_hit:
+                    break
+
 
         still_to_remove = 0
         if GROWTH_PLAYLIST_REMOVE_MISSING:

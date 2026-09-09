@@ -2,8 +2,6 @@
 # 50000 = 5만 조회수마다 알림
 VIEW_STEP = 50000
 
-# 성장 가능성 플리에 넣을 최대 영상 수
-MAX_GROWTH_PLAYLIST_VIDEOS = 30
 
 
 # 한 번 실행에서 허용할 플리 추가+삭제 총 횟수 (쿼터 보호)
@@ -25,9 +23,10 @@ GROWTH_PLAYLIST_REMOVE_MISSING = True
 
 
 # 성장 플리 회전: 하위 N곡은 주기적으로 교체(신선함), 나머지는 고정(안정)
-PLAYLIST_ROTATE_COUNT = 10     # 매 주기 교체할 곡 수
-PLAYLIST_ROTATE_HOURS = 3      # 회전 주기(시간). 이 시간마다 교체 셋이 바뀜
-
+PLAYLIST_ROTATE_COUNT = 10              # 매 주기 교체할 곡 수
+PLAYLIST_ROTATE_HOURS = 1               # 회전 주기(시간). 이 시간마다 교체 셋이 바뀜
+MAX_GROWTH_PLAYLIST_VIDEOS = 30         # 성장 가능성 플리에 넣을 최대 영상 수
+MAX_PLAYLIST_OPS_PER_RUN = 20           # 10곡 = 삭제10+추가10. 이게 시간당 쓰기 상한
 
 
 
