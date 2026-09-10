@@ -1734,7 +1734,18 @@ def get_youtube_access_token():
         },
         timeout=10,
     )
-    resp.raise_for_status()
+    if not resp.ok:
+        # Google의 사유만 남긴다. 자격증명 값은 절대 로그에 출력하지 않는다.
+        try:
+            detail = resp.json()
+        except ValueError:
+            detail = {}
+        code = detail.get("error", "unknown_error")
+        description = detail.get("error_description", "")
+        raise RuntimeError(
+            "OAuth 토큰 갱신 실패: "
+            f"{code}" + (f" — {description}" if description else "")
+        )
     return resp.json()["access_token"]
 
 
@@ -2047,6 +2058,10 @@ def sync_growth_playlist(top_videos, title_map=None):
 # ======================
 
 def main():
+    global _current_key_index, _current_oauth_index
+    # 이전 실행에서 쿼터 때문에 넘긴 API/OAuth 프로젝트부터 다시 시작한다.
+    _current_key_index, _current_oauth_index = load_start_indices()
+
     refresh_boost_starts()
 
     checked_playlists = 0
