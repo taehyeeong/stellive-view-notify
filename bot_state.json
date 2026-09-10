@@ -1,6 +1,6 @@
 {
   "last_dday_date": "2026-09-09",
-  "pt_date": "2026-09-09",
+  "pt_date": "2026-09-10",
   "imminent_alerted": {
     "PBh8a0GaNFs": 2900000,
     "nknH0KshgpY": 1350000,
@@ -18,8 +18,13 @@
     "3qRN6mQJ4K4": 1700000,
     "zQp6ZZAT6ew": 250000,
     "td73oLSQug0": 1250000,
-    "uBtFoUXR9Qc": 300000
+    "uBtFoUXR9Qc": 300000,
+    "XR81lQrRceg": 1050000,
+    "LcGrXP-xfHY": 150000
   },
   "key_index": 2,
-  "oauth_index": 2
+  "oauth_index": 2,
+  "auto_pinned": {
+    "WpdA5SeBras": "2026-09-10"
+  }
 }
