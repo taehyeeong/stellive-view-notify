@@ -804,6 +804,13 @@ def sort_artists_by_config_order(artist_names):
                 ordered_names.append(artist_name)
     return ordered_names
 
+def classify_song(title):
+    """제목으로 종류 판별 → (오리지널|커버, 3D 여부)."""
+    t = (title or "").lower()
+    is_cover = any(k in t for k in ["cover", "커버", "COVER", "Cover"])
+    is_3d = "3d" in t
+    return ("커버" if is_cover else "오리지널"), is_3d
+
 
 
 # =========================
@@ -1332,7 +1339,8 @@ def get_view_counts(video_ids):
             result[video_id] = {
                 "views": int(statistics.get("viewCount", 0)),
                 "title": snippet.get("title", ""),
-                "thumb": thumbnail
+                "thumb": thumbnail,
+                "published": snippet.get("publishedAt", "")
             }
 
     return result
@@ -2238,10 +2246,15 @@ def main():
 
         history = history[-300:] # 주간 결산용 요유 (-12일치)
 
+        song_base, song_3d = classify_song(title)   # title = API 원제목 (커버/3D 키워드 살아있음)
+
         new_entry = {
             "title": display_title,
+            "song_type": song_base,                 # 오리지널 / 커버
+            "is_3d": song_3d,                         # 3D / 일반
             "artists": effective_artists,
             "unit": resolve_unit(effective_artists) or "기타",
+            "published": info.get("published", "") or stored_entry.get("published", ""),
             "views": views,
             "history": history,
             "growth": {
