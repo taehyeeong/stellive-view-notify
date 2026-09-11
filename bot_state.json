@@ -1,5 +1,5 @@
 {
-  "last_dday_date": "2026-09-10",
+  "last_dday_date": "2026-09-11",
   "pt_date": "2026-09-11",
   "imminent_alerted": {
     "PBh8a0GaNFs": 2900000,
@@ -57,6 +57,6 @@
   },
   "imminent_msg_id": 3690,
   "imminent_prev_views": {
-    "xhBUCzzfcw8": 149855
+    "xhBUCzzfcw8": 149987
   }
 }
