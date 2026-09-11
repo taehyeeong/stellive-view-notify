@@ -18,6 +18,11 @@ class QuotaExceededError(Exception):
     pass
 
 
+class OAuthTokenError(RuntimeError):
+    """OAuth access token을 refresh token으로 갱신하지 못했을 때 발생."""
+    pass
+
+
 def main():
     global _current_key_index, _current_oauth_index
     _current_key_index, _current_oauth_index = load_start_indices()
@@ -1766,7 +1771,7 @@ def get_youtube_access_token():
             detail = {}
         code = detail.get("error", "unknown_error")
         description = detail.get("error_description", "")
-        raise RuntimeError(
+        raise OAuthTokenError(
             "OAuth 토큰 갱신 실패: "
             f"{code}" + (f" — {description}" if description else "")
         )
@@ -1916,8 +1921,26 @@ def sync_growth_playlist(top_videos, title_map=None):
     # 이번 동기화에서 quotaExceeded가 난 쓰기 프로젝트는 한 번씩만 시도한다.
     exhausted_oauth_indices = set()
 
+    def get_usable_access_token():
+        """만료·취소된 OAuth는 알리고 다음 쓰기 프로젝트로 넘긴다."""
+        while True:
+            try:
+                return get_youtube_access_token()
+            except OAuthTokenError as error:
+                failed_no = _current_oauth_index + 1
+                if not _advance_oauth(exhausted_oauth_indices):
+                    raise
+                next_no = _current_oauth_index + 1
+                send_telegram(
+                    "⚠️ 성장 플리 인증 전환\n\n"
+                    f"🕒 {now_kst()}\n"
+                    f"🔑 쓰기 프로젝트 {failed_no}번의 인증이 만료되었거나 취소되었습니다.\n"
+                    f"➡️ 쓰기 프로젝트 {next_no}번으로 계속 동기화합니다.\n\n"
+                    "※ 실패한 프로젝트의 refresh token은 나중에 다시 발급해 주세요."
+                )
+
     try:
-        access_token = get_youtube_access_token()
+        access_token = get_usable_access_token()
 
         arranged = arrange_for_variety(top_videos)
         desired_ids = [v["video_id"] for v in arranged if v.get("video_id")]
@@ -1946,7 +1969,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                 break
             except Exception as e:
                 if _is_quota_error(e) and _advance_oauth(exhausted_oauth_indices):
-                    access_token = get_youtube_access_token()
+                    access_token = get_usable_access_token()
                     continue
                 raise
         current_set = {
@@ -1977,7 +2000,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                     except Exception as e:
                         if _is_quota_error(e):
                             if _advance_oauth(exhausted_oauth_indices):
-                                access_token = get_youtube_access_token()
+                                access_token = get_usable_access_token()
                                 continue
                             quota_hit = True
                             break
@@ -2002,7 +2025,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                     except Exception as e:
                         if _is_quota_error(e):
                             if _advance_oauth(exhausted_oauth_indices):
-                                access_token = get_youtube_access_token()
+                                access_token = get_usable_access_token()
                                 continue
                             quota_hit = True
                             break
@@ -2062,7 +2085,14 @@ def sync_growth_playlist(top_videos, title_map=None):
 
     except Exception as e:
         print(f"⚠️ 성장 플리 동기화 중 오류: {e}")
-        if _is_quota_error(e):
+        if isinstance(e, OAuthTokenError):
+            send_telegram(
+                "⚠️ 성장 플리 동기화 중단\n\n"
+                f"🕒 {now_kst()}\n"
+                "❌ 사용할 수 있는 쓰기 프로젝트의 OAuth 인증이 없습니다.\n"
+                "각 프로젝트의 refresh token을 다시 발급한 뒤 GitHub Secret에 교체해 주세요."
+            )
+        elif _is_quota_error(e):
             send_telegram(
                 "⏳ 성장 플리 동기화 보류\n\n"
                 f"🕒 {now_kst()}\n"
