@@ -1,6 +1,6 @@
 {
   "last_dday_date": "2026-09-10",
-  "pt_date": "2026-09-10",
+  "pt_date": "2026-09-11",
   "imminent_alerted": {
     "PBh8a0GaNFs": 2900000,
     "nknH0KshgpY": 1350000,
@@ -54,5 +54,12 @@
   "oauth_index": 1,
   "auto_pinned": {
     "WpdA5SeBras": "2026-09-10"
+  },
+  "imminent_msg_id": 3690,
+  "imminent_prev_views": {
+    "TqQFF_wLlR4": 1599966,
+    "naWmFCbwi3M": 7499746,
+    "fAgAE9JmnOs": 1799793,
+    "v094-E3Pmtk": 2349518
   }
 }
