@@ -197,13 +197,22 @@ def _advance_key():
         return True
     return False
 
-def _advance_oauth():
+def _advance_oauth(exhausted_indices=None):
+    """쿼터 초과 시 다음 OAuth 프로젝트로 순환 전환한다."""
     global _current_oauth_index
-    if _current_oauth_index + 1 < len(YOUTUBE_OAUTH):
-        _current_oauth_index += 1
-        _save_state(oauth_index=_current_oauth_index)
-        return True
-    return False
+    if not YOUTUBE_OAUTH:
+        return False
+
+    if exhausted_indices is not None:
+        exhausted_indices.add(_current_oauth_index)
+        if len(exhausted_indices) >= len(YOUTUBE_OAUTH):
+            return False
+
+    _current_oauth_index = (
+        _current_oauth_index + 1
+    ) % len(YOUTUBE_OAUTH)
+    _save_state(oauth_index=_current_oauth_index)
+    return True
 
 def next_quota_reset_kst():
     """YouTube 할당량은 태평양 자정에 리셋됨. 다음 리셋 시각을 KST로 반환."""
@@ -1904,6 +1913,9 @@ def sync_growth_playlist(top_videos, title_map=None):
         )
         return
 
+    # 이번 동기화에서 quotaExceeded가 난 쓰기 프로젝트는 한 번씩만 시도한다.
+    exhausted_oauth_indices = set()
+
     try:
         access_token = get_youtube_access_token()
 
@@ -1933,7 +1945,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                 current_items = fetch_playlist_items(access_token, GROWTH_PLAYLIST_ID)
                 break
             except Exception as e:
-                if _is_quota_error(e) and _advance_oauth():
+                if _is_quota_error(e) and _advance_oauth(exhausted_oauth_indices):
                     access_token = get_youtube_access_token()
                     continue
                 raise
@@ -1964,7 +1976,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                         break
                     except Exception as e:
                         if _is_quota_error(e):
-                            if _advance_oauth():
+                            if _advance_oauth(exhausted_oauth_indices):
                                 access_token = get_youtube_access_token()
                                 continue
                             quota_hit = True
@@ -1989,7 +2001,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                         break
                     except Exception as e:
                         if _is_quota_error(e):
-                            if _advance_oauth():
+                            if _advance_oauth(exhausted_oauth_indices):
                                 access_token = get_youtube_access_token()
                                 continue
                             quota_hit = True
