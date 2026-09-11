@@ -32,14 +32,13 @@ MAX_PLAYLIST_OPS_PER_RUN = 20           # 10곡 = 삭제10+추가10. 이게 시�
 AUTO_PIN_NEW_SONG_DAYS = 10
 
 # 성장 점수 부스트 — 지정한 곡/아티스트를 플리에 더 자주 나오게.
-#   type : "artist"(아티스트 이름) 또는 "song"(video_id)
-#   target: 아티스트 이름 or video_id
-#   pct  : 부스트 % (예: 30 → 점수 +30%)
-#   until: (선택) 종료일 "YYYY-MM-DD". 없으면 처음 등록된 날부터 10일간.
+#   type : "artist"(아티스트 이름) 또는 "song"(video_id 또는 URL)
+#   target: 아티스트 이름 / video_id / 유튜브 URL
 GROWTH_BOOST = [
-    # {"type": "artist", "target": "아야츠노 유니", "pct": 30},                       # ← until 없으면 10일
-    # {"type": "song",   "target": "rQaluJS-Tc0",   "pct": 50, "until": "2026-09-30"}, # ← 날짜 지정
+    # {"type": "song", "target": "https://youtu.be/rQaluJS-Tc0", "pct": 50},  # URL 가능
+    # {"type": "song", "target": "rQaluJS-Tc0", "pct": 50},                   # ID도 가능
 ]
+
 
 BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
 

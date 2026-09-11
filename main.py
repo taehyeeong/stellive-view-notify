@@ -5,6 +5,7 @@ import requests
 import re
 import time
 import random
+import hashlib
 
 from datetime import datetime, timezone, timedelta, date
 from render_card import make_special_card
@@ -183,6 +184,17 @@ def maybe_send_weekly_recap(data):
 
     _save_state(last_weekly_recap=today)   # 대상 없어도 오늘 체크 완료 기록
 
+def display_artists(artists):
+    """유닛 멤버 전원이 들어가면 유닛명으로 치환 (예: 4명 다 → '클리셰')."""
+    names = list(artists or [])
+    for uname, u in UNITS.items():
+        if uname == "스텔라이브":
+            continue
+        members = list(u.get("members", {}).keys())
+        if members and set(members).issubset(set(names)):
+            rest = [n for n in names if n not in members]
+            return " · ".join([uname] + rest)
+    return " · ".join(names)
 
 
 
@@ -339,7 +351,7 @@ def save_start_key_index(idx):
         print(f"⚠️ key_state 저장 실패: {e}")
 
 def maybe_send_dday_digest(data):
-    """100만 단위 목표 임박 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
+    """다가오는 큰 목표(100만 단위) 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
     now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
     if now.hour < DDAY_ALERT_HOUR:
         return
@@ -355,35 +367,34 @@ def maybe_send_dday_digest(data):
         if speed <= 0:
             continue
         views = info.get("views", 0)
-        target = ((views // DDAY_MAJOR_STEP) + 1) * DDAY_MAJOR_STEP   # 다음 100만
+        target = ((views // DDAY_MAJOR_STEP) + 1) * DDAY_MAJOR_STEP
         eta = (target - views) / speed
         if eta > DDAY_THRESHOLD_DAYS:
             continue
-        rows.append({
-            "title": info.get("title", vid),
-            "artist": ", ".join(info.get("artists", [])),
-            "target": target, "eta": eta, "speed": speed,
-        })
+        rows.append({"title": info.get("title", vid), "artists": info.get("artists", []),
+                     "views": views, "target": target, "eta": eta, "speed": speed})
 
     if rows:
         rows.sort(key=lambda r: r["eta"])
-        lines = []
+        step_man = DDAY_MAJOR_STEP // 10000
+        lines = [f"🎯 다가오는 {step_man}만 달성", f"🕒 {now.month}/{now.day} 기준", ""]
         for r in rows[:10]:
-            tag = "오늘·내일" if r["eta"] < 1.5 else f"D-{round(r['eta'])}"
-            lines.append(
-                f"· {r['title']} — {r['target'] // 10000}만 {tag} "
-                f"(하루 +{r['speed']:,.0f})  ({r['artist']})"
-            )
-        send_telegram("🔜 곧 달성 예정 (100만 단위)\n\n🕒 " + today + "\n\n" + "\n".join(lines))
+            dday = "오늘·내일" if r["eta"] < 1.5 else f"D-{round(r['eta'])}"
+            pct = r["views"] / r["target"] * 100
+            lines.append(f"· {display_artists(r['artists'])} — {r['title']}")
+            lines.append(f"  {r['target']//10000}만까지 {dday} · 하루 +{r['speed']:,.0f}")
+            lines.append(f"  현재 {r['views']:,} ({pct:.1f}%)")
+            lines.append("")
+        send_telegram("\n".join(lines).rstrip())
 
     _save_state(last_dday_date=today)
 
 
-def send_imminent_alerts(data):
-    """다음 목표 임박 곡을 한 메시지로 모아 알림 (곡·목표별 1회)."""
+
+def update_imminent_message(data):
+    """곧 달성 예정 곡을 메시지 하나로 유지·매 실행 갱신."""
     now = datetime.now(KST)
-    alerted = dict(_load_state().get("imminent_alerted", {}))
-    picks, changed = [], False
+    rows = []
     for vid, info in data.items():
         if vid.startswith("_") or not isinstance(info, dict):
             continue
@@ -392,36 +403,49 @@ def send_imminent_alerts(data):
         if eta is None or eta == float("inf") or eta * 24 > IMMINENT_HOURS:
             continue
         views = info.get("views", 0)
-        target = views + g.get("remaining", 0)
-        if alerted.get(vid) == target:      # 이 목표는 이미 알림 → skip
-            continue
-        picks.append((eta, vid, info, target))
-        alerted[vid] = target
-        changed = True
+        rows.append({"vid": vid, "title": info.get("title", vid),
+                     "artists": info.get("artists", []), "views": views,
+                     "target": views + g.get("remaining", 0), "eta": eta})
 
-    if picks:
-        picks.sort(key=lambda x: x[0])
-        lines = []
-        for eta, vid, info, target in picks:
-            when = now + timedelta(days=eta)
-            if when.date() == now.date():
-                day = "오늘"
-            elif when.date() == (now + timedelta(days=1)).date():
-                day = "내일"
-            else:
-                day = when.strftime("%m/%d")
-            tgt = f"{target // 10000}만" if target % 10000 == 0 else f"{target:,}"
-            title = info.get("title", vid)
-            artist = ", ".join(info.get("artists", []))
-            lines.append(
-                f"· {title} — {tgt} ({day} {when.hour}시경 예상)\n"
-                f"  {artist}\n"
-                f"  https://youtu.be/{vid}"
-            )
-        send_telegram("⚡ 곧 달성 예정\n\n" + "\n\n".join(lines))
+    state = _load_state()
+    msg_id = state.get("imminent_msg_id")
+    prev = state.get("imminent_prev_views", {})
 
-    if changed:
-        _save_state(imminent_alerted=alerted)
+    if not rows:
+        if msg_id:                       # 임박 곡 사라짐 → 메시지 정리
+            _tg_edit(msg_id, "⚡ 곧 달성 예정\n\n지금은 임박한 곡이 없어요.")
+        _save_state(imminent_prev_views={})
+        return
+
+    # 정렬: 예상 시각 > 아티스트 > 제목
+    rows.sort(key=lambda r: (r["eta"], (r["artists"][0] if r["artists"] else ""), r["title"]))
+
+    lines = ["⚡ 곧 달성 예정  ·  매시간 갱신", f"🕒 {now.strftime('%H:%M')} 기준", ""]
+    for r in rows:
+        hours = r["eta"] * 24
+        if hours < 1.5:
+            when_txt = "곧 임박 ⚡"
+        else:
+            w = now + timedelta(days=r["eta"])
+            day = "오늘" if w.date()==now.date() else ("내일" if w.date()==(now+timedelta(days=1)).date() else f"{w.month}/{w.day}")
+            when_txt = f"{day} {w.hour}시경"
+        tgt = f"{r['target']//10000}만" if r["target"] % 10000 == 0 else f"{r['target']:,}"
+        p = prev.get(r["vid"])
+        view_txt = f"{p:,} → {r['views']:,}" if (p is not None and p != r["views"]) else f"{r['views']:,}"
+        lines.append(f"· {display_artists(r['artists'])} — {r['title']}")
+        lines.append(f"  🎯 {tgt}까지 · {when_txt}")
+        lines.append(f"  📊 {view_txt}회")
+        lines.append(f"  https://youtu.be/{r['vid']}")
+        lines.append("")
+    text = "\n".join(lines).rstrip()
+
+    # 기존 메시지 수정 시도 → 실패(없음/48h 초과)하면 새로 전송
+    if not (msg_id and _tg_edit(msg_id, text)):
+        msg_id = _tg_send(text)
+
+    _save_state(imminent_msg_id=msg_id,
+                imminent_prev_views={r["vid"]: r["views"] for r in rows})
+
 
 
 def send_spike_alerts(data):
@@ -534,6 +558,29 @@ def send_telegram(message, reply_markup=None):
     print(response.status_code)
     print(response.text)
     print("========================")
+
+
+_TG = "https://api.telegram.org/bot%s/%s"
+
+def _tg_send(text):
+    """전송 후 message_id 반환 (실패 시 None)."""
+    try:
+        r = requests.post(_TG % (TELEGRAM_TOKEN, "sendMessage"),
+                          json={"chat_id": TELEGRAM_CHAT_ID, "text": text,
+                                "disable_web_page_preview": True}, timeout=10)
+        return r.json().get("result", {}).get("message_id")
+    except Exception as e:
+        print("텔레 전송 실패:", e); return None
+
+def _tg_edit(message_id, text):
+    """기존 메시지 수정. 성공 True (48시간 지난 메시지는 실패 → False)."""
+    try:
+        r = requests.post(_TG % (TELEGRAM_TOKEN, "editMessageText"),
+                          json={"chat_id": TELEGRAM_CHAT_ID, "message_id": message_id,
+                                "text": text, "disable_web_page_preview": True}, timeout=10)
+        return r.json().get("ok", False)
+    except Exception:
+        return False
 
 
 def send_telegram_photo(message, video_id, reply_markup=None):
@@ -1013,10 +1060,15 @@ def _boost_multiplier(video_id, artists):
     mult = 1.0
     for b in GROWTH_BOOST:
         btype, target = b.get("type"), b.get("target")
-        hit = (btype == "song"   and target == video_id) or \
-              (btype == "artist" and target in (artists or []))
+        if btype == "song":
+            hit = extract_video_id(target) == video_id      # ← URL이든 ID든 OK
+        elif btype == "artist":
+            hit = target in (artists or [])
+        else:
+            hit = False
         if not hit:
             continue
+
         until = str(b.get("until", "")).strip()
         if until:
             active = until >= today                          # 종료일 당일까지 유효
@@ -1636,14 +1688,17 @@ def get_top_growth_videos(data, limit=None):
     # 한 번 빠진 곡은 풀을 한 바퀴 돌기 전엔 다시 안 나옴 → 삭제→즉시 재추가(flip-flop) 방지.
     now = datetime.now(KST)
     if pool and rotate_n > 0:
-        day_seed = now.timetuple().tm_yday
-        random.Random(day_seed).shuffle(pool)              # 그날 순서 고정
-        block = (now.timetuple().tm_yday * 24 + now.hour) // max(1, PLAYLIST_ROTATE_HOURS)
-        offset = (block * rotate_n) % len(pool)            # 시간마다 rotate_n칸씩 전진
+        day = now.timetuple().tm_yday
+        # ★ 핵심: 풀 구성/점수가 바뀌어도 각 곡 순서가 고정되게 video_id 해시로 정렬
+        #    (기존 random.shuffle은 매시간 다른 입력순서에 섞여서 flip-flop 유발)
+        pool.sort(key=lambda c: hashlib.md5(f"{day}:{c['video_id']}".encode()).hexdigest())
+        block = (day * 24 + now.hour) // max(1, PLAYLIST_ROTATE_HOURS)
+        offset = (block * rotate_n) % len(pool)
         take = min(rotate_n, len(pool))
         rotating = [pool[(offset + i) % len(pool)] for i in range(take)]
     else:
         rotating = []
+
 
     return (core + rotating)[:limit]
 
@@ -2433,7 +2488,7 @@ def main():
 
     maybe_send_weekly_recap(data)   # 주간 결산 (일요일)
     maybe_send_dday_digest(data)    # 하루 결산 (매일 21시) ← 유지
-    send_imminent_alerts(data)      # 임박 즉시 알림 ← 추가    
+    update_imminent_message(data)      # 임박 즉시 알림 ← 추가    
     send_spike_alerts(data)
 
 
