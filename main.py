@@ -680,6 +680,9 @@ def get_reached_milestones(views):
 
 def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
     global _current_key_index
+    # 같은 요청에서 이미 quotaExceeded가 난 키는 한 번씩만 시도한다.
+    # 마지막 키 다음에는 1번 키로 순환한다.
+    exhausted_key_indices = set()
     for attempt in range(max_retries + 1):
         req_params = {**params, "key": current_api_key()}
         try:
@@ -719,14 +722,26 @@ def youtube_get(url, params, description="YouTube API 요청", max_retries=4):
                 or "quotaExceeded" in response.text
                 or "dailyLimitExceeded" in response.text
             ):
-                # 다음 키가 있으면 자동 전환 후 같은 요청 재시도
-                if _current_key_index + 1 < len(YOUTUBE_API_KEYS):
+                exhausted_key_indices.add(_current_key_index)
+
+                # 아직 시도하지 않은 키가 있으면 다음 키로 한 칸만 이동한다.
+                # 1 → 2 → 3 → 1 순서이며, 기존처럼 두 칸 건너뛰지 않는다.
+                if len(exhausted_key_indices) < len(YOUTUBE_API_KEYS):
                     old_no = _current_key_index + 1
-                    _current_key_index += 1
-                    save_start_key_index(_current_key_index)
+                    _current_key_index = (
+                        _current_key_index + 1
+                    ) % len(YOUTUBE_API_KEYS)
+                    _save_state(key_index=_current_key_index)
                     new_no = _current_key_index + 1
-                    if _advance_key():
-                        continue
+                    print(f"🔑 읽기 API 키 전환: {old_no}번 → {new_no}번")
+                    continue
+
+                # 모든 키를 이번 요청에서 한 번씩 확인했다.
+                # 다음 실행은 1번 키부터 시작하도록 순환 위치를 저장한다.
+                _current_key_index = (
+                    _current_key_index + 1
+                ) % len(YOUTUBE_API_KEYS)
+                _save_state(key_index=_current_key_index)
                 reset_kst = next_quota_reset_kst()
                 hours_left = (reset_kst - datetime.now(KST)).total_seconds() / 3600
                 message = (
