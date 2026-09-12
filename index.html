@@ -536,7 +536,7 @@
         async function load() {
             try {
                 const [vRes, sRes] = await Promise.all([
-                    fetch(dataUrl("views.json"), { cache: "no-store" }),
+                    fetch(dataUrl("dashboard-data"), { cache: "no-store" }),
                     fetch(dataUrl("snapshots.json"), { cache: "no-store" }).catch(() => null)
                 ]);
                 if (!vRes.ok) throw new Error("views.json을 불러오지 못했습니다.");
