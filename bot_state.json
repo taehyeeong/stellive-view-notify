@@ -56,9 +56,14 @@
     "WpdA5SeBras": "2026-09-10",
     "Zetk77I6_s8": "2026-09-11"
   },
-  "imminent_msg_id": null,
-  "imminent_prev_views": {},
-  "imminent_ping_block": 6141,
+  "imminent_msg_id": 3795,
+  "imminent_prev_views": {
+    "L-pn_xrqQkQ": 749908,
+    "RpX0r_l7FzI": 1699857,
+    "I6bslYOW8Xk": 4949412,
+    "xKA5wKYMFhM": 549732
+  },
+  "imminent_ping_block": 6144,
   "achieved_until": {
     "R_B4tmy2DVA": 6148,
     "yuxa6o1_scc": 6149,
@@ -69,6 +74,8 @@
     "So0ba8NuUq0": 6151,
     "-a6y64hn4DA": 6151,
     "gkmnG2pWzys": 6151,
-    "jvZRK7W7S9Y": 6155
+    "jvZRK7W7S9Y": 6155,
+    "aurVmylo4_Y": 6156,
+    "qao2gYtY7bs": 6156
   }
 }
