@@ -33,14 +33,21 @@ AUTO_PIN_NEW_SONG_DAYS = 10
 
 # 성장 점수 부스트 — 지정한 곡/아티스트를 플리에 더 자주 나오게.
 #   type : "artist"(아티스트 이름) 또는 "song"(video_id 또는 URL)
-#   target: 아티스트 이름 / video_id / 유튜브 URL
+#   target : 아티스트 이름 / video_id / 유튜브 URL
+#   pct : 부스트 비율
+#   until : BOOST_DEFAULT_DAYS 설정말고 직접 부스트 기간 설정
 GROWTH_BOOST = [
     # {"type": "song", "target": "https://youtu.be/rQaluJS-Tc0", "pct": 50},  # URL 가능
     # {"type": "song", "target": "rQaluJS-Tc0", "pct": 50},                   # ID도 가능
 ]
-
-
 BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
+
+# 플리에서 마일스톤 달성한 곡을 자동으로 제외하는 기간 설정
+ACHIEVED_COOLDOWN_HOURS = 12   # 마일스톤 달성 후 이 시간 동안 플리에서 제외
+
+# 곧 조회수 달성할 곡 알림 설정
+IMMINENT_HOURS = 6          # 다음 목표까지 이 시간 이내면 대상
+IMMINENT_PING_HOURS = 3     # 이 시간마다 새 알림 (3이면 3시간마다)
 
 # 성장 플리에 항상 넣을 개인 선곡 (URL 또는 ID)
 GROWTH_PLAYLIST_PINNED = [

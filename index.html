@@ -16,6 +16,7 @@
             --accent: #8b7bf0;
             --accent2: #f06ba8;
             --good: #5ad19b;
+            --warn: #f0b93a;
         }
 
         * {
@@ -80,6 +81,55 @@
         .controls input {
             flex: 1;
             min-width: 160px
+        }
+
+        /* 곧 달성 예정 패널 */
+        #imminent {
+            margin: 0 0 18px
+        }
+
+        #imminent h3 {
+            font-size: 13px;
+            color: var(--warn);
+            margin: 0 0 8px;
+            letter-spacing: .02em
+        }
+
+        .imm-list {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px
+        }
+
+        .imm {
+            flex: 0 0 auto;
+            background: var(--card);
+            border: 1px solid var(--warn);
+            border-radius: 11px;
+            padding: 9px 12px;
+            cursor: pointer;
+            min-width: 170px
+        }
+
+        .imm .t {
+            font-weight: 700;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px
+        }
+
+        .imm .m {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 2px
+        }
+
+        .imm .eta {
+            color: var(--warn);
+            font-weight: 700
         }
 
         #chartCard {
@@ -262,6 +312,8 @@
             </select>
         </div>
 
+        <div id="imminent"></div>
+
         <div id="chartCard">
             <div class="head">
                 <div>
@@ -279,30 +331,52 @@
         <div class="rank" id="rank">
             <div class="empty">데이터 불러오는 중…</div>
         </div>
-
         <footer>매시간 자동 갱신 · Drafted with Dia</footer>
     </div>
 
     <script>
-        let SONGS = [], chart = null, activeId = null;
+        // 유닛 → 멤버 (곡에 멤버 전원 있으면 유닛명으로 표시)
+        const UNITS = {
+            "에버리스": ["아야츠노 유니", "사키하네 후야"],
+            "유니버스": ["시라유키 히나", "네네코 마시로", "아카네 리제", "아라하시 타비"],
+            "클리셰": ["텐코 시부키", "아오쿠모 린", "하나코 나나", "유즈하 리코"]
+        };
+        function displayArtists(arr) {
+            const list = arr || [];
+            const set = new Set(list);
+            for (const [u, members] of Object.entries(UNITS)) {
+                if (members.length && members.every(m => set.has(m))) {
+                    const rest = list.filter(n => !members.includes(n));
+                    return [u, ...rest].join(" · ");
+                }
+            }
+            return list.join(", ");
+        }
+
+        const DASH_IMMINENT_HOURS = 24;   // 곧 달성 패널: 다음 5만까지 이 시간 이내면 표시
+        let SONGS = [], SNAPS = {}, chart = null, activeId = null;
 
         async function load() {
             try {
-                const res = await fetch("views.json", { cache: "no-store" });
-                const views = await res.json();
+                const [vRes, sRes] = await Promise.all([
+                    fetch("views.json", { cache: "no-store" }),
+                    fetch("snapshots.json", { cache: "no-store" }).catch(() => null)
+                ]);
+                const views = await vRes.json();
+                SNAPS = sRes && sRes.ok ? await sRes.json() : {};
 
                 let lastUpdated = "";
                 for (const [id, info] of Object.entries(views)) {
                     if (id.startsWith("_") || typeof info !== "object") continue;
+                    const artistsArr = info.artists || [];
                     SONGS.push({
-                        id,
-                        title: info.title || id,
-                        artists: (info.artists || []).join(", "),
-                        unit: info.unit || "",
-                        views: info.views || 0,
+                        id, title: info.title || id,
+                        artistsArr, artists: displayArtists(artistsArr),
+                        unit: info.unit || "", views: info.views || 0,
                         score: info.growth_score || 0,
                         eta: (info.growth && info.growth.eta_days != null) ? info.growth.eta_days : Infinity,
                         daily: (info.growth && info.growth.daily_avg) || 0,
+                        remaining: (info.growth && info.growth.remaining) || 0,
                         history: info.history || []
                     });
                     if (info.updated && info.updated > lastUpdated) lastUpdated = info.updated;
@@ -313,24 +387,41 @@
 
                 const ORDER = ["스텔라이브", "에버리스", "유니버스", "클리셰", "콜라보", "기타"];
                 const present = new Set(SONGS.map(s => s.unit).filter(Boolean));
-                const ordered = [...ORDER.filter(u => present.has(u)),
-                ...[...present].filter(u => !ORDER.includes(u)).sort()];
+                const ordered = [...ORDER.filter(u => present.has(u)), ...[...present].filter(u => !ORDER.includes(u)).sort()];
                 const uf = document.getElementById("unitFilter");
                 ordered.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; uf.appendChild(o); });
 
+                renderImminent();
                 render();
             } catch (e) {
-                document.getElementById("rank").innerHTML =
-                    '<div class="empty">데이터를 불러오지 못했어요. (views.json 경로 확인)</div>';
+                document.getElementById("rank").innerHTML = '<div class="empty">데이터를 불러오지 못했어요. (views.json 경로 확인)</div>';
                 document.getElementById("updated").textContent = "불러오기 실패";
             }
+        }
+
+        function renderImminent() {
+            const el = document.getElementById("imminent");
+            const list = SONGS.filter(s => isFinite(s.eta) && s.eta * 24 <= DASH_IMMINENT_HOURS && s.daily > 0)
+                .sort((a, b) => a.eta - b.eta).slice(0, 12);
+            if (!list.length) { el.innerHTML = ""; return; }
+            const cards = list.map(s => {
+                const target = s.views + s.remaining;
+                const tgt = target % 10000 === 0 ? (target / 10000) + "만" : target.toLocaleString();
+                const h = s.eta * 24;
+                const eta = h < 1.5 ? "곧 임박" : (h < 24 ? `약 ${Math.round(h)}시간` : `D-${Math.round(s.eta)}`);
+                return `<div class="imm" data-id="${s.id}">
+      <div class="t">${esc(s.title)}</div>
+      <div class="m">${esc(s.artists)} · 🎯 ${tgt} <span class="eta">${eta}</span></div></div>`;
+            }).join("");
+            el.innerHTML = `<h3>⚡ 곧 달성 예정 (${list.length})</h3><div class="imm-list">${cards}</div>`;
+            el.querySelectorAll(".imm").forEach(n =>
+                n.onclick = () => { const s = SONGS.find(x => x.id === n.dataset.id); if (s) showChart(s); });
         }
 
         function render() {
             const q = document.getElementById("search").value.trim().toLowerCase();
             const unit = document.getElementById("unitFilter").value;
             const sortBy = document.getElementById("sortBy").value;
-
             let list = SONGS.filter(s => {
                 if (unit && s.unit !== unit) return false;
                 if (q && !(s.title.toLowerCase().includes(q) || s.artists.toLowerCase().includes(q))) return false;
@@ -341,7 +432,6 @@
                 if (sortBy === "eta") return a.eta - b.eta;
                 return b.score - a.score;
             });
-
             const el = document.getElementById("rank");
             if (!list.length) { el.innerHTML = '<div class="empty">결과 없음</div>'; return; }
             el.innerHTML = "";
@@ -360,14 +450,23 @@
             });
         }
 
+        // 그래프 데이터: 오래된 구간은 snapshots(일별) + 최근 구간은 history(시간별) 이어붙이기
+        function seriesFor(s) {
+            const hist = (s.history || []).slice().sort((a, b) => a.updated > b.updated ? 1 : -1);
+            const earliest = hist.length ? hist[0].updated.slice(0, 10) : null;   // history 시작 날짜
+            const pts = [];
+            const snap = SNAPS[s.id] || {};
+            Object.keys(snap).sort().forEach(d => {                 // history 이전 날짜만 (일별)
+                if (!earliest || d < earliest) pts.push({ label: d.slice(5), v: snap[d] });
+            });
+            hist.forEach(h => pts.push({ label: h.updated.slice(5, 16), v: h.views }));  // 최근 (시간별)
+            return pts;
+        }
+
         function showChart(s) {
             if (activeId === s.id) { closeCard(); return; }
             activeId = s.id;
-
-            const hist = s.history.slice().sort((a, b) => (a.updated > b.updated ? 1 : -1));
-            const labels = hist.map(h => h.updated.slice(5, 16));
-            const vals = hist.map(h => h.views);
-
+            const pts = seriesFor(s);
             document.getElementById("chartCard").style.display = "block";
             document.getElementById("chartTitle").textContent = s.title;
             document.getElementById("chartMeta").textContent =
@@ -379,8 +478,9 @@
             chart = new Chart(ctx, {
                 type: "line",
                 data: {
-                    labels, datasets: [{
-                        label: "조회수", data: vals, borderColor: "#8b7bf0",
+                    labels: pts.map(p => p.label),
+                    datasets: [{
+                        label: "조회수", data: pts.map(p => p.v), borderColor: "#8b7bf0",
                         backgroundColor: "rgba(139,123,240,.12)", fill: true, tension: .3, pointRadius: 0, borderWidth: 2
                     }]
                 },
@@ -389,17 +489,11 @@
                     interaction: { mode: "index", intersect: false },
                     plugins: {
                         legend: { display: false },
-                        tooltip: {
-                            displayColors: false,
-                            callbacks: { title: (it) => it[0].label, label: (c) => " " + c.parsed.y.toLocaleString() + "회" }
-                        }
+                        tooltip: { displayColors: false, callbacks: { title: (it) => it[0].label, label: (c) => " " + c.parsed.y.toLocaleString() + "회" } }
                     },
                     scales: {
                         x: { ticks: { color: "#9a9aae", maxTicksLimit: 7 }, grid: { display: false } },
-                        y: {
-                            beginAtZero: false, ticks: { color: "#9a9aae", maxTicksLimit: 5, callback: v => v.toLocaleString() },
-                            grid: { color: "#26263180" }
-                        }
+                        y: { beginAtZero: false, ticks: { color: "#9a9aae", maxTicksLimit: 5, callback: v => v.toLocaleString() }, grid: { color: "#26263180" } }
                     }
                 }
             });
@@ -409,18 +503,14 @@
         function closeCard() {
             document.getElementById("chartCard").style.display = "none";
             document.getElementById("ytFrame").src = "";
-            activeId = null;
-            render();
+            activeId = null; render();
         }
-
         function goHome() {
             document.getElementById("search").value = "";
             document.getElementById("unitFilter").value = "";
             document.getElementById("sortBy").value = "score";
-            closeCard();
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            closeCard(); window.scrollTo({ top: 0, behavior: "smooth" });
         }
-
         function esc(t) { return (t + "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
         document.getElementById("closeBtn").addEventListener("click", closeCard);

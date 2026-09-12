@@ -279,7 +279,10 @@ from config import (
     SPIKE_MULT,
     SPIKE_MIN_DAILY,
     DDAY_MAJOR_STEP,
-    UNITS
+    UNITS,
+    ACHIEVED_COOLDOWN_HOURS,
+    IMMINENT_HOURS,
+    IMMINENT_PING_HOURS
 )
 
 from card import make_milestone_card
@@ -392,8 +395,13 @@ def maybe_send_dday_digest(data):
 
 
 def update_imminent_message(data):
-    """곧 달성 예정 곡을 메시지 하나로 유지·매 실행 갱신."""
+    """곧 달성 예정 곡을 IMMINENT_PING_HOURS 주기로 새 알림 전송 (직전 건 삭제)."""
     now = datetime.now(KST)
+    cur_block = now.timetuple().tm_yday * 24 + now.hour
+    state = _load_state()
+    if cur_block - state.get("imminent_ping_block", -999) < IMMINENT_PING_HOURS:
+        return   # 아직 주기 안 됨
+
     rows = []
     for vid, info in data.items():
         if vid.startswith("_") or not isinstance(info, dict):
@@ -407,20 +415,16 @@ def update_imminent_message(data):
                      "artists": info.get("artists", []), "views": views,
                      "target": views + g.get("remaining", 0), "eta": eta})
 
-    state = _load_state()
-    msg_id = state.get("imminent_msg_id")
+    old_id = state.get("imminent_msg_id")
     prev = state.get("imminent_prev_views", {})
 
     if not rows:
-        if msg_id:                       # 임박 곡 사라짐 → 메시지 정리
-            _tg_edit(msg_id, "⚡ 곧 달성 예정\n\n지금은 임박한 곡이 없어요.")
-        _save_state(imminent_prev_views={})
+        if old_id: _tg_delete(old_id)
+        _save_state(imminent_msg_id=None, imminent_prev_views={}, imminent_ping_block=cur_block)
         return
 
-    # 정렬: 예상 시각 > 아티스트 > 제목
     rows.sort(key=lambda r: (r["eta"], (r["artists"][0] if r["artists"] else ""), r["title"]))
-
-    lines = ["⚡ 곧 달성 예정  ·  매시간 갱신", f"🕒 {now.strftime('%H:%M')} 기준", ""]
+    lines = ["⚡ 곧 달성 예정", f"🕒 {now.strftime('%H:%M')} 기준", ""]
     for r in rows:
         hours = r["eta"] * 24
         if hours < 1.5:
@@ -432,19 +436,17 @@ def update_imminent_message(data):
         tgt = f"{r['target']//10000}만" if r["target"] % 10000 == 0 else f"{r['target']:,}"
         p = prev.get(r["vid"])
         view_txt = f"{p:,} → {r['views']:,}" if (p is not None and p != r["views"]) else f"{r['views']:,}"
-        lines.append(f"· {display_artists(r['artists'])} — {r['title']}")
-        lines.append(f"  🎯 {tgt}까지 · {when_txt}")
-        lines.append(f"  📊 {view_txt}회")
-        lines.append(f"  https://youtu.be/{r['vid']}")
-        lines.append("")
+        lines += [f"· {display_artists(r['artists'])} — {r['title']}",
+                  f"  🎯 {tgt}까지 · {when_txt}",
+                  f"  📊 {view_txt}회",
+                  f"  https://youtu.be/{r['vid']}", ""]
     text = "\n".join(lines).rstrip()
 
-    # 기존 메시지 수정 시도 → 실패(없음/48h 초과)하면 새로 전송
-    if not (msg_id and _tg_edit(msg_id, text)):
-        msg_id = _tg_send(text)
-
-    _save_state(imminent_msg_id=msg_id,
-                imminent_prev_views={r["vid"]: r["views"] for r in rows})
+    if old_id: _tg_delete(old_id)          # 직전 알림 삭제 (누적 방지)
+    new_id = _tg_send(text)                # 새 알림 (핑 울림)
+    _save_state(imminent_msg_id=new_id,
+                imminent_prev_views={r["vid"]: r["views"] for r in rows},
+                imminent_ping_block=cur_block)
 
 
 
@@ -581,6 +583,14 @@ def _tg_edit(message_id, text):
         return r.json().get("ok", False)
     except Exception:
         return False
+
+def _tg_delete(message_id):
+    try:
+        requests.post(_TG % (TELEGRAM_TOKEN, "deleteMessage"),
+                      json={"chat_id": TELEGRAM_CHAT_ID, "message_id": message_id}, timeout=10)
+    except Exception:
+        pass
+
 
 
 def send_telegram_photo(message, video_id, reply_markup=None):
@@ -1673,6 +1683,11 @@ def get_top_growth_videos(data, limit=None):
             "eta_days": info["growth"].get("eta_days")
         })
 
+    cur_block = datetime.now(KST).timetuple().tm_yday * 24 + datetime.now(KST).hour
+    achieved = _load_state().get("achieved_until", {})
+    candidates = [c for c in candidates if achieved.get(c["video_id"], 0) <= cur_block]
+
+
     # 점수 5점 버킷 정렬 → 미세 출렁임으로 코어가 매시간 뒤집히는 것 방지.
     # 같은 버킷에선 조회수 낮은(묻힌) 곡 우선.
     candidates.sort(key=lambda x: (round(x["score"] / 5), -x["views"]), reverse=True)
@@ -1700,7 +1715,20 @@ def get_top_growth_videos(data, limit=None):
         rotating = []
 
 
-    return (core + rotating)[:limit]
+    result = core + rotating
+    # 코어·로테이션 골고루 블렌드 (하루 단위 고정 순서 → 매시간 안 흔들림)
+    random.Random(now.timetuple().tm_yday).shuffle(result)
+    return result[:limit]
+
+
+
+def _mark_achieved(video_id):
+    """마일스톤 달성 곡을 쿨다운 목록에 기록 (플리에서 잠시 제외)."""
+    block = datetime.now(KST).timetuple().tm_yday * 24 + datetime.now(KST).hour
+    state = _load_state()
+    ach = state.get("achieved_until", {})
+    ach[video_id] = block + ACHIEVED_COOLDOWN_HOURS
+    _save_state(achieved_until=ach)
 
 
 
@@ -2173,6 +2201,7 @@ def main():
     global _current_key_index, _current_oauth_index
     # 이전 실행에서 쿼터 때문에 넘긴 API/OAuth 프로젝트부터 다시 시작한다.
     _current_key_index, _current_oauth_index = load_start_indices()
+    start_key, start_oauth = _current_key_index, _current_oauth_index   
 
     refresh_boost_starts()
 
@@ -2330,6 +2359,10 @@ def main():
                 " · ".join(collapse_artists(effective_artists))
             )
 
+        if new_notified:                 # 이번 실행에 새 마일스톤 달성
+            _mark_achieved(video_id)
+
+
         for alert in messages:
             song_card = {
                 k: v for k, v in
@@ -2485,6 +2518,18 @@ def main():
     }
     
     sync_growth_playlist(top_videos, title_map)
+
+    switch_msgs = []
+    if _current_key_index > start_key:
+        switch_msgs.append(f"📖 읽기 프로젝트 {start_key + 1}번 → {_current_key_index + 1}번")
+    if _current_oauth_index > start_oauth:
+        switch_msgs.append(f"✍️ 쓰기 프로젝트 {start_oauth + 1}번 → {_current_oauth_index + 1}번")
+    if switch_msgs:
+        send_telegram(
+            "⚙️ 프로젝트 전환 (쿼터 소진)\n\n"
+            f"🕒 {now_kst()}\n" + "\n".join(switch_msgs)
+        )
+
 
     maybe_send_weekly_recap(data)   # 주간 결산 (일요일)
     maybe_send_dday_digest(data)    # 하루 결산 (매일 21시) ← 유지
