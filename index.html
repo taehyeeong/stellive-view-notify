@@ -529,7 +529,9 @@
                     fetch("views.json", { cache: "no-store" }),
                     fetch("snapshots.json", { cache: "no-store" }).catch(() => null)
                 ]);
+                if (!vRes.ok) throw new Error("views.json 응답 " + vRes.status + " (" + vRes.url + ")");
                 const views = await vRes.json();
+
                 SNAPS = sRes && sRes.ok ? await sRes.json() : {};
 
                 let lastUpdated = "";
@@ -562,9 +564,12 @@
                 render();
                 renderCollection();
             } catch (e) {
-                document.getElementById("rank").innerHTML = '<div class="empty">데이터를 불러오지 못했어요. (views.json 경로 확인)</div>';
+                document.getElementById("rank").innerHTML =
+                    '<div class="empty">에러: ' + (e && e.message ? e.message : e) + '</div>';
                 document.getElementById("updated").textContent = "불러오기 실패";
+                console.error(e);
             }
+
         }
 
         function renderImminent() {
