@@ -284,6 +284,167 @@
             padding: 40px
         }
 
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0 4px
+        }
+
+        .tab {
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--muted);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer
+        }
+
+        .tab.active {
+            color: var(--text);
+            border-color: var(--accent);
+            background: #1f1d2e
+        }
+
+        /* 명예의 전당 (홀로그램 카드) */
+        .holo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 6px
+        }
+
+        .holo {
+            position: relative;
+            aspect-ratio: 3/4;
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            transform: perspective(700px) rotateY(var(--rx, 0deg)) rotateX(var(--ry, 0deg));
+            transition: transform .12s ease-out;
+            background: #12121a;
+            box-shadow: 0 8px 24px -10px rgba(0, 0, 0, .7)
+        }
+
+        .holo.silver {
+            border: 1px solid #b8c2d0
+        }
+
+        .holo.gold {
+            border: 1px solid #f0c65a;
+            box-shadow: 0 8px 30px -8px rgba(240, 198, 90, .4)
+        }
+
+        .holo .thumb {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            z-index: 1
+        }
+
+        .holo .thumb::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, .85))
+        }
+
+        .holo .holo-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            opacity: 0;
+            transition: opacity .2s;
+            mix-blend-mode: color-dodge;
+            filter: brightness(.9) contrast(1.3);
+            background-size: 250% 250%;
+            background-position: var(--mx, 50%) var(--my, 50%);
+            background-image: repeating-linear-gradient(110deg,
+                    rgba(255, 0, 132, .5), rgba(255, 235, 0, .5) 12%, rgba(0, 255, 170, .5) 24%,
+                    rgba(0, 170, 255, .5) 36%, rgba(170, 0, 255, .5) 48%, rgba(255, 0, 132, .5) 60%)
+        }
+
+        .holo.gold .holo-layer {
+            background-image: repeating-linear-gradient(110deg,
+                    rgba(255, 200, 60, .55), rgba(255, 240, 150, .55) 15%, rgba(255, 170, 40, .55) 30%,
+                    rgba(255, 230, 120, .55) 45%, rgba(255, 200, 60, .55) 60%)
+        }
+
+        .holo:hover .holo-layer {
+            opacity: .6
+                /* 반짝임 세기 조절 0.4 ~ 0.8 */
+        }
+
+        .holo .glare {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity .2s;
+            mix-blend-mode: overlay;
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 45%)
+        }
+
+        .holo:hover .glare {
+            opacity: 1
+        }
+
+        .holo .badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 4;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, .6);
+            color: #fff
+        }
+
+        .holo.gold .badge {
+            background: rgba(240, 198, 90, .92);
+            color: #3a2c00
+        }
+
+        .holo .info {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 4;
+            padding: 10px
+        }
+
+        .holo .ct {
+            font-size: 12px;
+            font-weight: 800;
+            line-height: 1.25;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden
+        }
+
+        .holo .ca {
+            font-size: 10px;
+            color: #c8c8d8;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .holo .cv {
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 3px
+        }
+
         footer {
             color: var(--muted);
             font-size: 11px;
@@ -299,6 +460,11 @@
             <h1 id="homeBtn"><img src="logo.png" alt="" onerror="this.remove()">STELLIVE 성장 대시보드</h1>
             <div class="sub" id="updated">불러오는 중…</div>
         </header>
+
+        <div class="tabs">
+            <button class="tab active" id="tabRank">랭킹</button>
+            <button class="tab" id="tabHall">명예의 전당</button>
+        </div>
 
         <div class="controls">
             <input id="search" placeholder="곡·아티스트 검색">
@@ -331,6 +497,7 @@
         <div class="rank" id="rank">
             <div class="empty">데이터 불러오는 중…</div>
         </div>
+        <div id="collection" style="display:none"></div>
         <footer>매시간 자동 갱신 · Drafted with Dia</footer>
     </div>
 
@@ -393,6 +560,7 @@
 
                 renderImminent();
                 render();
+                renderCollection();
             } catch (e) {
                 document.getElementById("rank").innerHTML = '<div class="empty">데이터를 불러오지 못했어요. (views.json 경로 확인)</div>';
                 document.getElementById("updated").textContent = "불러오기 실패";
@@ -509,12 +677,60 @@
             document.getElementById("search").value = "";
             document.getElementById("unitFilter").value = "";
             document.getElementById("sortBy").value = "score";
+            switchView("rank");
             closeCard(); window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // 명예의 전당 (100만+ 달성곡 홀로그램 카드)
+        function renderCollection() {
+            const el = document.getElementById("collection");   /* 골드 기준 s.views >= 10000000 */
+            const list = SONGS.filter(s => s.views >= 1000000).sort((a, b) => b.views - a.views);
+            document.getElementById("tabHall").textContent = `명예의 전당 (${list.length})`;
+            if (!list.length) { el.innerHTML = '<div class="empty">아직 100만 달성 곡이 없어요.</div>'; return; }
+            el.innerHTML = '<div class="holo-grid">' + list.map(s => {
+                const gold = s.views >= 10000000;
+                const mil = Math.floor(s.views / 1000000) * 100;   // 만 단위
+                const thumb = `https://img.youtube.com/vi/${s.id}/hqdefault.jpg`;
+                return `<div class="holo ${gold ? 'gold' : 'silver'}" data-id="${s.id}">
+      <div class="thumb" style="background-image:url('${thumb}')"></div>
+      <div class="holo-layer"></div>
+      <div class="glare"></div>
+      <div class="badge">${gold ? '👑 ' : ''}${mil}만</div>
+      <div class="info">
+        <div class="ct">${esc(s.title)}</div>
+        <div class="ca">${esc(s.artists)}</div>
+        <div class="cv">${s.views.toLocaleString()}회</div>
+      </div></div>`;
+            }).join('') + '</div>';
+            el.querySelectorAll('.holo').forEach(c => {
+                c.addEventListener('mousemove', onHoloMove);
+                c.addEventListener('mouseleave', () => { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
+                c.addEventListener('click', () => { const s = SONGS.find(x => x.id === c.dataset.id); if (s) showChart(s); });
+            });
+        }
+        function onHoloMove(e) {
+            const c = e.currentTarget, r = c.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+            c.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+            c.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+            c.style.setProperty('--rx', ((px - .5) * 18).toFixed(1) + 'deg');           /* 기울기 조절 *18 크게 할 수록 많이 기울어짐 */
+            c.style.setProperty('--ry', (-(py - .5) * 18).toFixed(1) + 'deg');          /* 기울기 조절 *18 크게 할 수록 많이 기움 */
+        }
+        function switchView(v) {
+            const hall = v === "hall";
+            document.getElementById("collection").style.display = hall ? "block" : "none";
+            document.getElementById("rank").style.display = hall ? "none" : "flex";
+            document.querySelector(".controls").style.display = hall ? "none" : "flex";
+            document.getElementById("imminent").style.display = hall ? "none" : "block";
+            document.getElementById("tabRank").classList.toggle("active", !hall);
+            document.getElementById("tabHall").classList.toggle("active", hall);
         }
         function esc(t) { return (t + "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
 
         document.getElementById("closeBtn").addEventListener("click", closeCard);
         document.getElementById("homeBtn").addEventListener("click", goHome);
+        document.getElementById("tabRank").addEventListener("click", () => switchView("rank"));
+        document.getElementById("tabHall").addEventListener("click", () => switchView("hall"));
         ["search", "unitFilter", "sortBy"].forEach(id =>
             document.getElementById(id).addEventListener("input", render));
         load();
