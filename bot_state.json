@@ -1,6 +1,6 @@
 {
   "last_dday_date": "2026-09-11",
-  "pt_date": "2026-09-11",
+  "pt_date": "2026-09-12",
   "imminent_alerted": {
     "PBh8a0GaNFs": 2900000,
     "nknH0KshgpY": 1350000,
@@ -58,5 +58,8 @@
   },
   "imminent_msg_id": null,
   "imminent_prev_views": {},
-  "imminent_ping_block": 6135
+  "imminent_ping_block": 6135,
+  "achieved_until": {
+    "R_B4tmy2DVA": 6148
+  }
 }
