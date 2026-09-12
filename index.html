@@ -523,26 +523,21 @@
         const DASH_IMMINENT_HOURS = 24;   // 곧 달성 패널: 다음 5만까지 이 시간 이내면 표시
         let SONGS = [], SNAPS = {}, chart = null, activeId = null;
 
-        // 파일을 직접 열면(file://) 브라우저가 로컬 JSON fetch를 차단한다.
-        // 그때만 저장소의 최신 공개 데이터로 대체하고, 배포 페이지에서는 상대 경로를 그대로 쓴다.
-        const DATA_FALLBACK_BASE =
-            "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/";
-        function dataUrl(filename) {
-            return location.protocol === "file:"
-                ? DATA_FALLBACK_BASE + filename
-                : new URL(filename, document.baseURI).href;
+        // 파이썬이 쓴 Infinity/NaN 은 표준 JSON이 아니라 JSON.parse가 거부함 → null 로 치환
+        function cleanJSON(t) {
+            return t.replace(/:\s*-?Infinity/g, ':null').replace(/:\s*NaN/g, ':null');
         }
 
         async function load() {
             try {
                 const [vRes, sRes] = await Promise.all([
-                    fetch(dataUrl("dashboard-data"), { cache: "no-store" }),
-                    fetch(dataUrl("snapshots.json"), { cache: "no-store" }).catch(() => null)
+                    fetch("views.json", { cache: "no-store" }),
+                    fetch("snapshots.json", { cache: "no-store" }).catch(() => null)
                 ]);
                 if (!vRes.ok) throw new Error("views.json 응답 " + vRes.status + " (" + vRes.url + ")");
-                const views = await vRes.json();
+                const views = JSON.parse(cleanJSON(await vRes.text()));
+                SNAPS = (sRes && sRes.ok) ? JSON.parse(cleanJSON(await sRes.text())) : {};
 
-                SNAPS = sRes && sRes.ok ? await sRes.json() : {};
 
                 let lastUpdated = "";
                 for (const [id, info] of Object.entries(views)) {
