@@ -1,5 +1,5 @@
 {
-  "last_dday_date": "2026-09-11",
+  "last_dday_date": "2026-09-12",
   "pt_date": "2026-09-12",
   "imminent_alerted": {
     "PBh8a0GaNFs": 2900000,
@@ -56,14 +56,9 @@
     "WpdA5SeBras": "2026-09-10",
     "Zetk77I6_s8": "2026-09-11"
   },
-  "imminent_msg_id": 3774,
-  "imminent_prev_views": {
-    "gkmnG2pWzys": 399974,
-    "-a6y64hn4DA": 2949876,
-    "ekINzN4PQmo": 399581,
-    "So0ba8NuUq0": 899276
-  },
-  "imminent_ping_block": 6138,
+  "imminent_msg_id": null,
+  "imminent_prev_views": {},
+  "imminent_ping_block": 6141,
   "achieved_until": {
     "R_B4tmy2DVA": 6148,
     "yuxa6o1_scc": 6149,
