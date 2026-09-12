@@ -510,7 +510,7 @@ def resolve_unit(artists):
 # 파일 저장
 # ======================
 
-DATA_FILE = "views.json"
+DATA_FILE = "dashboard-data"
 TITLE_FILE = "titles.json"
 SNAPSHOTS_FILE = "snapshots.json"
 
