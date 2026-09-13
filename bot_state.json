@@ -57,13 +57,11 @@
     "Zetk77I6_s8": "2026-09-11",
     "blFr5w6o2jQ": "2026-09-12"
   },
-  "imminent_msg_id": 3865,
+  "imminent_msg_id": 3877,
   "imminent_prev_views": {
-    "sWZoIawG0tA": 4849855,
-    "lXB628gwlzs": 1449920,
-    "LcGrXP-xfHY": 198728
+    "Zetk77I6_s8": 144064
   },
-  "imminent_ping_block": 6163,
+  "imminent_ping_block": 6166,
   "achieved_until": {
     "R_B4tmy2DVA": 6175,
     "yuxa6o1_scc": 6149,
@@ -97,7 +95,8 @@
     "I8hFyN32Ysk": 6175,
     "SUJm8SX87DY": 6175,
     "sWZoIawG0tA": 6177,
-    "LcGrXP-xfHY": 6177
+    "LcGrXP-xfHY": 6177,
+    "lXB628gwlzs": 6178
   },
   "last_weekly_recap": "2026-09-13"
 }
