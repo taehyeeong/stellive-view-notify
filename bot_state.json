@@ -50,19 +50,20 @@
     "naWmFCbwi3M": 7500000,
     "v094-E3Pmtk": 2350000
   },
-  "key_index": 1,
+  "key_index": 2,
   "oauth_index": 2,
   "auto_pinned": {
     "WpdA5SeBras": "2026-09-10",
     "Zetk77I6_s8": "2026-09-11",
     "blFr5w6o2jQ": "2026-09-12"
   },
-  "imminent_msg_id": 3832,
+  "imminent_msg_id": 3842,
   "imminent_prev_views": {
-    "Ho-tW7OsO54": 849969,
-    "fLLX2R-RwVE": 2448662
+    "fLLX2R-RwVE": 2448726,
+    "vM_XT3MeLrc": 1299694,
+    "YC-QnlIEbJU": 5398375
   },
-  "imminent_ping_block": 6153,
+  "imminent_ping_block": 6156,
   "achieved_until": {
     "R_B4tmy2DVA": 6148,
     "yuxa6o1_scc": 6149,
@@ -86,6 +87,7 @@
     "KSCTkOn5Niw": 6160,
     "sEYBQaw1vRs": 6161,
     "y1nUYj_D1Es": 6161,
-    "B5tz8rOMPlU": 6163
+    "B5tz8rOMPlU": 6163,
+    "Ho-tW7OsO54": 6168
   }
 }
