@@ -1,6 +1,6 @@
 {
-  "last_dday_date": "2026-09-11",
-  "pt_date": "2026-09-11",
+  "last_dday_date": "2026-09-12",
+  "pt_date": "2026-09-12",
   "imminent_alerted": {
     "PBh8a0GaNFs": 2900000,
     "nknH0KshgpY": 1350000,
@@ -50,13 +50,44 @@
     "naWmFCbwi3M": 7500000,
     "v094-E3Pmtk": 2350000
   },
-  "key_index": 0,
-  "oauth_index": 0,
+  "key_index": 2,
+  "oauth_index": 2,
   "auto_pinned": {
     "WpdA5SeBras": "2026-09-10",
-    "Zetk77I6_s8": "2026-09-11"
+    "Zetk77I6_s8": "2026-09-11",
+    "blFr5w6o2jQ": "2026-09-12"
   },
-  "imminent_msg_id": null,
-  "imminent_prev_views": {},
-  "imminent_ping_block": 6135
+  "imminent_msg_id": 3842,
+  "imminent_prev_views": {
+    "fLLX2R-RwVE": 2448726,
+    "vM_XT3MeLrc": 1299694,
+    "YC-QnlIEbJU": 5398375
+  },
+  "imminent_ping_block": 6156,
+  "achieved_until": {
+    "R_B4tmy2DVA": 6148,
+    "yuxa6o1_scc": 6149,
+    "ZJ7TFaFyYwc": 6149,
+    "uBtFoUXR9Qc": 6150,
+    "ZYSQLv_L26Y": 6150,
+    "ekINzN4PQmo": 6151,
+    "So0ba8NuUq0": 6151,
+    "-a6y64hn4DA": 6151,
+    "gkmnG2pWzys": 6151,
+    "jvZRK7W7S9Y": 6155,
+    "aurVmylo4_Y": 6156,
+    "qao2gYtY7bs": 6156,
+    "L-pn_xrqQkQ": 6157,
+    "I6bslYOW8Xk": 6157,
+    "RpX0r_l7FzI": 6158,
+    "8shKFjkHabo": 6159,
+    "Bhe35DpMlzk": 6159,
+    "Zetk77I6_s8": 6164,
+    "xKA5wKYMFhM": 6159,
+    "KSCTkOn5Niw": 6160,
+    "sEYBQaw1vRs": 6161,
+    "y1nUYj_D1Es": 6161,
+    "B5tz8rOMPlU": 6163,
+    "Ho-tW7OsO54": 6168
+  }
 }
