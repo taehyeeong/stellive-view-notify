@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -7,16 +7,28 @@
     <title>STELLIVE 성장 대시보드</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        :root {
+        [data-theme="dark"] {
             --bg: #0e0e14;
             --card: #181820;
             --line: #26263180;
             --text: #e9e9f0;
             --muted: #9a9aae;
             --accent: #8b7bf0;
-            --accent2: #f06ba8;
             --good: #5ad19b;
             --warn: #f0b93a;
+            --shadow: rgba(0, 0, 0, .7);
+        }
+
+        [data-theme="light"] {
+            --bg: #f4f4f8;
+            --card: #ffffff;
+            --line: #e2e2ea;
+            --text: #1a1a22;
+            --muted: #6b6b7a;
+            --accent: #6d5be0;
+            --good: #1fa971;
+            --warn: #c98a00;
+            --shadow: rgba(0, 0, 0, .12);
         }
 
         * {
@@ -35,6 +47,13 @@
             max-width: 1000px;
             margin: 0 auto;
             padding: 22px 18px 80px
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px
         }
 
         header h1 {
@@ -60,6 +79,18 @@
             font-size: 13px
         }
 
+        #themeBtn {
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--text);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            flex: 0 0 auto
+        }
+
         .controls {
             display: flex;
             gap: 10px;
@@ -67,7 +98,6 @@
             margin: 20px 0 14px
         }
 
-        .controls input,
         .controls select {
             background: var(--card);
             border: 1px solid var(--line);
@@ -75,15 +105,80 @@
             padding: 9px 12px;
             border-radius: 10px;
             font-size: 14px;
+            outline: none;
+            cursor: pointer
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 180px;
+            display: flex
+        }
+
+        .search-wrap input {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--text);
+            padding: 9px 34px 9px 12px;
+            border-radius: 10px;
+            font-size: 14px;
             outline: none
         }
 
-        .controls input {
-            flex: 1;
-            min-width: 160px
+        .search-wrap .clearBtn {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: 0;
+            color: var(--muted);
+            font-size: 15px;
+            cursor: pointer;
+            padding: 4px;
+            display: none
         }
 
-        /* 곧 달성 예정 패널 */
+        .search-wrap .clearBtn:hover {
+            color: var(--text)
+        }
+
+        .suggest {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            z-index: 30;
+            max-height: 280px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 12px 30px -12px var(--shadow)
+        }
+
+        .suggest .sug {
+            padding: 8px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .suggest .sug:hover {
+            background: var(--bg)
+        }
+
+        .suggest .sug span {
+            color: var(--muted);
+            font-size: 11px;
+            white-space: nowrap
+        }
+
         #imminent {
             margin: 0 0 18px
         }
@@ -132,85 +227,9 @@
             font-weight: 700
         }
 
-        #chartCard {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 14px 16px 12px;
-            margin-bottom: 18px;
-            display: none;
-            box-shadow: 0 14px 34px -12px rgba(0, 0, 0, .75)
-        }
-
-        #chartCard .head {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 10px
-        }
-
-        #chartCard h2 {
-            font-size: 15px;
-            margin: 0
-        }
-
-        #chartCard .meta {
+        .imm-none {
             color: var(--muted);
-            font-size: 12px;
-            margin: 2px 0 10px
-        }
-
-        #closeBtn {
-            background: none;
-            border: 0;
-            color: var(--muted);
-            font-size: 18px;
-            cursor: pointer;
-            line-height: 1;
-            padding: 2px 4px
-        }
-
-        #closeBtn:hover {
-            color: var(--text)
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-            align-items: start
-        }
-
-        .chartBox {
-            position: relative;
-            height: 200px
-        }
-
-        .videoBox {
-            position: relative;
-            aspect-ratio: 16/9
-        }
-
-        .videoBox iframe {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            border-radius: 10px
-        }
-
-        @media(max-width:640px) {
-            .grid {
-                grid-template-columns: 1fr
-            }
-
-            .chartBox {
-                height: 170px
-            }
+            font-size: 12px
         }
 
         .rank {
@@ -234,11 +253,6 @@
 
         .row:hover {
             border-color: var(--accent)
-        }
-
-        .row.active {
-            border-color: var(--accent);
-            background: #1f1d2e
         }
 
         .row .no {
@@ -284,7 +298,6 @@
             padding: 40px
         }
 
-        /* 탭 */
         .tabs {
             display: flex;
             gap: 8px;
@@ -304,37 +317,41 @@
 
         .tab.active {
             color: var(--text);
-            border-color: var(--accent);
-            background: #1f1d2e
+            box-shadow: inset 0 0 0 1px var(--accent)
         }
 
-        /* 명예의 전당 (홀로그램 카드) */
+        /* ===== 명예의 전당 - 카드형 ===== */
         .holo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 18px;
             margin-top: 6px
         }
 
         .holo {
             position: relative;
             aspect-ratio: 3/4;
-            border-radius: 14px;
+            border-radius: 15px;
             overflow: hidden;
             cursor: pointer;
-            transform: perspective(700px) rotateY(var(--rx, 0deg)) rotateX(var(--ry, 0deg));
+            isolation: isolate;
+            transform: perspective(720px) rotateY(var(--rx, 0deg)) rotateX(var(--ry, 0deg));
             transition: transform .12s ease-out;
-            background: #12121a;
-            box-shadow: 0 8px 24px -10px rgba(0, 0, 0, .7)
+            background: #0c0c12;
+            border: 2px solid var(--tier, #c7d0dc);
+            box-shadow: 0 10px 26px -12px var(--shadow), 0 0 14px -4px var(--tier, #c7d0dc)
         }
 
-        .holo.silver {
-            border: 1px solid #b8c2d0
+        .holo.t-silver {
+            --tier: #c7d0dc
         }
 
-        .holo.gold {
-            border: 1px solid #f0c65a;
-            box-shadow: 0 8px 30px -8px rgba(240, 198, 90, .4)
+        .holo.t-gold {
+            --tier: #f0c65a
+        }
+
+        .holo.t-rare {
+            --tier: #c08bff
         }
 
         .holo .thumb {
@@ -342,72 +359,100 @@
             inset: 0;
             background-size: cover;
             background-position: center;
-            z-index: 1
+            z-index: 1;
+            filter: brightness(.82) saturate(1.12) contrast(1.04)
         }
 
         .holo .thumb::after {
             content: "";
             position: absolute;
             inset: 0;
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, .85))
+            background: radial-gradient(120% 90% at 50% 25%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .55) 100%),
+                linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .88))
+        }
+
+        @keyframes foilShift {
+            0% {
+                background-position: 0% 50%
+            }
+
+            100% {
+                background-position: 250% 50%
+            }
         }
 
         .holo .holo-layer {
             position: absolute;
             inset: 0;
-            z-index: 2;
-            opacity: 0;
+            z-index: 3;
+            opacity: .2;
             transition: opacity .2s;
             mix-blend-mode: color-dodge;
-            filter: brightness(.9) contrast(1.3);
+            filter: hue-rotate(calc(var(--holo-hue, 0) * 1deg)) brightness(.95) contrast(1.35);
             background-size: 250% 250%;
             background-position: var(--mx, 50%) var(--my, 50%);
             background-image: repeating-linear-gradient(110deg,
-                    rgba(255, 0, 132, .5), rgba(255, 235, 0, .5) 12%, rgba(0, 255, 170, .5) 24%,
-                    rgba(0, 170, 255, .5) 36%, rgba(170, 0, 255, .5) 48%, rgba(255, 0, 132, .5) 60%)
+                    rgba(255, 0, 132, .55), rgba(255, 235, 0, .55) 12%, rgba(0, 255, 170, .55) 24%,
+                    rgba(0, 170, 255, .55) 36%, rgba(170, 0, 255, .55) 48%, rgba(255, 0, 132, .55) 60%);
+            animation: foilShift 9s linear infinite
         }
 
-        .holo.gold .holo-layer {
-            background-image: repeating-linear-gradient(110deg,
-                    rgba(255, 200, 60, .55), rgba(255, 240, 150, .55) 15%, rgba(255, 170, 40, .55) 30%,
-                    rgba(255, 230, 120, .55) 45%, rgba(255, 200, 60, .55) 60%)
+        .holo.t-rare .holo-layer {
+            opacity: .32
         }
 
         .holo:hover .holo-layer {
-            opacity: .6
-                /* 반짝임 세기 조절 0.4 ~ 0.8 */
+            opacity: .7;
+            animation: none;
+            background-position: var(--mx, 50%) var(--my, 50%)
         }
 
         .holo .glare {
             position: absolute;
             inset: 0;
-            z-index: 3;
+            z-index: 4;
             opacity: 0;
             transition: opacity .2s;
             mix-blend-mode: overlay;
-            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .5), rgba(255, 255, 255, 0) 45%)
+            background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 45%)
         }
 
         .holo:hover .glare {
             opacity: 1
         }
 
-        .holo .badge {
+        .holo .frame {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            border-radius: 13px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14)
+        }
+
+        .holo .num {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            z-index: 6;
+            font-size: 10px;
+            font-weight: 800;
+            color: #fff;
+            opacity: .75;
+            letter-spacing: .04em
+        }
+
+        .holo .tierChip {
             position: absolute;
             top: 8px;
             left: 8px;
-            z-index: 4;
-            font-size: 11px;
+            z-index: 6;
+            font-size: 10px;
             font-weight: 800;
             padding: 3px 8px;
             border-radius: 20px;
-            background: rgba(0, 0, 0, .6);
-            color: #fff
-        }
-
-        .holo.gold .badge {
-            background: rgba(240, 198, 90, .92);
-            color: #3a2c00
+            background: var(--tier, #c7d0dc);
+            color: #1a1420
         }
 
         .holo .info {
@@ -415,14 +460,22 @@
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: 4;
-            padding: 10px
+            z-index: 6;
+            padding: 11px
+        }
+
+        .holo .mil {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--tier, #fff);
+            margin-bottom: 2px
         }
 
         .holo .ct {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 800;
-            line-height: 1.25;
+            line-height: 1.2;
+            color: #fff;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -431,7 +484,7 @@
 
         .holo .ca {
             font-size: 10px;
-            color: #c8c8d8;
+            color: #d2d2de;
             margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
@@ -445,6 +498,264 @@
             margin-top: 3px
         }
 
+        /* 앨범형 */
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--cols, 4), 1fr);
+            gap: 12px;
+            margin-top: 6px
+        }
+
+        .album {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            background: #12121a;
+            border: 1px solid var(--line)
+        }
+
+        .album.t-gold {
+            border-color: #f0c65a
+        }
+
+        .album.t-rare {
+            border-color: #c08bff
+        }
+
+        .album .thumb {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(.82) saturate(1.12) contrast(1.04)
+        }
+
+        .album .thumb::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 45%, rgba(0, 0, 0, .82))
+        }
+
+        .album .badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, .6);
+            color: #fff
+        }
+
+        .album .cap {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 8px;
+            z-index: 2
+        }
+
+        .album .ct {
+            font-size: 11px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden
+        }
+
+        .album .cv {
+            font-size: 10px;
+            color: #e0e0ea;
+            margin-top: 2px
+        }
+
+        /* 목록형 */
+        .hall-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px
+        }
+
+        .hrow {
+            display: grid;
+            grid-template-columns: 76px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: border-color .15s
+        }
+
+        .hrow:hover {
+            border-color: var(--accent)
+        }
+
+        .hrow.t-gold {
+            border-color: #f0c65a
+        }
+
+        .hrow.t-rare {
+            border-color: #c08bff
+        }
+
+        .hrow .th {
+            width: 76px;
+            aspect-ratio: 16/9;
+            border-radius: 7px;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(.85) saturate(1.1)
+        }
+
+        .hrow .title {
+            font-weight: 700;
+            font-size: 14px
+        }
+
+        .hrow .artist {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px
+        }
+
+        .hrow .right {
+            text-align: right
+        }
+
+        .hrow .views {
+            font-weight: 700;
+            font-size: 14px
+        }
+
+        .hrow .mil {
+            color: var(--warn);
+            font-size: 12px;
+            margin-top: 2px;
+            font-weight: 700
+        }
+
+        /* ===== 전체 페이지(곡/유닛/멤버) ===== */
+        #page {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: var(--bg);
+            overflow-y: auto;
+            display: none
+        }
+
+        .pwrap {
+            max-width: 840px;
+            margin: 0 auto;
+            padding: 18px 18px 60px
+        }
+
+        #backBtn {
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 16px
+        }
+
+        .pwrap h2 {
+            font-size: 20px;
+            margin: 0 0 4px
+        }
+
+        .pmeta {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center
+        }
+
+        .chip {
+            background: var(--card);
+            border: 1px solid var(--line);
+            color: var(--text);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none
+        }
+
+        .chip:hover {
+            border-color: var(--accent)
+        }
+
+        .dvideo {
+            position: relative;
+            aspect-ratio: 16/9;
+            margin-bottom: 16px
+        }
+
+        .dvideo iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            border-radius: 12px
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 18px
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 12px 14px
+        }
+
+        .stat .k {
+            color: var(--muted);
+            font-size: 12px
+        }
+
+        .stat .v {
+            font-size: 18px;
+            font-weight: 800;
+            margin-top: 3px
+        }
+
+        .dchart {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px
+        }
+
+        .dchartBox {
+            position: relative;
+            height: 260px
+        }
+
         footer {
             color: var(--muted);
             font-size: 11px;
@@ -456,20 +767,33 @@
 
 <body>
     <div class="wrap">
-        <header>
-            <h1 id="homeBtn"><img src="logo.png" alt="" onerror="this.remove()">STELLIVE 성장 대시보드</h1>
-            <div class="sub" id="updated">불러오는 중…</div>
-        </header>
+        <div class="topbar">
+            <header>
+                <h1 id="homeBtn"><img src="logo.png" alt="" onerror="this.remove()">STELLIVE 성장 대시보드</h1>
+                <div class="sub" id="updated">불러오는 중…</div>
+            </header>
+            <button id="themeBtn" title="라이트/다크 전환">🌙</button>
+        </div>
 
         <div class="tabs">
             <button class="tab active" id="tabRank">랭킹</button>
             <button class="tab" id="tabHall">명예의 전당</button>
         </div>
 
-        <div class="controls">
-            <input id="search" placeholder="곡·아티스트 검색">
+        <div class="controls" id="rankControls">
+            <div class="search-wrap">
+                <input id="search" placeholder="곡·아티스트·멤버 검색">
+                <button class="clearBtn" data-target="search">✕</button>
+                <div class="suggest" id="sugRank"></div>
+            </div>
             <select id="unitFilter">
                 <option value="">전체 유닛</option>
+            </select>
+            <select id="typeFilter">
+                <option value="">전체 종류</option>
+                <option value="오리지널">오리지널</option>
+                <option value="커버">커버</option>
+                <option value="3D">3D</option>
             </select>
             <select id="sortBy">
                 <option value="score">성장 점수순</option>
@@ -478,31 +802,50 @@
             </select>
         </div>
 
-        <div id="imminent"></div>
-
-        <div id="chartCard">
-            <div class="head">
-                <div>
-                    <h2 id="chartTitle"></h2>
-                    <div class="meta" id="chartMeta"></div>
-                </div>
-                <button id="closeBtn" title="닫기">✕</button>
+        <div class="controls" id="hallControls" style="display:none">
+            <div class="search-wrap">
+                <input id="hallSearch" placeholder="명예의 전당 검색">
+                <button class="clearBtn" data-target="hallSearch">✕</button>
+                <div class="suggest" id="sugHall"></div>
             </div>
-            <div class="grid">
-                <div class="chartBox"><canvas id="chart"></canvas></div>
-                <div class="videoBox"><iframe id="ytFrame" allow="encrypted-media" allowfullscreen></iframe></div>
-            </div>
+            <select id="hallType">
+                <option value="">전체 종류</option>
+                <option value="오리지널">오리지널</option>
+                <option value="커버">커버</option>
+                <option value="3D">3D</option>
+            </select>
+            <select id="hallSort">
+                <option value="views_desc">조회수 높은순</option>
+                <option value="views_asc">조회수 낮은순</option>
+                <option value="title">제목순</option>
+                <option value="unit">유닛순</option>
+            </select>
+            <select id="hallLayout">
+                <option value="card">카드형</option>
+                <option value="album">앨범형</option>
+                <option value="list">목록형</option>
+            </select>
+            <select id="hallCols" style="display:none">
+                <option value="3">3열</option>
+                <option value="4" selected>4열</option>
+                <option value="5">5열</option>
+                <option value="6">6열</option>
+            </select>
         </div>
 
+        <div id="imminent"></div>
         <div class="rank" id="rank">
             <div class="empty">데이터 불러오는 중…</div>
         </div>
         <div id="collection" style="display:none"></div>
-        <footer>매시간 자동 갱신</footer>
+        <footer>매시간 자동 갱신 · Drafted with Dia</footer>
+    </div>
+
+    <div id="page">
+        <div class="pwrap" id="pageBody"></div>
     </div>
 
     <script>
-        // 유닛 → 멤버 (곡에 멤버 전원 있으면 유닛명으로 표시)
         const UNITS = {
             "에버리스": ["아야츠노 유니", "사키하네 후야"],
             "유니버스": ["시라유키 히나", "네네코 마시로", "아카네 리제", "아라하시 타비"],
@@ -520,13 +863,21 @@
             return list.join(", ");
         }
 
-        const DASH_IMMINENT_HOURS = 24;   // 곧 달성 패널: 다음 5만까지 이 시간 이내면 표시
-        let SONGS = [], SNAPS = {}, chart = null, activeId = null;
+        const DASH_IMMINENT_HOURS = 24;
+        let SONGS = [], SNAPS = {}, pChart = null;
 
-        // 파이썬이 쓴 Infinity/NaN 은 표준 JSON이 아니라 JSON.parse가 거부함 → null 로 치환
-        function cleanJSON(t) {
-            return t.replace(/:\s*-?Infinity/g, ':null').replace(/:\s*NaN/g, ':null');
+        function cleanJSON(t) { return t.replace(/:\s*-?Infinity/g, ':null').replace(/:\s*NaN/g, ':null'); }
+        function esc(t) { return (t + "").replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+        function thumb(id) { return `https://img.youtube.com/vi/${id}/mqdefault.jpg`; }
+        function metaLine(s) {
+            const bits = [];
+            if (s.type) bits.push(s.type);
+            if (s.is3d) bits.push("3D");
+            return bits.length ? `${s.artists} · ${bits.join(" · ")}` : s.artists;
         }
+        function tierOf(v) { return v >= 10000000 ? "rare" : v >= 3000000 ? "gold" : "silver"; }
+        function tierLabel(t) { return t === "rare" ? "홀로레어" : t === "gold" ? "골드" : "실버"; }
+        function milLabel(v) { return Math.floor(v / 1000000) * 100 + "만"; }
 
         async function load() {
             try {
@@ -538,20 +889,24 @@
                 const views = JSON.parse(cleanJSON(await vRes.text()));
                 SNAPS = (sRes && sRes.ok) ? JSON.parse(cleanJSON(await sRes.text())) : {};
 
-
                 let lastUpdated = "";
                 for (const [id, info] of Object.entries(views)) {
                     if (id.startsWith("_") || typeof info !== "object") continue;
                     const artistsArr = info.artists || [];
+                    const disp = displayArtists(artistsArr);
+                    const searchStr = [info.title, disp, artistsArr.join(" "), info.unit, info.song_type,
+                    info.original_title, info.raw_title, info.title_original]
+                        .filter(Boolean).join(" ").toLowerCase();
                     SONGS.push({
                         id, title: info.title || id,
-                        artistsArr, artists: displayArtists(artistsArr),
+                        artistsArr, artists: disp,
                         unit: info.unit || "", views: info.views || 0,
                         score: info.growth_score || 0,
                         eta: (info.growth && info.growth.eta_days != null) ? info.growth.eta_days : Infinity,
                         daily: (info.growth && info.growth.daily_avg) || 0,
                         remaining: (info.growth && info.growth.remaining) || 0,
-                        history: info.history || []
+                        type: info.song_type || "", is3d: !!info.is_3d,
+                        history: info.history || [], search: searchStr
                     });
                     if (info.updated && info.updated > lastUpdated) lastUpdated = info.updated;
                 }
@@ -565,23 +920,31 @@
                 const uf = document.getElementById("unitFilter");
                 ordered.forEach(u => { const o = document.createElement("option"); o.value = u; o.textContent = u; uf.appendChild(o); });
 
-                renderImminent();
-                render();
-                renderCollection();
+                renderImminent(); render(); renderCollection();
+                router();
             } catch (e) {
                 document.getElementById("rank").innerHTML =
                     '<div class="empty">에러: ' + (e && e.message ? e.message : e) + '</div>';
                 document.getElementById("updated").textContent = "불러오기 실패";
                 console.error(e);
             }
+        }
 
+        function passType(s, f) {
+            if (!f) return true;
+            if (f === "3D") return s.is3d;
+            return s.type === f;
         }
 
         function renderImminent() {
             const el = document.getElementById("imminent");
-            const list = SONGS.filter(s => isFinite(s.eta) && s.eta * 24 <= DASH_IMMINENT_HOURS && s.daily > 0)
+            const list = SONGS
+                .filter(s => isFinite(s.eta) && s.eta > 0 && s.remaining > 0 && s.eta * 24 <= DASH_IMMINENT_HOURS && s.daily > 0)
                 .sort((a, b) => a.eta - b.eta).slice(0, 12);
-            if (!list.length) { el.innerHTML = ""; return; }
+            if (!list.length) {
+                el.innerHTML = `<h3>⚡ 곧 달성 예정 (0)</h3><div class="imm-none">24시간 안에 새 기록 달성할 곡이 지금은 없어요.</div>`;
+                return;
+            }
             const cards = list.map(s => {
                 const target = s.views + s.remaining;
                 const tgt = target % 10000 === 0 ? (target / 10000) + "만" : target.toLocaleString();
@@ -592,17 +955,18 @@
       <div class="m">${esc(s.artists)} · 🎯 ${tgt} <span class="eta">${eta}</span></div></div>`;
             }).join("");
             el.innerHTML = `<h3>⚡ 곧 달성 예정 (${list.length})</h3><div class="imm-list">${cards}</div>`;
-            el.querySelectorAll(".imm").forEach(n =>
-                n.onclick = () => { const s = SONGS.find(x => x.id === n.dataset.id); if (s) showChart(s); });
+            el.querySelectorAll(".imm").forEach(n => n.onclick = () => showSong(n.dataset.id));
         }
 
         function render() {
             const q = document.getElementById("search").value.trim().toLowerCase();
             const unit = document.getElementById("unitFilter").value;
+            const type = document.getElementById("typeFilter").value;
             const sortBy = document.getElementById("sortBy").value;
             let list = SONGS.filter(s => {
                 if (unit && s.unit !== unit) return false;
-                if (q && !(s.title.toLowerCase().includes(q) || s.artists.toLowerCase().includes(q))) return false;
+                if (!passType(s, type)) return false;
+                if (q && !s.search.includes(q)) return false;
                 return true;
             });
             list.sort((a, b) => {
@@ -613,47 +977,157 @@
             const el = document.getElementById("rank");
             if (!list.length) { el.innerHTML = '<div class="empty">결과 없음</div>'; return; }
             el.innerHTML = "";
-            list.slice(0, 100).forEach((s, i) => {
+            list.slice(0, 200).forEach((s, i) => {
                 const row = document.createElement("div");
-                row.className = "row" + (s.id === activeId ? " active" : "");
+                row.className = "row";
                 const etaTxt = isFinite(s.eta) ? ` · 다음 5만까지 D-${Math.max(0, Math.round(s.eta))}` : "";
                 row.innerHTML =
                     `<div class="no ${i < 3 ? 'top' : ''}">${i + 1}</div>
        <div><div class="title">${esc(s.title)}</div>
-         <div class="artist">${esc(s.artists)}${s.unit ? ` · ${esc(s.unit)}` : ''}</div></div>
+         <div class="artist">${esc(metaLine(s))}</div></div>
        <div class="right"><div class="views">${s.views.toLocaleString()}회</div>
          <div class="score">점수 ${s.score.toFixed(1)}${etaTxt}</div></div>`;
-                row.onclick = () => showChart(s);
+                row.onclick = () => showSong(s.id);
                 el.appendChild(row);
             });
         }
 
-        // 그래프 데이터: 오래된 구간은 snapshots(일별) + 최근 구간은 history(시간별) 이어붙이기
+        function hashHue(id) { let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) % 360; return h; }
+        function rgbToHue(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+            if (!d) return 0;
+            let h;
+            if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4;
+            h *= 60; if (h < 0) h += 360; return Math.round(h);
+        }
+        function tintCard(el, id) {
+            el.style.setProperty('--holo-hue', hashHue(id));
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                try {
+                    const c = document.createElement("canvas"); c.width = c.height = 16;
+                    const cx = c.getContext("2d"); cx.drawImage(img, 0, 0, 16, 16);
+                    const d = cx.getImageData(0, 0, 16, 16).data;
+                    let r = 0, g = 0, b = 0, n = 0;
+                    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+                    el.style.setProperty('--holo-hue', rgbToHue(r / n, g / n, b / n));
+                } catch (_) { }
+            };
+            img.src = thumb(id);
+        }
+        function hallFiltered() {
+            const q = document.getElementById("hallSearch").value.trim().toLowerCase();
+            const key = document.getElementById("hallSort").value;
+            const type = document.getElementById("hallType").value;
+            let list = SONGS.filter(s => s.views >= 1000000)
+                .filter(s => passType(s, type))
+                .filter(s => !q || s.search.includes(q));
+            if (key === "views_asc") list.sort((a, b) => a.views - b.views);
+            else if (key === "title") list.sort((a, b) => a.title.localeCompare(b.title, 'ko'));
+            else if (key === "unit") list.sort((a, b) => (a.unit || '').localeCompare(b.unit || '', 'ko') || b.views - a.views);
+            else list.sort((a, b) => b.views - a.views);
+            return list;
+        }
+        function renderCollection() {
+            const el = document.getElementById("collection");
+            const layout = document.getElementById("hallLayout").value;
+            const all = SONGS.filter(s => s.views >= 1000000);
+            document.getElementById("tabHall").textContent = `명예의 전당 (${all.length})`;
+            const list = hallFiltered();
+            if (!list.length) { el.innerHTML = '<div class="empty">' + (all.length ? '결과 없음' : '아직 100만 달성 곡이 없어요.') + '</div>'; return; }
+
+            if (layout === "card") {
+                el.innerHTML = '<div class="holo-grid">' + list.map((s, i) => {
+                    const t = tierOf(s.views);
+                    return `<div class="holo t-${t}" data-id="${s.id}">
+        <div class="thumb" style="background-image:url('${thumb(s.id)}')"></div>
+        <div class="holo-layer"></div><div class="glare"></div><div class="frame"></div>
+        <div class="num">#${String(i + 1).padStart(3, '0')}</div>
+        <div class="tierChip">${tierLabel(t)}</div>
+        <div class="info"><div class="mil">🏆 ${milLabel(s.views)}</div>
+          <div class="ct">${esc(s.title)}</div>
+          <div class="ca">${esc(s.artists)}</div><div class="cv">${s.views.toLocaleString()}회</div></div>
+      </div>`;
+                }).join('') + '</div>';
+                el.querySelectorAll('.holo').forEach(c => {
+                    tintCard(c, c.dataset.id);
+                    c.addEventListener('mousemove', onHoloMove);
+                    c.addEventListener('mouseleave', () => { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
+                    c.addEventListener('click', () => showSong(c.dataset.id));
+                });
+            } else if (layout === "album") {
+                const cols = document.getElementById("hallCols").value;
+                el.innerHTML = `<div class="album-grid" style="--cols:${cols}">` + list.map(s => {
+                    const t = tierOf(s.views);
+                    return `<div class="album t-${t}" data-id="${s.id}">
+        <div class="thumb" style="background-image:url('${thumb(s.id)}')"></div>
+        <div class="badge">🏆 ${milLabel(s.views)}</div>
+        <div class="cap"><div class="ct">${esc(s.title)}</div>
+          <div class="cv">${s.views.toLocaleString()}회</div></div>
+      </div>`;
+                }).join('') + '</div>';
+                el.querySelectorAll('.album').forEach(c => c.addEventListener('click', () => showSong(c.dataset.id)));
+            } else {
+                el.innerHTML = '<div class="hall-list">' + list.map(s => {
+                    const t = tierOf(s.views);
+                    return `<div class="hrow t-${t}" data-id="${s.id}">
+        <div class="th" style="background-image:url('${thumb(s.id)}')"></div>
+        <div><div class="title">${esc(s.title)}</div><div class="artist">${esc(metaLine(s))}</div></div>
+        <div class="right"><div class="views">${s.views.toLocaleString()}회</div>
+          <div class="mil">🏆 ${milLabel(s.views)}</div></div>
+      </div>`;
+                }).join('') + '</div>';
+                el.querySelectorAll('.hrow').forEach(c => c.addEventListener('click', () => showSong(c.dataset.id)));
+            }
+        }
+        function onHoloMove(e) {
+            const c = e.currentTarget, r = c.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+            c.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+            c.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+            c.style.setProperty('--rx', ((px - .5) * 20).toFixed(1) + 'deg');
+            c.style.setProperty('--ry', (-(py - .5) * 20).toFixed(1) + 'deg');
+        }
+
         function seriesFor(s) {
             const hist = (s.history || []).slice().sort((a, b) => a.updated > b.updated ? 1 : -1);
-            const earliest = hist.length ? hist[0].updated.slice(0, 10) : null;   // history 시작 날짜
+            const earliest = hist.length ? hist[0].updated.slice(0, 10) : null;
             const pts = [];
             const snap = SNAPS[s.id] || {};
-            Object.keys(snap).sort().forEach(d => {                 // history 이전 날짜만 (일별)
-                if (!earliest || d < earliest) pts.push({ label: d.slice(5), v: snap[d] });
-            });
-            hist.forEach(h => pts.push({ label: h.updated.slice(5, 16), v: h.views }));  // 최근 (시간별)
+            Object.keys(snap).sort().forEach(d => { if (!earliest || d < earliest) pts.push({ label: d.slice(5), v: snap[d] }); });
+            hist.forEach(h => pts.push({ label: h.updated.slice(5, 16), v: h.views }));
             return pts;
         }
 
-        function showChart(s) {
-            if (activeId === s.id) { closeCard(); return; }
-            activeId = s.id;
-            const pts = seriesFor(s);
-            document.getElementById("chartCard").style.display = "block";
-            document.getElementById("chartTitle").textContent = s.title;
-            document.getElementById("chartMeta").textContent =
-                `${s.artists} · 현재 ${s.views.toLocaleString()}회 · 하루 조회수 +${Math.round(s.daily).toLocaleString()}`;
-            document.getElementById("ytFrame").src = "https://www.youtube.com/embed/" + s.id;
+        function showSong(id) { location.hash = "#/song/" + encodeURIComponent(id); }
+        function showUnit(name) { location.hash = "#/unit/" + encodeURIComponent(name); }
+        function showArtist(name) { location.hash = "#/artist/" + encodeURIComponent(name); }
 
-            const ctx = document.getElementById("chart");
-            if (chart) chart.destroy();
-            chart = new Chart(ctx, {
+        function renderSongPage(s) {
+            const dday = isFinite(s.eta) ? `D-${Math.max(0, Math.round(s.eta))}` : "-";
+            const chips = [];
+            if (s.unit) chips.push(`<a class="chip" href="#/unit/${encodeURIComponent(s.unit)}">${esc(s.unit)}</a>`);
+            s.artistsArr.forEach(a => chips.push(`<a class="chip" href="#/artist/${encodeURIComponent(a)}">${esc(a)}</a>`));
+            const tags = [s.type, s.is3d ? "3D" : ""].filter(Boolean).join(" · ");
+            document.getElementById("pageBody").innerHTML = `
+    <button id="backBtn">← 뒤로</button>
+    <h2>${esc(s.title)}</h2>
+    <div class="pmeta">${tags ? `<span>${esc(tags)}</span>` : ""}${chips.join("")}</div>
+    <div class="dvideo"><iframe src="https://www.youtube.com/embed/${s.id}" allow="encrypted-media" allowfullscreen></iframe></div>
+    <div class="stats">
+      <div class="stat"><div class="k">현재 조회수</div><div class="v">${s.views.toLocaleString()}</div></div>
+      <div class="stat"><div class="k">하루 평균</div><div class="v">+${Math.round(s.daily).toLocaleString()}회</div></div>
+      <div class="stat"><div class="k">성장 점수</div><div class="v">${s.score.toFixed(1)}</div></div>
+      <div class="stat"><div class="k">다음 5만까지</div><div class="v">${dday}</div></div>
+    </div>
+    <div class="dchart"><div class="dchartBox"><canvas id="pChart"></canvas></div></div>`;
+            bindBack();
+            const pts = seriesFor(s);
+            const muted = getComputedStyle(document.body).getPropertyValue('--muted').trim() || "#9a9aae";
+            if (pChart) pChart.destroy();
+            pChart = new Chart(document.getElementById("pChart"), {
                 type: "line",
                 data: {
                     labels: pts.map(p => p.label),
@@ -663,86 +1137,138 @@
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    interaction: { mode: "index", intersect: false },
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
                     plugins: {
                         legend: { display: false },
                         tooltip: { displayColors: false, callbacks: { title: (it) => it[0].label, label: (c) => " " + c.parsed.y.toLocaleString() + "회" } }
                     },
                     scales: {
-                        x: { ticks: { color: "#9a9aae", maxTicksLimit: 7 }, grid: { display: false } },
-                        y: { beginAtZero: false, ticks: { color: "#9a9aae", maxTicksLimit: 5, callback: v => v.toLocaleString() }, grid: { color: "#26263180" } }
+                        x: { ticks: { color: muted, maxTicksLimit: 7 }, grid: { display: false } },
+                        y: { beginAtZero: false, ticks: { color: muted, maxTicksLimit: 5, callback: v => v.toLocaleString() }, grid: { color: "#88888833" } }
                     }
                 }
             });
-            render();
+        }
+        function renderListPage(title, list) {
+            const rows = list.length ? list.map(s => `
+    <div class="row" data-id="${s.id}">
+      <div class="no"></div>
+      <div><div class="title">${esc(s.title)}</div><div class="artist">${esc(metaLine(s))}</div></div>
+      <div class="right"><div class="views">${s.views.toLocaleString()}회</div></div>
+    </div>`).join("") : '<div class="empty">곡이 없어요.</div>';
+            document.getElementById("pageBody").innerHTML = `
+    <button id="backBtn">← 뒤로</button>
+    <h2>${esc(title)}</h2>
+    <div class="pmeta">${list.length}곡</div>
+    <div class="rank">${rows}</div>`;
+            bindBack();
+            document.querySelectorAll("#pageBody .row").forEach(r => r.onclick = () => showSong(r.dataset.id));
+        }
+        function bindBack() {
+            const b = document.getElementById("backBtn");
+            if (b) b.addEventListener("click", () => { if (history.length > 1) history.back(); else location.hash = ""; });
+        }
+        function router() {
+            const h = location.hash;
+            const page = document.getElementById("page");
+            let matched = false, m;
+            if ((m = h.match(/^#\/song\/(.+)$/))) {
+                const s = SONGS.find(x => x.id === decodeURIComponent(m[1]));
+                if (s) { renderSongPage(s); matched = true; }
+            } else if ((m = h.match(/^#\/unit\/(.+)$/))) {
+                const name = decodeURIComponent(m[1]);
+                renderListPage("유닛 · " + name, SONGS.filter(s => s.unit === name).sort((a, b) => b.views - a.views));
+                matched = true;
+            } else if ((m = h.match(/^#\/artist\/(.+)$/))) {
+                const name = decodeURIComponent(m[1]);
+                renderListPage("아티스트 · " + name, SONGS.filter(s => s.artistsArr.includes(name)).sort((a, b) => b.views - a.views));
+                matched = true;
+            }
+            if (matched) { page.style.display = "block"; window.scrollTo(0, 0); }
+            else { page.style.display = "none"; if (pChart) { pChart.destroy(); pChart = null; } document.getElementById("pageBody").innerHTML = ""; }
         }
 
-        function closeCard() {
-            document.getElementById("chartCard").style.display = "none";
-            document.getElementById("ytFrame").src = "";
-            activeId = null; render();
-        }
-        function goHome() {
-            document.getElementById("search").value = "";
-            document.getElementById("unitFilter").value = "";
-            document.getElementById("sortBy").value = "score";
-            switchView("rank");
-            closeCard(); window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-
-        // 명예의 전당 (100만+ 달성곡 홀로그램 카드)
-        function renderCollection() {
-            const el = document.getElementById("collection");   /* 골드 기준 s.views >= 10000000 */
-            const list = SONGS.filter(s => s.views >= 1000000).sort((a, b) => b.views - a.views);
-            document.getElementById("tabHall").textContent = `명예의 전당 (${list.length})`;
-            if (!list.length) { el.innerHTML = '<div class="empty">아직 100만 달성 곡이 없어요.</div>'; return; }
-            el.innerHTML = '<div class="holo-grid">' + list.map(s => {
-                const gold = s.views >= 10000000;
-                const mil = Math.floor(s.views / 1000000) * 100;   // 만 단위
-                const thumb = `https://img.youtube.com/vi/${s.id}/hqdefault.jpg`;
-                return `<div class="holo ${gold ? 'gold' : 'silver'}" data-id="${s.id}">
-      <div class="thumb" style="background-image:url('${thumb}')"></div>
-      <div class="holo-layer"></div>
-      <div class="glare"></div>
-      <div class="badge">${gold ? '👑 ' : ''}${mil}만</div>
-      <div class="info">
-        <div class="ct">${esc(s.title)}</div>
-        <div class="ca">${esc(s.artists)}</div>
-        <div class="cv">${s.views.toLocaleString()}회</div>
-      </div></div>`;
-            }).join('') + '</div>';
-            el.querySelectorAll('.holo').forEach(c => {
-                c.addEventListener('mousemove', onHoloMove);
-                c.addEventListener('mouseleave', () => { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
-                c.addEventListener('click', () => { const s = SONGS.find(x => x.id === c.dataset.id); if (s) showChart(s); });
-            });
-        }
-        function onHoloMove(e) {
-            const c = e.currentTarget, r = c.getBoundingClientRect();
-            const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-            c.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
-            c.style.setProperty('--my', (py * 100).toFixed(1) + '%');
-            c.style.setProperty('--rx', ((px - .5) * 18).toFixed(1) + 'deg');           /* 기울기 조절 *18 크게 할 수록 많이 기울어짐 */
-            c.style.setProperty('--ry', (-(py - .5) * 18).toFixed(1) + 'deg');          /* 기울기 조절 *18 크게 할 수록 많이 기움 */
-        }
         function switchView(v) {
             const hall = v === "hall";
             document.getElementById("collection").style.display = hall ? "block" : "none";
             document.getElementById("rank").style.display = hall ? "none" : "flex";
-            document.querySelector(".controls").style.display = hall ? "none" : "flex";
+            document.getElementById("rankControls").style.display = hall ? "none" : "flex";
+            document.getElementById("hallControls").style.display = hall ? "flex" : "none";
             document.getElementById("imminent").style.display = hall ? "none" : "block";
             document.getElementById("tabRank").classList.toggle("active", !hall);
             document.getElementById("tabHall").classList.toggle("active", hall);
         }
-        function esc(t) { return (t + "").replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+        function goHome() {
+            document.getElementById("search").value = "";
+            document.getElementById("unitFilter").value = "";
+            document.getElementById("typeFilter").value = "";
+            document.getElementById("sortBy").value = "score";
+            document.getElementById("sugRank").style.display = "none";
+            location.hash = "";
+            switchView("rank"); render();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        function setTheme(t) {
+            document.documentElement.setAttribute("data-theme", t);
+            document.getElementById("themeBtn").textContent = t === "dark" ? "🌙" : "☀️";
+            try { localStorage.setItem("theme", t); } catch (_) { }
+        }
 
-        document.getElementById("closeBtn").addEventListener("click", closeCard);
+        function wireClear(inputId) {
+            const input = document.getElementById(inputId);
+            const btn = document.querySelector(`.clearBtn[data-target="${inputId}"]`);
+            const sync = () => { btn.style.display = input.value ? "block" : "none"; };
+            input.addEventListener("input", sync);
+            btn.addEventListener("click", () => { input.value = ""; sync(); input.dispatchEvent(new Event("input")); input.focus(); });
+            sync();
+        }
+        function attachSuggest(inputId, boxId) {
+            const input = document.getElementById(inputId), box = document.getElementById(boxId);
+            const onlyHall = inputId === "hallSearch";
+            const render = () => {
+                const q = input.value.trim().toLowerCase();
+                if (!q) { box.style.display = "none"; box.innerHTML = ""; return; }
+                let pool = onlyHall ? SONGS.filter(s => s.views >= 1000000) : SONGS;
+                const hits = pool.filter(s => s.search.includes(q)).slice(0, 8);
+                if (!hits.length) { box.style.display = "none"; return; }
+                box.innerHTML = hits.map(s => `<div class="sug" data-id="${s.id}"><span style="color:var(--text)">${esc(s.title)}</span><span>${esc(s.artists)}</span></div>`).join("");
+                box.style.display = "block";
+                box.querySelectorAll(".sug").forEach(n => n.addEventListener("mousedown", e => { e.preventDefault(); showSong(n.dataset.id); box.style.display = "none"; }));
+            };
+            input.addEventListener("input", render);
+            input.addEventListener("focus", render);
+            input.addEventListener("blur", () => setTimeout(() => box.style.display = "none", 160));
+        }
+
         document.getElementById("homeBtn").addEventListener("click", goHome);
         document.getElementById("tabRank").addEventListener("click", () => switchView("rank"));
         document.getElementById("tabHall").addEventListener("click", () => switchView("hall"));
-        ["search", "unitFilter", "sortBy"].forEach(id =>
-            document.getElementById(id).addEventListener("input", render));
+        document.getElementById("themeBtn").addEventListener("click", () =>
+            setTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark"));
+
+        ["search", "unitFilter", "typeFilter", "sortBy"].forEach(id => {
+            const e = document.getElementById(id);
+            e.addEventListener("input", render); e.addEventListener("change", render);
+        });
+        ["hallSearch", "hallType", "hallSort", "hallLayout", "hallCols"].forEach(id => {
+            const e = document.getElementById(id);
+            e.addEventListener("input", renderCollection); e.addEventListener("change", renderCollection);
+        });
+        document.getElementById("hallLayout").addEventListener("change", () => {
+            document.getElementById("hallCols").style.display =
+                document.getElementById("hallLayout").value === "album" ? "block" : "none";
+        });
+        wireClear("search"); wireClear("hallSearch");
+        attachSuggest("search", "sugRank"); attachSuggest("hallSearch", "sugHall");
+        window.addEventListener("hashchange", router);
+
+        (function () {
+            let t = null;
+            try { t = localStorage.getItem("theme"); } catch (_) { }
+            if (!t) t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+            setTheme(t);
+        })();
+
         load();
     </script>
 </body>
