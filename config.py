@@ -1,80 +1,89 @@
-# 조회수 알림 단위
+import os
+
+# ============================================================
+#  STELLIVE 성장 대시보드 · 설정
+# ============================================================
+
+# ── 조회수 알림 단위 ──
 # 50000 = 5만 조회수마다 알림
 VIEW_STEP = 50000
 
-
-
-# 한 번 실행에서 허용할 플리 추가+삭제 총 횟수 (쿼터 보호)
-MAX_PLAYLIST_OPS_PER_RUN = 60
-
-GROWTH_PLAYLIST_ID = "PLQ45s5Ix3Lmk"
-
-
-# 성장 플리 자동 갱신 켜기/끄기
-SYNC_GROWTH_PLAYLIST = True
-
-# 특별 카드(100만/1000만 세로 HTML 카드) on/off. 끄면 평상시 가로 카드로 나옴.
-SPECIAL_CARD_ENABLED = False
-
-# TOP에 없는 영상을 플리에서 제거할지
-# True  = 플리를 TOP 목록과 똑같이 맞춤 (없는 건 삭제) ← 진짜 "최신화"
-# False = 추가만 하고 기존 영상은 절대 안 지움 (처음 테스트용으로 안전)
-GROWTH_PLAYLIST_REMOVE_MISSING = True
-
-
-# 성장 플리 회전: 하위 N곡은 주기적으로 교체(신선함), 나머지는 고정(안정)
-PLAYLIST_ROTATE_COUNT = 10              # 매 주기 교체할 곡 수
-PLAYLIST_ROTATE_HOURS = 1               # 회전 주기(시간). 이 시간마다 교체 셋이 바뀜
-MAX_GROWTH_PLAYLIST_VIDEOS = 30         # 성장 가능성 플리에 넣을 최대 영상 수
-MAX_PLAYLIST_OPS_PER_RUN = 20           # 10곡 = 삭제10+추가10. 이게 시간당 쓰기 상한
-
-# 신곡 자동핀: 감지된 신곡을 성장 플리에 자동 등록해두는 기간(일). 0이면 기능 끔.
-AUTO_PIN_NEW_SONG_DAYS = 10
-
-# 성장 점수 부스트 — 지정한 곡/아티스트를 플리에 더 자주 나오게.
-#   type : "artist"(아티스트 이름) 또는 "song"(video_id 또는 URL)
-#   target : 아티스트 이름 / video_id / 유튜브 URL
-#   pct : 부스트 비율
-#   until : BOOST_DEFAULT_DAYS 설정말고 직접 부스트 기간 설정
-GROWTH_BOOST = [
-    # {"type": "song", "target": "https://youtu.be/rQaluJS-Tc0", "pct": 50},  # URL 가능
-    # {"type": "song", "target": "rQaluJS-Tc0", "pct": 50},                   # ID도 가능
+# ── 특별 알림 마일스톤 ──
+MILESTONES = [
+    100000,     # 10만
+    500000,     # 50만
+    1000000,    # 100만
+    5000000,    # 500만
+    10000000,   # 1000만
 ]
-BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
 
-# 플리에서 마일스톤 달성한 곡을 자동으로 제외하는 기간 설정
-ACHIEVED_COOLDOWN_HOURS = 12   # 마일스톤 달성 후 이 시간 동안 플리에서 제외
 
-# 곧 조회수 달성할 곡 알림 설정
-IMMINENT_HOURS = 6          # 다음 목표까지 이 시간 이내면 대상
-IMMINENT_PING_HOURS = 3     # 이 시간마다 새 알림 (3이면 3시간마다)
 
+# ── 성장 플리: 기본 ──
+GROWTH_PLAYLIST_ID = os.environ.get("GROWTH_PLAYLIST_ID", "")
+SYNC_GROWTH_PLAYLIST = True            # 성장 플리 자동 갱신 켜기/끄기
+# True = 플리를 TOP 목록과 똑같이 맞춤(없는 건 삭제) / False = 추가만 하고 안 지움
+GROWTH_PLAYLIST_REMOVE_MISSING = True
+MAX_GROWTH_PLAYLIST_VIDEOS = 30        # 성장 플리에 넣을 최대 영상 수
+# 한 번 실행에서 허용할 플리 추가+삭제 총 횟수 (쿼터 보호)
+MAX_PLAYLIST_OPS_PER_RUN = 40         
 # 성장 플리에 항상 넣을 개인 선곡 (URL 또는 ID)
 GROWTH_PLAYLIST_PINNED = [
     # "https://www.youtube.com/watch?v=xxxx",
 ]
 
-# D-Day 알림 설정
+
+
+# ── 성장 플리: 선곡/회전(매시간 믹스) ──
+LOCK_HOURS      = 6        # eta 이 시간 이내면 '코앞' → 달성까지 고정(쿨다운 무시)
+SWAP_PER_HOUR   = 16       # 매시간 갈아끼울 곡 수
+ADD_RISING      = 4        # 교체분 중 급상승
+ADD_GEMS        = 7        # 교체분 중 묻힌 보석
+ADD_RANDOM      = 5        # 교체분 중 가중 랜덤  (4+7+5 = 16)
+GEM_VIEW_MAX    = 500000   # 이 미만이면 '묻힌 곡'
+FRESH_MIN_HOURS = 6        # 방금 뺀 곡 재진입 억제(flip-flop 방지)
+FOCUS_UNIT      = None     # 예: "에버리스" 로 켜면 그 유닛을 얹어줌(평소 None)
+FOCUS_BONUS     = 2.0
+# (구버전 회전 — 현재 선곡 로직에선 미사용)
+PLAYLIST_ROTATE_COUNT = 10             # 매 주기 교체할 곡 수
+PLAYLIST_ROTATE_HOURS = 1              # 회전 주기(시간)
+
+
+
+# ── 자동핀 / 부스트 / 달성 쿨다운 ──
+# 신곡 자동핀: 감지된 신곡을 성장 플리에 자동 등록해두는 기간(일). 0이면 끔.
+AUTO_PIN_NEW_SONG_DAYS = 10
+# 성장 점수 부스트 — 지정 곡/아티스트를 플리에 더 자주.
+#   type: "artist"(이름) 또는 "song"(video_id/URL) / target / pct / until(선택)
+GROWTH_BOOST = [
+    # {"type": "song", "target": "https://youtu.be/rQaluJS-Tc0", "pct": 50},  # URL 가능
+    # {"type": "song", "target": "rQaluJS-Tc0", "pct": 50},                   # ID도 가능
+]
+BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
+# 마일스톤 달성한 곡을 플리에서 자동 제외하는 기간
+ACHIEVED_COOLDOWN_HOURS = 12
+
+
+
+# ── 알림: 곧 달성 / D-Day / 떡상 ──
+# 곧 조회수 달성 알림
+IMMINENT_HOURS = 3          # 다음 목표까지 이 시간 이내면 대상
+IMMINENT_PING_HOURS = 3     # 이 시간마다 새 알림 (3이면 3시간마다)
+# D-Day 알림
 DDAY_THRESHOLD_DAYS = 10    # 다음 목표까지 이 일수 이내면 '곧 달성'
-DDAY_ALERT_HOUR = 21       # 매일 이 시각(KST) 이후 첫 실행에 1회
-DDAY_MAJOR_STEP = 1_000_000   # 100만 단위 목표만
-IMMINENT_HOURS = 3   # 다음 목표까지 이 시간 이내면 즉시 알림
-
-# 떡상 알림 설정
-SPIKE_MULT = 2.5        # 최근 속도가 평소의 이 배 이상이면 떡상
-SPIKE_MIN_DAILY = 1500  # 하루 최소 이만큼은 늘어야 떡상 (노이즈 컷)
+DDAY_ALERT_HOUR = 21        # 매일 이 시각(KST) 이후 첫 실행에 1회
+DDAY_MAJOR_STEP = 1_000_000 # 100만 단위 목표만
+# 떡상 알림
+SPIKE_MULT = 2.5            # 최근 속도가 평소의 이 배 이상이면 떡상
+SPIKE_MIN_DAILY = 1500      # 하루 최소 이만큼은 늘어야 떡상(노이즈 컷)
 
 
 
-# 카드 상단 ORIGINAL / COVER 배지 표시 여부
-SHOW_SONG_TYPE_BADGE = False
-
-
-# ── 아티스트별 대표 색 (원하는 것만 채우기, 비우면 자동 추출) ──
-USE_ARTIST_COLOR = True
-
-
-# ── 특별 축하 카드 (마일스톤값: 스타일). 500만 추가하려면 5000000 항목만 추가 ──
+# ── 카드 / 표시 ──
+SPECIAL_CARD_ENABLED = False   # 특별 카드(100만/1000만 세로 HTML) on/off
+SHOW_SONG_TYPE_BADGE = False   # 카드 상단 ORIGINAL/COVER 배지 표시
+USE_ARTIST_COLOR = True        # 아티스트별 대표 색(비우면 자동 추출)
+# 특별 축하 카드 (마일스톤값: 스타일)
 SPECIAL_MILESTONES = {
     1000000: {                    # 100만
         "tagline": "100만 축하해",
@@ -92,6 +101,7 @@ SPECIAL_MILESTONES = {
 
 
 
+# ── 영상 판별 / 제외 ──
 # 음악 영상으로 판단할 제목 키워드
 MUSIC_KEYWORDS = [
     "MV",
@@ -105,7 +115,6 @@ MUSIC_KEYWORDS = [
     "Playlist",
     "Live"
 ]
-
 EXCLUDE_KEYWORDS = [
     "shorts",
     "#shorts",
@@ -117,21 +126,20 @@ EXCLUDE_KEYWORDS = [
     "생일",
     "데뷔"
 ]
-
-
-# 특별 알림 기준
-MILESTONES = [
-    100000,     # 10만
-    500000,     # 50만
-    1000000,    # 100만
-    5000000,    # 500만
-    10000000,   # 1000만
+STELLIVE_EXCLUDED_ARTIST_ALIASES = [
+    "아이리 칸나",
+    "Airi Kanna",
+    "AIRIKANNA",
+    "藍璃かんな",
+]
+# 아예 제외할 개별 영상 (URL 또는 ID) — 제목/채널로 안 걸러지는 것들
+EXCLUDED_VIDEO_IDS = [
+    # "https://www.youtube.com/watch?v=xxxxxxxxxxx",  # 아이리 칸나 커버 A
 ]
 
 
 
-# 조회수 달성 축하 메시지 템플릿
-
+# ── 조회수 달성 축하 메시지 템플릿 ──
 MILESTONE_TEMPLATE = """
 {keyword}
 
@@ -142,40 +150,16 @@ MILESTONE_TEMPLATE = """
 Full : {url}
 """
 
-
-STELLIVE_EXCLUDED_ARTIST_ALIASES = [
-    "아이리 칸나",
-    "Airi Kanna",
-    "AIRIKANNA",
-    "藍璃かんな",
-]
-
-# 아예 제외할 개별 영상 (URL 또는 ID) — 제목/채널로 안 걸러지는 것들
-EXCLUDED_VIDEO_IDS = [
-    # "https://www.youtube.com/watch?v=xxxxxxxxxxx",  # 아이리 칸나 커버 A
-]
-
-
-
-
-
-
-
-# 텔레그램 봇 유닛 버튼 설정
-
+# ── 텔레그램 봇 UI ──
 UNIT_BUTTONS = {
     "🌸 에버리스": "에버리스",
     "☁️ 유니버스": "유니버스",
     "✨ 클리셰": "클리셰"
 }
-
-
 BOT_TITLE = "✨ 스텔라이브 봇입니다!"
-
 BOT_SELECT_UNIT_TEXT = (
     "유닛을 선택하세요."
 )
-
 BOT_SELECT_MEMBER_TEXT = (
     "멤버를 선택하세요."
 )

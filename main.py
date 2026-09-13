@@ -282,7 +282,16 @@ from config import (
     UNITS,
     ACHIEVED_COOLDOWN_HOURS,
     IMMINENT_HOURS,
-    IMMINENT_PING_HOURS
+    IMMINENT_PING_HOURS,
+    LOCK_HOURS,
+    SWAP_PER_HOUR,
+    ADD_RISING,
+    ADD_GEMS,
+    ADD_RANDOM,
+    GEM_VIEW_MAX,
+    FRESH_MIN_HOURS,
+    FOCUS_UNIT,
+    FOCUS_BONUS
 )
 
 from card import make_milestone_card
