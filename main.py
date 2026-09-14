@@ -1,3 +1,15 @@
+# =====================================================================
+# main.py — STELLIVE 조회수 알림 봇 (실행 진입점)
+# ---------------------------------------------------------------------
+# 흐름: 플리 수집 → 조회수 조회 → 성장 분석 → 마일스톤 알림(카드) →
+#       성장 플리 자동 동기화 → 주간/일일/임박/떡상 알림
+#
+# ⚙️ 내가 바꿀 값은 거의 다 config.py에 있음
+#    (마일스톤 단위, 플리 곡수·교체수, 부스트, 유닛/멤버 등).
+#    이 파일에서 직접 만지는 소수의 값은 아래 [설정] 주석으로 표시.
+# =====================================================================
+
+from copy import error
 import dataclasses
 import os
 import json
@@ -6,12 +18,18 @@ import re
 import time
 import random
 import hashlib
+import time 
 
 from datetime import datetime, timezone, timedelta, date
 from render_card import make_special_card
 from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
+from cafe import post_to_cafe
+from config import (CAFE_POST_ENABLED, CAFE_DRY_RUN, CAFE_MIN_MILESTONE,
+                    CAFE_ATTACH_IMAGE, CAFE_SUBJECT_TEMPLATE, CAFE_CONTENT_TEMPLATE,
+                    cafe_headid_for)
+from config import CAFE_HEADID, CAFE_HEADID_DEFAULT
 
 
 
@@ -22,14 +40,6 @@ class QuotaExceededError(Exception):
 class OAuthTokenError(RuntimeError):
     """OAuth access token을 refresh token으로 갱신하지 못했을 때 발생."""
     pass
-
-
-def main():
-    global _current_key_index, _current_oauth_index
-    _current_key_index, _current_oauth_index = load_start_indices()
-    ...
-
-
 
 load_dotenv()
 
@@ -43,23 +53,15 @@ def now_kst():
 BOT_STATE_FILE = "bot_state.json"
 
 def _pt_quota_date():
+    """태평양 기준 오늘 날짜 (YouTube 할당량 리셋 경계)."""
     try:
         from zoneinfo import ZoneInfo
         return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
     except Exception:
         return (datetime.now(timezone.utc) - timedelta(hours=8)).strftime("%Y-%m-%d")
 
-def next_quota_reset_kst():
-    try:
-        from zoneinfo import ZoneInfo
-        nxt = (datetime.now(ZoneInfo("America/Los_Angeles")) + timedelta(days=1)).replace(
-            hour=0, minute=0, second=0, microsecond=0)
-        return nxt.astimezone(KST)
-    except Exception:
-        return (datetime.now(timezone.utc) + timedelta(days=1)).replace(
-            hour=8, minute=0, second=0, microsecond=0).astimezone(KST)
-
 def _load_state():
+
     try:
         with open(BOT_STATE_FILE, encoding="utf-8") as f:
             return json.load(f)
@@ -249,6 +251,81 @@ def next_quota_reset_kst():
         return nxt.astimezone(KST)
 
 
+
+def cafe_headid_for(effective_artists, unit=None):
+    """곡에 맞는 말머리 headid. 솔로→멤버, 유닛곡→유닛, 그 외→스텔라이브."""
+    arts = list(effective_artists or [])
+    names = set(CAFE_HEADID.keys())
+
+    def match_one(a):
+        cand = {a}
+        info = get_artist_info(a)
+        cand.add(info.get("display", ""))
+        cand.add(info.get("nickname", ""))
+        cand.update(info.get("aliases", []))
+        hit = cand & names
+        return CAFE_HEADID[next(iter(hit))] if hit else None
+
+    if len(arts) == 1:               # 솔로곡 → 그 멤버 말머리
+        h = match_one(arts[0])
+        if h:
+            return h
+    if unit and unit in CAFE_HEADID:  # 유닛/콜라보 → 유닛 말머리
+        return CAFE_HEADID[unit]
+    return CAFE_HEADID_DEFAULT         # 못 찾으면 스텔라이브
+
+
+def _cafe_status(video_id, milestone):
+    return (_load_state().get("cafe_posted", {})
+            .get(f"{video_id}:{milestone}", {}).get("status"))
+
+def _set_cafe_status(video_id, milestone, status, article_id=None):
+    st = _load_state()
+    posted = st.get("cafe_posted", {})
+    posted[f"{video_id}:{milestone}"] = {"status": status, "at": now_kst(), "article": article_id}
+    _save_state(cafe_posted=posted)
+
+def maybe_post_cafe(alert, effective_artists):
+    """마일스톤 알림에 곁들여 카페 자동 축하글. 실패해도 절대 예외 안 냄."""
+    try:
+        if not CAFE_POST_ENABLED:
+            return
+        vid, m = alert["video_id"], alert.get("milestone", 0)
+        if m < CAFE_MIN_MILESTONE:
+            return
+        # 이미 올렸거나 전송 중이면 재시도 금지 (중복 원천 차단)
+        if _cafe_status(vid, m) in ("pending", "done"):
+            return
+
+        subject = CAFE_SUBJECT_TEMPLATE.format(
+            artist=alert["artist"], title=alert["title"], views=alert["views_text"])
+        content = CAFE_CONTENT_TEMPLATE.format(
+            artist=alert["artist"], title=alert["title"],
+            views=alert["views_text"], video_id=vid)
+        headid = cafe_headid_for(effective_artists, unit=resolve_unit(effective_artists))
+        img = f"/tmp/card_{vid}.jpg" if CAFE_ATTACH_IMAGE else None
+
+        if not CAFE_DRY_RUN:
+            _set_cafe_status(vid, m, "pending")   # 낙관적 잠금 (전송 중 표시)
+        res = post_to_cafe(subject, content, headid=headid, image_path=img, dry_run=CAFE_DRY_RUN)
+        oc = res.get("outcome")
+
+        if oc == "dry":
+            send_telegram(f"🧪 [카페 미리보기] {alert['artist']} · {alert['views_text']} · {alert['title']}\n(실제 전송 안 함)")
+        elif oc == "ok":
+            _set_cafe_status(vid, m, "done", res.get("articleId"))
+            send_telegram(f"📮 카페 축하글 등록 완료 — {alert['artist']} {alert['views_text']} ({alert['title']})")
+        elif oc == "failed":
+            _set_cafe_status(vid, m, "failed")     # 확실히 실패 → 다음 실행 재시도
+            send_telegram(f"⚠️ 카페 축하글 등록 실패(다음 실행 재시도) — {alert['title']}")
+        else:  # unknown — 결과 불명, 재시도 금지
+            send_telegram(f"❓ 카페 축하글 결과 불명 — 카페에 올라갔는지 직접 확인해줘 ({alert['title']})")
+    except Exception as e:
+        print(f"⚠️ maybe_post_cafe 예외(무시): {e}")
+
+
+
+
 from config import (
     VIEW_STEP,
     MILESTONES,
@@ -279,10 +356,8 @@ from config import (
     SPIKE_MULT,
     SPIKE_MIN_DAILY,
     DDAY_MAJOR_STEP,
-    UNITS,
     ACHIEVED_COOLDOWN_HOURS,
-    IMMINENT_HOURS,
-    IMMINENT_PING_HOURS,
+    IMMINENT_PING_HOURS,    
     LOCK_HOURS,
     SWAP_PER_HOUR,
     ADD_RISING,
@@ -330,37 +405,6 @@ for _sfx in ("", "_2", "_3"):
     if _cid and _csec and _rtok:
         YOUTUBE_OAUTH.append({"client_id": _cid, "client_secret": _csec, "refresh_token": _rtok})
 _current_oauth_index = 0
-
-
-KEY_STATE_FILE = "key_state.json"
-
-def _pt_quota_date():
-    """태평양 기준 오늘 날짜 (할당량 리셋 경계)."""
-    try:
-        from zoneinfo import ZoneInfo
-        return datetime.now(ZoneInfo("America/Los_Angeles")).strftime("%Y-%m-%d")
-    except Exception:
-        return (datetime.now(timezone.utc) - timedelta(hours=8)).strftime("%Y-%m-%d")
-
-def load_start_key_index():
-    """오늘(PT) 소진돼서 넘어간 키 번호를 불러옴. 날짜 바뀌면 0부터."""
-    try:
-        with open(KEY_STATE_FILE, "r", encoding="utf-8") as f:
-            state = json.load(f)
-        if state.get("pt_date") == _pt_quota_date():
-            idx = int(state.get("start_key_index", 0))
-            return max(0, min(idx, len(YOUTUBE_API_KEYS) - 1))
-    except Exception:
-        pass
-    return 0
-
-def save_start_key_index(idx):
-    try:
-        with open(KEY_STATE_FILE, "w", encoding="utf-8") as f:
-            json.dump({"pt_date": _pt_quota_date(), "start_key_index": idx},
-                      f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        print(f"⚠️ key_state 저장 실패: {e}")
 
 def maybe_send_dday_digest(data):
     """다가오는 큰 목표(100만 단위) 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
@@ -522,9 +566,6 @@ def resolve_unit(artists):
 DATA_FILE = "views.json"
 TITLE_FILE = "titles.json"
 SNAPSHOTS_FILE = "snapshots.json"
-
-HISTORY_LIMIT = 30
-
 
 def load_data():
     try:
@@ -1190,6 +1231,29 @@ def get_excluded_video_ids():
     return result
 
 
+
+def youtube_get_retry(url, params, label="", tries=3, delay=2):
+    """youtube_get에 404/일시오류 재시도를 덧입힘. 쿼터 오류는 그대로 위로 던짐."""
+    last = None
+    for attempt in range(1, tries + 1):
+        try:
+            return youtube_get(url, params, label)
+        except QuotaExceededError:
+            raise  # 쿼터는 재시도 X (키 전환은 youtube_get이 처리)
+        except Exception as e:
+            resp = getattr(e, "response", None)
+            status = getattr(resp, "status_code", None)
+            msg = str(e)
+            is_404 = status == 404 or "404" in msg
+            is_5xx = (status is not None and 500 <= status < 600) or "Server Error" in msg
+            if not (is_404 or is_5xx):
+                raise  # 그 외 오류는 즉시 실패 (기존 except가 경고+continue)
+            last = e
+            if attempt < tries:
+                print(f"⚠️ {label} 재시도 {attempt}/{tries - 1} (HTTP {status}): {e}")
+                time.sleep(delay)
+    raise last
+
 def get_playlist_videos():
 
     excluded_ids = get_excluded_video_ids()
@@ -1233,7 +1297,7 @@ def get_playlist_videos():
                         if next_page:
                             params["pageToken"] = next_page
 
-                        data = youtube_get(
+                        data = youtube_get_retry(
                             "https://www.googleapis.com/youtube/v3/playlistItems",
                             params,
                             f"개인 재생목록 조회: {playlist_id}"
@@ -1305,7 +1369,7 @@ def get_playlist_videos():
                     if next_page:
                         params["pageToken"] = next_page
 
-                    data = youtube_get(
+                    data = youtube_get_retry(
                         "https://www.googleapis.com/youtube/v3/playlistItems",
                         params,
                         f"스텔라이브 재생목록 조회: {playlist_id}"
@@ -1398,7 +1462,7 @@ def get_playlist_videos():
     print(f"📁 확인 플레이리스트: {checked_playlists}개")
     print(f"⚠️ 오류 플레이리스트: {error_playlists}개")
 
-    return videos, checked_playlists, checked_units, checked_artists
+    return videos, checked_playlists, checked_units, checked_artists, error_playlists
 
 
 # =========================
@@ -1663,6 +1727,7 @@ def check_milestone(
 # 성장 가능성 높은 영상 선정
 # ======================
 
+
 def get_top_growth_videos(data, limit=None):
     if limit is None:
         limit = MAX_GROWTH_PLAYLIST_VIDEOS
@@ -1673,7 +1738,6 @@ def get_top_growth_videos(data, limit=None):
             continue
         if "growth" not in info:
             continue
-
         override = normalize_artists(info.get("artists_override"))
         if override:
             artists = override
@@ -1681,53 +1745,107 @@ def get_top_growth_videos(data, limit=None):
             raw = info.get("artists", [])
             raw = raw if isinstance(raw, list) else []
             artists = sort_artists_by_config_order(list(dict.fromkeys(raw)))
-
         candidates.append({
-            "video_id": video_id,
-            "title": info.get("title", ""),
-            "artists": artists,
-            "unit": info.get("unit", ""),
-            "views": info.get("views", 0),
-            "score": info.get("growth_score", 0),
-            "eta_days": info["growth"].get("eta_days")
+            "video_id": video_id, "title": info.get("title", ""),
+            "artists": artists, "unit": info.get("unit", ""),
+            "views": info.get("views", 0), "score": info.get("growth_score", 0),
+            "eta_days": info["growth"].get("eta_days"),
         })
 
-    cur_block = datetime.now(KST).timetuple().tm_yday * 24 + datetime.now(KST).hour
-    achieved = _load_state().get("achieved_until", {})
+    now = datetime.now(KST)
+    slot = now.toordinal() * 24 + now.hour
+    cur_block = now.timetuple().tm_yday * 24 + now.hour
+    state = _load_state()
+    achieved = state.get("achieved_until", {})
     candidates = [c for c in candidates if achieved.get(c["video_id"], 0) <= cur_block]
 
+    by_id      = {c["video_id"]: c for c in candidates}
+    entered    = state.get("pl_entered", {})     # {vid: 들어온 slot}
+    last_seen  = state.get("pl_last_seen", {})    # {vid: 마지막으로 있던 slot}
+    rng = random.Random(slot)                     # 시간 시드(매시간 다르게, 하루종일은 고정)
 
-    # 점수 5점 버킷 정렬 → 미세 출렁임으로 코어가 매시간 뒤집히는 것 방지.
-    # 같은 버킷에선 조회수 낮은(묻힌) 곡 우선.
-    candidates.sort(key=lambda x: (round(x["score"] / 5), -x["views"]), reverse=True)
+    def gap(vid):
+        ls = last_seen.get(vid)
+        return (slot - ls) if ls is not None else 9999
+    def fresh(vid):
+        return min(gap(vid), 24 * 7) / (24 * 7)   # 0(방금)~1(오래 안 나옴)
+    def focus(c):
+        return FOCUS_BONUS if (FOCUS_UNIT and c["unit"] == FOCUS_UNIT) else 1.0
 
-    rotate_n = min(PLAYLIST_ROTATE_COUNT, limit)
-    core_n = limit - rotate_n
-    core = candidates[:core_n]                          # 상위 = 고정(안정)
+    scored = [c for c in candidates if c["score"] > 0]
 
-    # 회전 풀: 코어 바로 아래 구간의 '점수 있는' 곡들 (묻힌 곡)     # 120 -> 240으로 늘리면 묻힌 곡 더 잘 잡힘
-    pool = [c for c in candidates[core_n:core_n + 150] if c["score"] > 0]
+    # ── 코앞(락): eta ≤ LOCK_HOURS → 무조건 포함(쿨다운 무시) ──
+    def imminent(c):
+        e = c["eta_days"]
+        return (e is not None) and (e >= 0) and (e * 24 <= LOCK_HOURS)
+    locked = sorted([c for c in candidates if imminent(c)],
+                    key=lambda c: c["eta_days"])
+    if len(locked) > limit:
+        locked = locked[:limit]
+    locked_ids = {c["video_id"] for c in locked}
 
-    # 회전: 풀을 '하루 단위'로 한 번만 섞어 순서 고정 → 창(window)을 시간마다 뒤로 밀며 꺼냄.
-    # 한 번 빠진 곡은 풀을 한 바퀴 돌기 전엔 다시 안 나옴 → 삭제→즉시 재추가(flip-flop) 방지.
-    now = datetime.now(KST)
-    if pool and rotate_n > 0:
-        day = now.timetuple().tm_yday
-        # ★ 핵심: 풀 구성/점수가 바뀌어도 각 곡 순서가 고정되게 video_id 해시로 정렬
-        #    (기존 random.shuffle은 매시간 다른 입력순서에 섞여서 flip-flop 유발)
-        pool.sort(key=lambda c: hashlib.md5(f"{day}:{c['video_id']}".encode()).hexdigest())
-        block = (day * 24 + now.hour) // max(1, PLAYLIST_ROTATE_HOURS)
-        offset = (block * rotate_n) % len(pool)
-        take = min(rotate_n, len(pool))
-        rotating = [pool[(offset + i) % len(pool)] for i in range(take)]
-    else:
-        rotating = []
+    # ── 잔류: 이전 플리에서 오래 머문 곡부터 SWAP_PER_HOUR개 제거 ──
+    prev = [v for v in state.get("playlist_ids", []) if v in by_id]
+    prev_nonlocked = [v for v in prev if v not in locked_ids]
+    drop = set(sorted(prev_nonlocked, key=lambda v: entered.get(v, 0))[:SWAP_PER_HOUR])
+    kept = list(locked_ids) + [v for v in prev_nonlocked if v not in drop]
+    kept = kept[:limit]
+    taken = set(kept)
 
+    need = max(0, limit - len(kept))
+    base = ADD_RISING + ADD_GEMS + ADD_RANDOM
+    n_rising = round(need * ADD_RISING / base)
+    n_gems   = round(need * ADD_GEMS / base)
+    n_random = max(0, need - n_rising - n_gems)
 
-    result = core + rotating
-    # 코어·로테이션 골고루 블렌드 (하루 단위 고정 순서 → 매시간 안 흔들림)
-    random.Random(now.timetuple().tm_yday).shuffle(result)
-    return result[:limit]
+    def eligible(pool, relax=False):
+        return [c for c in pool
+                if c["video_id"] not in taken
+                and (relax or gap(c["video_id"]) >= FRESH_MIN_HOURS)]
+
+    def weighted_pick(pool, k, wfn):
+        items = list(pool); picked = []
+        for _ in range(min(k, len(items))):
+            weights = [max(1e-6, wfn(c)) for c in items]
+            total = sum(weights); r = rng.random() * total; acc = 0; idx = 0
+            for i, w in enumerate(weights):
+                acc += w
+                if r <= acc:
+                    idx = i; break
+            c = items.pop(idx); picked.append(c); taken.add(c["video_id"])
+        return picked
+
+    w_rising = lambda c: c["score"] * (0.4 + 0.6*fresh(c["video_id"])) * focus(c)
+    w_gems   = lambda c: (0.4 + 0.6*fresh(c["video_id"])) \
+                         * (1.0 + max(0, GEM_VIEW_MAX - c["views"]) / GEM_VIEW_MAX) * focus(c)
+    w_random = lambda c: (0.5 + 0.5*fresh(c["video_id"])) * (0.5 + c["score"]/100) * focus(c)
+
+    adds  = weighted_pick(eligible(scored), n_rising, w_rising)
+    adds += weighted_pick(eligible([c for c in scored if c["views"] < GEM_VIEW_MAX]), n_gems, w_gems)
+    adds += weighted_pick(eligible(scored), n_random, w_random)
+
+    chosen = kept + [c["video_id"] for c in adds]
+
+    # ── 부족하면 쿨다운 완화 → 그래도 부족하면 점수순으로 채움(30곡 보장) ──
+    if len(chosen) < limit:
+        for c in weighted_pick(eligible(scored, relax=True), limit - len(chosen), w_random):
+            chosen.append(c["video_id"])
+    if len(chosen) < limit:
+        for c in sorted(candidates, key=lambda c: c["score"], reverse=True):
+            if c["video_id"] not in taken:
+                chosen.append(c["video_id"]); taken.add(c["video_id"])
+                if len(chosen) >= limit:
+                    break
+    chosen = chosen[:limit]
+
+    # ── 상태 저장 ──
+    new_entered = {v: entered.get(v, slot) for v in chosen}   # 유지곡은 원래 진입시각 보존
+    for v in chosen:
+        last_seen[v] = slot
+    _save_state(playlist_ids=chosen, pl_entered=new_entered, pl_last_seen=last_seen)
+
+    return [by_id[v] for v in chosen if v in by_id]
+
 
 
 
@@ -2156,7 +2274,7 @@ def sync_growth_playlist(top_videos, title_map=None):
 
 
         # 변경이 없어도 항상 상태 알림 전송
-        def _fmt(titles, cap=15): # 15곡까지만 보이고 있는 중
+        def _fmt(titles, cap=15):   # [설정] 텔레 알림에 나열할 곡 최대 개수
             if not titles:
                 return ""
             body = "\n".join(f"  · {t}" for t in titles[:cap])
@@ -2239,7 +2357,7 @@ def main():
 
     checked_videos = 0
 
-    videos, checked_playlists, checked_units, checked_artists = get_playlist_videos()
+    videos, checked_playlists, checked_units, checked_artists = get_playlist_videos(), error_playlists
 
     video_ids = [video["id"] for video in videos]
 
@@ -2398,6 +2516,8 @@ def main():
                     "card_opts": opts
                 }
             )
+            maybe_post_cafe(alert, effective_artists)
+
 
 
 
@@ -2413,7 +2533,8 @@ def main():
             "updated": now_kst()
         })
 
-        history = history[-300:] # 주간 결산용 요유 (-12일치)
+        history = history[-300:]   # [설정] 곡별 history 보관 개수 (약 -12일치, 주간 결산용)
+
 
         song_base, song_3d = classify_song(title)   # title = API 원제목 (커버/3D 키워드 살아있음)
 

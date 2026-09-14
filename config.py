@@ -150,6 +150,43 @@ MILESTONE_TEMPLATE = """
 Full : {url}
 """
 
+
+
+# ── 네이버 카페 자동 축하글 ──────────────────────────────
+CAFE_POST_ENABLED  = True        # [설정] 전체 on/off (끄면 아무것도 안 함)
+CAFE_DRY_RUN       = True        # [설정] True=미리보기만(실제 전송 X). 검증 끝나면 False로!
+CAFE_MIN_MILESTONE = 1000000     # [설정] 이 조회수 이상 마일스톤만 카페에
+CAFE_ATTACH_IMAGE  = False       # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
+
+# 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
+CAFE_SUBJECT_TEMPLATE = "{artist} - {title}, {views} 돌파"
+CAFE_CONTENT_TEMPLATE = (
+    "{artist}의 '{title}'가 {views} 조회수를 달성했습니다.\n\n"
+    "영상: https://youtu.be/{video_id}\n\n"
+    "함께 축하해 주세요."
+)
+
+CAFE_HEADID_DEFAULT   = 0        # 0 = 말머리 없음
+# 카페 말머리(headid) — 축하게시판(menuid 195) 기준
+CAFE_HEADID = {
+    "스텔라이브": 215, "에버리스": 704, "유니버스": 707, "클리셰": 712,
+    "유니": 705, "후야": 706, "히나": 708, "마시로": 709, "리제": 710,
+    "타비": 711, "시부키": 713, "린": 714, "나나": 715, "리코": 716,
+}
+CAFE_HEADID_DEFAULT = 215   # 매칭 실패 시 '스텔라이브' 말머리
+
+
+def cafe_headid_for(artists, unit=None):
+    for a in (artists or []):
+        if a in CAFE_HEADID_BY_ARTIST:
+            return CAFE_HEADID_BY_ARTIST[a]
+    if unit and unit in CAFE_HEADID_BY_UNIT:
+        return CAFE_HEADID_BY_UNIT[unit]
+    return CAFE_HEADID_DEFAULT
+
+
+
+
 # ── 텔레그램 봇 UI ──
 UNIT_BUTTONS = {
     "🌸 에버리스": "에버리스",
@@ -306,7 +343,8 @@ UNITS = {
                     "PL-DHk0WpiRNSM5oI19ImJ8sSV65mnGseX" #커버곡
                 ],
                 "videos": [
-                    "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU" #SYNC 100%
+                    "https://youtu.be/LcGrXP-xfHY?si=pTJk28JepLs_eZmU", #SYNC 100%
+                    "https://youtu.be/6Q78RPXk2es?si=M2a8dOaTeCySp65w" # 목숨
                 ]
             },
             "아라하시 타비": {
