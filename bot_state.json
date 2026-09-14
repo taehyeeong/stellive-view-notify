@@ -51,18 +51,18 @@
     "v094-E3Pmtk": 2350000
   },
   "key_index": 0,
-  "oauth_index": 0,
+  "oauth_index": 1,
   "auto_pinned": {
     "WpdA5SeBras": "2026-09-10",
     "Zetk77I6_s8": "2026-09-11",
     "blFr5w6o2jQ": "2026-09-12"
   },
-  "imminent_msg_id": 3906,
+  "imminent_msg_id": 3916,
   "imminent_prev_views": {
-    "JarYu85ctNY": 3749837,
-    "fTqvR0U0EC4": 10299137
+    "d281GlN0nWo": 2149552,
+    "xRkZVxvk55U": 2799800
   },
-  "imminent_ping_block": 6175,
+  "imminent_ping_block": 6178,
   "achieved_until": {
     "R_B4tmy2DVA": 6175,
     "yuxa6o1_scc": 6149,
@@ -103,7 +103,8 @@
     "2qEGFmXROQ4": 6182,
     "q2uHl6EJh-k": 6182,
     "209_dJOJa0Y": 6187,
-    "JarYu85ctNY": 6189
+    "JarYu85ctNY": 6189,
+    "fTqvR0U0EC4": 6190
   },
   "last_weekly_recap": "2026-09-13"
 }
