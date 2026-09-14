@@ -162,13 +162,13 @@ CAFE_MIN_MILESTONE = 50000       # [설정] 이 조회수 이상 마일스톤만
 CAFE_ATTACH_IMAGE  = True        # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
-CAFE_SUBJECT_TEMPLATE = "{title}, {views} 달성"
+CAFE_SUBJECT_TEMPLATE = "{title}, {views} !!"
 CAFE_CONTENT_TEMPLATE = (
-    "{artist}의 '{title}'가 {views} 조회수를 달성했습니다.\n\n"
+    "{artist}의 '{title}'가 \n {views} 조회수를 달성했습니다.\n\n"
     "함께 축하해 주세요.\n\n"
-    "Full : https://youtu.be/{video_id}\n"
-    "https://img.youtube.com/vi/{video_id}/maxresdefault.jpg\n"
+    '▶ <a href="https://youtu.be/{video_id}">영상 보러가기</a>'
 )
+
 
 
 CAFE_HEADID_DEFAULT   = 0        # 0 = '말머리 선택 안 함'
