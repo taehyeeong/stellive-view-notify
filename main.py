@@ -1470,6 +1470,7 @@ def get_playlist_videos():
     return videos, checked_playlists, checked_units, checked_artists, error_playlists
 
 
+
 # =========================
 # 조회수 가져오기
 # =========================
@@ -2362,7 +2363,8 @@ def main():
 
     checked_videos = 0
 
-    videos, checked_playlists, checked_units, checked_artists = get_playlist_videos(), error_playlists
+    # 받는 쪽
+    videos, checked_playlists, checked_units, checked_artists, error_playlists = get_playlist_videos()
 
     video_ids = [video["id"] for video in videos]
 
