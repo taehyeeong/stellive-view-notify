@@ -1146,6 +1146,17 @@ def _boost_multiplier(video_id, artists):
             mult *= 1.0 + b.get("pct", 0) / 100.0
     return mult
 
+def _is_recent_publish(published_iso, days):
+    """게시일이 days일 이내면 True. 게시일 모르면 False(신곡 아님으로 처리)."""
+    if not published_iso:
+        return False
+    try:
+        pub = datetime.strptime(published_iso[:10], "%Y-%m-%d").date()
+    except Exception:
+        return False
+    return (date.today() - pub).days <= days
+
+
 def refresh_boost_starts():
     """until 없는 부스트의 시작일을 bot_state에 기록/정리 (실행당 1회)."""
     today = now_kst()[:10]
@@ -1257,7 +1268,8 @@ def youtube_get_retry(url, params, label="", tries=3, delay=2):
             if attempt < tries:
                 print(f"⚠️ {label} 재시도 {attempt}/{tries - 1} (HTTP {status}): {e}")
                 time.sleep(delay)
-    raise last
+    if last is not None:
+        raise last
 
 def get_playlist_videos():
 

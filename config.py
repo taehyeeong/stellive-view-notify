@@ -53,6 +53,8 @@ PLAYLIST_ROTATE_HOURS = 1              # 회전 주기(시간)
 # ── 자동핀 / 부스트 / 달성 쿨다운 ──
 # 신곡 자동핀: 감지된 신곡을 성장 플리에 자동 등록해두는 기간(일). 0이면 끔.
 AUTO_PIN_NEW_SONG_DAYS = 10
+# 게시 N일 이내 영상만 성장 플리 자동핀
+AUTO_PIN_MAX_AGE_DAYS = 5
 # 성장 점수 부스트 — 지정 곡/아티스트를 플리에 더 자주.
 #   type: "artist"(이름) 또는 "song"(video_id/URL) / target / pct / until(선택)
 GROWTH_BOOST = [
@@ -155,7 +157,7 @@ Full : {url}
 # ── 네이버 카페 자동 축하글 ──────────────────────────────
 CAFE_POST_ENABLED  = True        # [설정] 전체 on/off (끄면 아무것도 안 함)
 CAFE_DRY_RUN       = True        # [설정] True=미리보기만(실제 전송 X). 검증 끝나면 False로!
-CAFE_MIN_MILESTONE = 1000000     # [설정] 이 조회수 이상 마일스톤만 카페에
+CAFE_MIN_MILESTONE = 10000     # [설정] 이 조회수 이상 마일스톤만 카페에
 CAFE_ATTACH_IMAGE  = False       # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
@@ -169,22 +171,22 @@ CAFE_CONTENT_TEMPLATE = (
 CAFE_HEADID_DEFAULT   = 0        # 0 = 말머리 없음
 # 카페 말머리(headid) — 축하게시판(menuid 195) 기준
 CAFE_HEADID = {
-    "스텔라이브": 215, "에버리스": 704, "유니버스": 707, "클리셰": 712,
-    "유니": 705, "후야": 706, "히나": 708, "마시로": 709, "리제": 710,
-    "타비": 711, "시부키": 713, "린": 714, "나나": 715, "리코": 716,
+    "스텔라이브": 215, 
+    "에버리스": 704, 
+    "유니버스": 707, 
+    "클리셰": 712,
+    "유니": 705, 
+    "후야": 706, 
+    "히나": 708, 
+    "마시로": 709, 
+    "리제": 710,
+    "타비": 711, 
+    "시부키": 713, 
+    "린": 714, 
+    "나나": 715, 
+    "리코": 716,
 }
 CAFE_HEADID_DEFAULT = 215   # 매칭 실패 시 '스텔라이브' 말머리
-
-
-def cafe_headid_for(artists, unit=None):
-    for a in (artists or []):
-        if a in CAFE_HEADID_BY_ARTIST:
-            return CAFE_HEADID_BY_ARTIST[a]
-    if unit and unit in CAFE_HEADID_BY_UNIT:
-        return CAFE_HEADID_BY_UNIT[unit]
-    return CAFE_HEADID_DEFAULT
-
-
 
 
 # ── 텔레그램 봇 UI ──
