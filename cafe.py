@@ -38,15 +38,16 @@ def _access_token():
 
 
 def post_to_cafe(subject, content, headid=None, image_path=None, dry_run=False):
-    if not cafe_ready():
-        print("⚠️ 카페 설정 미완 — 스킵")
-        return {"outcome": "failed", "articleId": None}
     if not subject or not content:
         print("⚠️ 제목/본문 비어있음 — 스킵")
         return {"outcome": "failed", "articleId": None}
     if dry_run:
         print(f"[DRY-RUN] 제목:{subject} | 말머리:{headid} | 본문:{content[:100]}")
         return {"outcome": "dry", "articleId": None}
+    if not cafe_ready():
+        print("⚠️ 카페 설정 미완 — 스킵")
+        return {"outcome": "failed", "articleId": None}
+
 
     # 토큰 발급 실패 = 아직 아무것도 안 올라감 → failed(재시도 가능)
     try:

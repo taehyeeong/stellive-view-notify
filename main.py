@@ -318,8 +318,13 @@ def maybe_post_cafe(alert, effective_artists):
         if oc == "dry":
             send_telegram(f"🧪 [카페 미리보기] {alert['artist']} · {alert['views_text']} · {alert['title']}\n(실제 전송 안 함)")
         elif oc == "ok":
-            _set_cafe_status(vid, m, "done", res.get("articleId"))
-            send_telegram(f"📮 카페 축하글 등록 완료 — {alert['artist']} {alert['views_text']} ({alert['title']})")
+            aid = res.get("articleId")
+            _set_cafe_status(vid, m, "done", aid)
+            link = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else ""
+            send_telegram(
+                f"📮 카페 축하글 등록 완료 — {alert['artist']} {alert['views_text']} ({alert['title']})"
+                + (f"\n{link}" if link else "")
+            )
         elif oc == "failed":
             _set_cafe_status(vid, m, "failed")     # 확실히 실패 → 다음 실행 재시도
             send_telegram(f"⚠️ 카페 축하글 등록 실패(다음 실행 재시도) — {alert['title']}")
@@ -371,7 +376,8 @@ from config import (
     GEM_VIEW_MAX,
     FRESH_MIN_HOURS,
     FOCUS_UNIT,
-    FOCUS_BONUS
+    FOCUS_BONUS,
+    CAFE_URL_NAME
 )
 
 from card import make_milestone_card
