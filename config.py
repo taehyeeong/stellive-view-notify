@@ -157,7 +157,7 @@ Full : {url}
 # ── 네이버 카페 자동 축하글 ──────────────────────────────
 CAFE_POST_ENABLED  = True        # [설정] 전체 on/off (끄면 아무것도 안 함)
 CAFE_DRY_RUN       = True        # [설정] True=미리보기만(실제 전송 X). 검증 끝나면 False로!
-CAFE_MIN_MILESTONE = 10000     # [설정] 이 조회수 이상 마일스톤만 카페에
+CAFE_MIN_MILESTONE = 100     # [설정] 이 조회수 이상 마일스톤만 카페에
 CAFE_ATTACH_IMAGE  = False       # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
