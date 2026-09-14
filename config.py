@@ -157,19 +157,21 @@ Full : {url}
 # ── 네이버 카페 자동 축하글 ──────────────────────────────
 CAFE_URL_NAME = "tteokbokk1"      # 카페 주소(cafe.naver.com/뒤 부분) — 글 링크 생성용
 CAFE_POST_ENABLED  = True         # [설정] 전체 on/off (끄면 아무것도 안 함)
-CAFE_DRY_RUN       = True         # [설정] True=미리보기만(실제 전송 X). 검증 끝나면 False로!
+CAFE_DRY_RUN       = False         # [설정] True=미리보기만(실제 전송 X). 검증 끝나면 False로!
 CAFE_MIN_MILESTONE = 100000       # [설정] 이 조회수 이상 마일스톤만 카페에 자동게시
-CAFE_ATTACH_IMAGE  = False        # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
+CAFE_ATTACH_IMAGE  = True        # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
-CAFE_SUBJECT_TEMPLATE = "{artist} - {title}, {views} 돌파"
+CAFE_SUBJECT_TEMPLATE = "{title}, {views} 달성"
 CAFE_CONTENT_TEMPLATE = (
     "{artist}의 '{title}'가 {views} 조회수를 달성했습니다.\n\n"
-    "영상: https://youtu.be/{video_id}\n\n"
-    "함께 축하해 주세요."
+    "함께 축하해 주세요.\n\n"
+    "Full : https://youtu.be/{video_id}\n"
+    "https://img.youtube.com/vi/{video_id}/maxresdefault.jpg\n"
 )
 
-CAFE_HEADID_DEFAULT   = 0        # 0 = 말머리 없음
+
+CAFE_HEADID_DEFAULT   = 0        # 0 = '말머리 선택 안 함'
 # 카페 말머리(headid) — 축하게시판(menuid 195) 기준
 CAFE_HEADID = {
     "스텔라이브": 215, 
@@ -208,7 +210,6 @@ BOT_SELECT_MEMBER_TEXT = (
 
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
-
     "스텔라이브": {
         "nickname": "얘들아 !!",
         "members": {

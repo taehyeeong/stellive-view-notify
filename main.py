@@ -36,6 +36,7 @@ from config import (
     CAFE_SUBJECT_TEMPLATE, CAFE_CONTENT_TEMPLATE,
     CAFE_HEADID, CAFE_HEADID_DEFAULT,
 )
+from card import make_milestone_card
 
 
 class QuotaExceededError(Exception):
@@ -290,15 +291,16 @@ def _set_cafe_status(video_id, milestone, status, article_id=None):
     posted[f"{video_id}:{milestone}"] = {"status": status, "at": now_kst(), "article": article_id}
     _save_state(cafe_posted=posted)
 
-def maybe_post_cafe(alert, effective_artists):
-    """마일스톤 알림에 곁들여 카페 자동 축하글. 실패해도 절대 예외 안 냄."""
+
+
+def maybe_post_cafe(alert, effective_artists, card_opts=None):
+    """마일스톤 카드와 함께 카페 자동 축하글. 실패해도 절대 예외 안 냄."""
     try:
         if not CAFE_POST_ENABLED:
             return
         vid, m = alert["video_id"], alert.get("milestone", 0)
         if m < CAFE_MIN_MILESTONE:
             return
-        # 이미 올렸거나 전송 중이면 재시도 금지 (중복 원천 차단)
         if _cafe_status(vid, m) in ("pending", "done"):
             return
 
@@ -308,10 +310,20 @@ def maybe_post_cafe(alert, effective_artists):
             artist=alert["artist"], title=alert["title"],
             views=alert["views_text"], video_id=vid)
         headid = cafe_headid_for(effective_artists, unit=resolve_unit(effective_artists))
-        img = f"/tmp/card_{vid}.jpg" if CAFE_ATTACH_IMAGE else None
+
+        # 텔레와 동일한 마일스톤 카드 생성 → 첨부
+        img = None
+        if CAFE_ATTACH_IMAGE:
+            try:
+                path = f"/tmp/cafe_card_{vid}.jpg"
+                make_milestone_card(vid, alert["title"], alert["artist"],
+                                    alert["views_text"], path, card_opts=card_opts or {})
+                img = path
+            except Exception as e:
+                print(f"⚠️ 카페 카드 생성 실패(텍스트로 진행): {e}")
 
         if not CAFE_DRY_RUN:
-            _set_cafe_status(vid, m, "pending")   # 낙관적 잠금 (전송 중 표시)
+            _set_cafe_status(vid, m, "pending")
         res = post_to_cafe(subject, content, headid=headid, image_path=img, dry_run=CAFE_DRY_RUN)
         oc = res.get("outcome")
 
@@ -323,15 +335,15 @@ def maybe_post_cafe(alert, effective_artists):
             link = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else ""
             send_telegram(
                 f"📮 카페 축하글 등록 완료 — {alert['artist']} {alert['views_text']} ({alert['title']})"
-                + (f"\n{link}" if link else "")
-            )
+                + (f"\n{link}" if link else ""))
         elif oc == "failed":
-            _set_cafe_status(vid, m, "failed")     # 확실히 실패 → 다음 실행 재시도
+            _set_cafe_status(vid, m, "failed")
             send_telegram(f"⚠️ 카페 축하글 등록 실패(다음 실행 재시도) — {alert['title']}")
-        else:  # unknown — 결과 불명, 재시도 금지
+        else:
             send_telegram(f"❓ 카페 축하글 결과 불명 — 카페에 올라갔는지 직접 확인해줘 ({alert['title']})")
     except Exception as e:
         print(f"⚠️ maybe_post_cafe 예외(무시): {e}")
+
 
 
 
@@ -2541,7 +2553,7 @@ def main():
                     "card_opts": opts
                 }
             )
-            maybe_post_cafe(alert, effective_artists)
+            maybe_post_cafe(alert, effective_artists, card_opts=opts)
 
 
 
