@@ -25,7 +25,12 @@ from render_card import make_special_card
 from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
-from cafe import post_to_cafe
+try:
+    from cafe import post_to_cafe
+except Exception as e:
+    print(f"⚠️ cafe 모듈 로드 실패 — 카페 기능 비활성화: {e}")
+    def post_to_cafe(*args, **kwargs):
+        return {"outcome": "failed", "articleId": None}
 from config import (CAFE_POST_ENABLED, CAFE_DRY_RUN, CAFE_MIN_MILESTONE,
                     CAFE_ATTACH_IMAGE, CAFE_SUBJECT_TEMPLATE, CAFE_CONTENT_TEMPLATE,
                     cafe_headid_for)
