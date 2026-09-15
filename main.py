@@ -409,8 +409,11 @@ YOUTUBE_API_KEYS = [
         os.environ.get("YOUTUBE_API_KEY", ""),
         os.environ.get("YOUTUBE_API_KEY_2", ""),
         os.environ.get("YOUTUBE_API_KEY_3", ""),
+        os.environ.get("YOUTUBE_API_KEY_4", ""),
+        os.environ.get("YOUTUBE_API_KEY_5", ""),
     ) if k.strip()
 ]
+
 if not YOUTUBE_API_KEYS:
     raise RuntimeError("YOUTUBE_API_KEY 환경변수가 없습니다.")
 YOUTUBE_API_KEY = YOUTUBE_API_KEYS[0]   # 하위호환
@@ -421,7 +424,7 @@ def current_api_key():
 
 # ===== OAuth (쓰기) — 소진 시 자동 전환 =====
 YOUTUBE_OAUTH = []
-for _sfx in ("", "_2", "_3"):
+for _sfx in ("", "_2", "_3", "_4", "_5"):
     _cid = os.environ.get(f"YOUTUBE_CLIENT_ID{_sfx}")
     _csec = os.environ.get(f"YOUTUBE_CLIENT_SECRET{_sfx}")
     _rtok = os.environ.get(f"YOUTUBE_REFRESH_TOKEN{_sfx}")

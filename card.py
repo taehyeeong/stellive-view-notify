@@ -257,8 +257,8 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
     bot_a = int(115 + bright * 80)           # 70~130 (아래 스크림)
 
     # 검정 대신 '곡의 색'으로 스크림 (왼쪽=주요색, 아래=보조색)
-    tint_left = Image.new("RGB", (W, H), _scale(dom, 0.23)) # 0.24 클 수록 밝음(색이 칙칙한 경우)
-    tint_bot = Image.new("RGB", (W, H), _scale(sub, 0.21))
+    tint_left = Image.new("RGB", (W, H), _scale(dom, 0.235)) # 0.24 클 수록 밝음(색이 칙칙한 경우)
+    tint_bot = Image.new("RGB", (W, H), _scale(sub, 0.215))
     base = Image.composite(tint_left, base, _lin_gradient((W, H), True, left_a, 0, 0.72)) # left_a 스크림 진하기(글자 안 보일 때)
     base = Image.composite(tint_bot, base, _lin_gradient((W, H), False, 0, bot_a, 0.5))
 
