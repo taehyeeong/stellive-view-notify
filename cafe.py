@@ -74,9 +74,10 @@ def post_to_cafe(subject, content, headid=None, image_path=None, dry_run=False):
         "X-Naver-Client-Secret": NAVER_CLIENT_SECRET,
     }
     files = {
-        "subject": (None, _enc(subject)),
         "subject": (None, _enc(_emoji_to_html(subject))),
+        "content": (None, _enc(_emoji_to_html(content))),
     }
+
 
     if headid is not None and str(headid) not in ("", "0"):
         files["headid"] = (None, str(headid))

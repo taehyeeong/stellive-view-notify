@@ -328,21 +328,20 @@ def enqueue_cafe(alert, effective_artists, artist_info=None):
 def _send_cafe_summary(results, remaining):
     if not results:
         return
-    n_ok   = sum(1 for s, _, _ in results if s == "ok")
-    n_fail = sum(1 for s, _, _ in results if s == "failed")
-    n_wait = len(remaining)
+    n_ok    = sum(1 for s, _, _ in results if s == "ok")
+    n_retry = len(remaining)      # 실패 + 미시도 전부 다음 실행 재시도
 
-    lines = [f"📮 카페 축하글 결과 (성공 {n_ok} / 실패 {n_fail} / 대기 {n_wait})"]
+    lines = [f"📮 카페 축하글 결과 (성공 {n_ok} / 다음 재시도 {n_retry})"]
     icon = {"ok":"✅","failed":"❌","dry":"🧪","unknown":"❓"}
     for status, item, url in results:
-        line = f"{icon.get(status,'•')} {item['artist']} - {item['title']} ({item['views_text']})"
-        if url:
+        line = f"{icon.get(status,'•')} {item['artist']} - {item['title']} ({item.get('views_text','')})"
+        if status == "ok" and url:
             line += f"\n   {url}"
         lines.append(line)
-    if n_wait:
-        lines.append(f"⏳ 다음 실행에 {n_wait}건 재시도")
+    if n_retry:
+        lines.append(f"⏳ 다음 실행에 총 {n_retry}건 재시도")
+    send_telegram("\n".join(lines))
 
-    send_telegram("\n".join(lines))   # ← 너 코드의 '텍스트 전송' 함수명으로 바꿔줘
 
 try:
     def drain_cafe_queue():
