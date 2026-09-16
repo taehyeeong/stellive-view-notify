@@ -292,28 +292,36 @@ def _set_cafe_status(video_id, milestone, status, article_id=None):
     _save_state(cafe_posted=posted)
 
 
-def enqueue_cafe(alert, effective_artists):
-    """마일스톤 달성 시 카페 대기열에 추가 (전송은 drain에서)."""
+def enqueue_cafe(alert, effective_artists, artist_info=None):
     if not CAFE_POST_ENABLED:
         return
     m = alert.get("milestone", 0)
     if m < CAFE_MIN_MILESTONE:
         return
-    vid = alert["video_id"]; key = f"{vid}:{m}"
+    vid = alert["video_id"]
+    key = f"{vid}:{m}"
     st = _load_state()
     q = st.get("cafe_queue", [])
     if key in st.get("cafe_posted", {}):
         return
     if any(it.get("key") == key for it in q):
         return
+    nickname = (artist_info or {}).get("nickname") or alert["artist"]
+    raw_mark = resolve_artist_mark(alert["artist"], effective_artists)
+    marks = [m for m in raw_mark.split(",") if m.strip()]
+    mark = random.choice(marks).strip() if marks else ""
     q.append({
-        "key": key, "vid": vid,
-        "artist": alert["artist"], "title": alert["title"],
+        "key": key, "vid": vid, "milestone": m,
+        "artist": alert["artist"],
+        "nickname": nickname,
+        "mark": mark,
+        "title": alert["title"],
         "views_text": alert["views_text"],
         "headid": cafe_headid_for(effective_artists, unit=resolve_unit(effective_artists)),
         "opts": {},
     })
     _save_state(cafe_queue=q)
+
 
 
 
@@ -373,8 +381,14 @@ def drain_cafe_queue():
         subject = CAFE_SUBJECT_TEMPLATE.format(
             title=item["title"], views=item["views_text"])
         content = CAFE_CONTENT_TEMPLATE.format(
-            artist=item["artist"], title=item["title"],
-            views=item["views_text"], video_id=item["vid"])
+            nickname=item.get("nickname", item["artist"]),  
+            mark=item.get("mark", ""),   
+            artist=item["artist"],
+            title=item["title"],
+            views=item["views_text"],
+            video_id=item["vid"],
+        )
+
 
         img_path = None
         if CAFE_ATTACH_IMAGE:
@@ -2620,7 +2634,7 @@ def main():
                     "card_opts": opts
                 }
             )
-            enqueue_cafe(alert, effective_artists)
+            enqueue_cafe(alert, effective_artists, artist_info)
 
 
 

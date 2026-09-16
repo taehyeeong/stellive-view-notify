@@ -166,10 +166,10 @@ CAFE_TIME_BUDGET = 250           # [설정] 한 실행 카페 등록 최대 시�
 
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
-CAFE_SUBJECT_TEMPLATE = "{title}, {views} !!"
+CAFE_SUBJECT_TEMPLATE = "{mark} {title}, {views} ‼️"
 CAFE_CONTENT_TEMPLATE = (
-    "{artist}의 '{title}'가 \n {views} 조회수를 달성했습니다.\n\n"
-    "함께 축하해 주세요.\n\n"
+    "{nickname}, {title} {views} 축하해 🥳 !!\n\n"
+
     '▶ <a href="https://youtu.be/{video_id}">영상 보러가기</a>'
 )
 
@@ -247,7 +247,7 @@ UNITS = {
                 "channel": "@ayatsunoyuni",
                 "display": "아야츠노 유니",
                 "keyword": "#yunikki",
-                "nickname": "유니야",
+                "nickname": "유니찌",
                 "color": "",
                 "mark": "☪️,🤍",
                 "aliases": [
@@ -268,7 +268,7 @@ UNITS = {
                 "channel": "@Sakihanechannel",
                 "display": "사키하네 후야",
                 "keyword": "#huya_live",
-                "nickname": "후야야",
+                "nickname": "후야곤!",
                 "color": "",
                 "mark": "💜,🐲",
                 "aliases": [
@@ -359,7 +359,7 @@ UNITS = {
                 "channel": "@arahashitabi",
                 "display": "아라하시 타비",
                 "keyword": "#luv_tabi",
-                "nickname": "따비야",
+                "nickname": "땁2야",
                 "color": "",
                 "mark": "🌊,🧭",
                 "aliases": [
@@ -386,7 +386,7 @@ UNITS = {
                 "channel": "@tenkoshibuki",
                 "display": "텐코 시부키",
                 "keyword": "#for_shibuki",
-                "nickname": "요우신~",
+                "nickname": "부킈야",
                 "color": "",
                 "mark": "⛩️,🕹️",
                 "aliases": [
@@ -455,7 +455,7 @@ UNITS = {
                 "channel": "@yuzuhariko",
                 "display": "유즈하 리코",
                 "keyword": "#riko_diary",
-                "nickname": "리코코!",
+                "nickname": "리코야!",
                 "color": "",
                 "mark": "🍀,⚔️",
                 "aliases": [

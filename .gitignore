@@ -18,3 +18,10 @@ get_naver_token.py
 get_refresh_token.py
 reget_refresh_token.py
 .folderslice.assetmeta/
+
+build_titles.py
+fonts/07_NotoSansCJKkr/
+fonts/Noto_Sans_Math/
+fonts/Noto_Sans_Symbols_2/
+fonts/Pretendard-1.3.9/
+fonts/stixfonts-2.13b171/
