@@ -344,83 +344,85 @@ def _send_cafe_summary(results, remaining):
 
     send_telegram("\n".join(lines))   # ← 너 코드의 '텍스트 전송' 함수명으로 바꿔줘
 
+try:
+    def drain_cafe_queue():
+        if not CAFE_POST_ENABLED:
+            return
+        st = _load_state()
+        queue = st.get("cafe_queue", [])
+        # 같은 영상은 최신(최고) 마일스톤만 남김 — 오래된 5만 대신 현재 10만을 올림
+        best = {}
+        for it in queue:
+            vid = it["vid"]
+            m = int(it["key"].split(":")[1])          # enqueue에서 "milestone" 넣어뒀으면 it["milestone"]
+            if vid not in best or m > int(best[vid]["key"].split(":")[1]):
+                best[vid] = it
+        queue = list(best.values())
 
-def drain_cafe_queue():
-    if not CAFE_POST_ENABLED:
-        return
-    st = _load_state()
-    queue = st.get("cafe_queue", [])
-    # 같은 영상은 최신(최고) 마일스톤만 남김 — 오래된 5만 대신 현재 10만을 올림
-    best = {}
-    for it in queue:
-        vid = it["vid"]
-        m = int(it["key"].split(":")[1])          # enqueue에서 "milestone" 넣어뒀으면 it["milestone"]
-        if vid not in best or m > int(best[vid]["key"].split(":")[1]):
-            best[vid] = it
-    queue = list(best.values())
+        if not queue:
+            return
 
-    if not queue:
-        return
+        posted_map = st.get("cafe_posted", {})
+        start = time.time()
+        results, remaining, stop = [], [], False
 
-    posted_map = st.get("cafe_posted", {})
-    start = time.time()
-    results, remaining, stop = [], [], False
+        for item in queue:
+            key = item.get("key")
 
-    for item in queue:
-        key = item.get("key")
+            if key in posted_map:          # 이미 올림 → 큐에서 제거(남기지 않음)
+                continue
+            if stop or (time.time() - start) > CAFE_TIME_BUDGET:
+                remaining.append(item)     # 중단됐거나 시간 초과 → 다음 run
+                continue
 
-        if key in posted_map:          # 이미 올림 → 큐에서 제거(남기지 않음)
-            continue
-        if stop or (time.time() - start) > CAFE_TIME_BUDGET:
-            remaining.append(item)     # 중단됐거나 시간 초과 → 다음 run
-            continue
+            if results:                    # 첫 글은 바로, 그 다음부터 25초 대기
+                time.sleep(CAFE_POST_DELAY)
 
-        if results:                    # 첫 글은 바로, 그 다음부터 25초 대기
-            time.sleep(CAFE_POST_DELAY)
-
-        subject = CAFE_SUBJECT_TEMPLATE.format(
-            title=item["title"], views=item["views_text"])
-        content = CAFE_CONTENT_TEMPLATE.format(
-            nickname=item.get("nickname", item["artist"]),  
-            mark=item.get("mark", ""),   
-            artist=item["artist"],
-            title=item["title"],
-            views=item["views_text"],
-            video_id=item["vid"],
-        )
+            fields = {
+                "nickname": item.get("nickname", item.get("artist", "")),
+                "artist":   item.get("artist", ""),
+                "mark":     item.get("mark", ""),
+                "title":    item.get("title", ""),
+                "views":    item.get("views_text", ""),
+                "video_id": item.get("vid", ""),
+            }
+            subject = CAFE_SUBJECT_TEMPLATE.format(**fields)
+            content = CAFE_CONTENT_TEMPLATE.format(**fields)
 
 
-        img_path = None
-        if CAFE_ATTACH_IMAGE:
-            try:
-                img_path = f"/tmp/cafe_card_{item['vid']}.jpg"
-                make_milestone_card(item["vid"], item["title"], item["artist"],
-                                    item["views_text"], img_path,
-                                    card_opts=item.get("opts") or {})
-            except Exception:
-                img_path = None
 
-        res = post_to_cafe(subject, content, headid=item.get("headid"),
-                           image_path=img_path, dry_run=CAFE_DRY_RUN)
-        outcome = res.get("outcome")
+            img_path = None
+            if CAFE_ATTACH_IMAGE:
+                try:
+                    img_path = f"/tmp/cafe_card_{item['vid']}.jpg"
+                    make_milestone_card(item["vid"], item["title"], item["artist"],
+                                        item["views_text"], img_path,
+                                        card_opts=item.get("opts") or {})
+                except Exception:
+                    img_path = None
 
-        if outcome == "ok":
-            aid = res.get("articleId")
-            url = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else None
-            posted_map[key] = {"articleId": aid, "ts": int(time.time())}
-            results.append(("ok", item, url))
-        elif outcome == "dry":
-            results.append(("dry", item, None))
-        elif outcome == "unknown":     # 타임아웃 등 불확실 → 중복 방지 위해 큐에서 뺌
-            results.append(("unknown", item, None))
-        else:                          # failed(999 등) → 더 두드리지 말고 중단
-            results.append(("failed", item, None))
-            remaining.append(item)
-            stop = True
+            res = post_to_cafe(subject, content, headid=item.get("headid"),
+                            image_path=img_path, dry_run=CAFE_DRY_RUN)
+            outcome = res.get("outcome")
 
-    _save_state(cafe_queue=remaining, cafe_posted=posted_map)
-    _send_cafe_summary(results, remaining)
+            if outcome == "ok":
+                aid = res.get("articleId")
+                url = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else None
+                posted_map[key] = {"articleId": aid, "ts": int(time.time())}
+                results.append(("ok", item, url))
+            elif outcome == "dry":
+                results.append(("dry", item, None))
+            elif outcome == "unknown":     # 타임아웃 등 불확실 → 중복 방지 위해 큐에서 뺌
+                results.append(("unknown", item, None))
+            else:                          # failed(999 등) → 더 두드리지 말고 중단
+                results.append(("failed", item, None))
+                remaining.append(item)
+                stop = True
 
+        _save_state(cafe_queue=remaining, cafe_posted=posted_map)
+        _send_cafe_summary(results, remaining)
+except Exception as e:
+    send_telegram(f"⚠️ 카페 등록 처리 오류: {e}")
 
 
 
