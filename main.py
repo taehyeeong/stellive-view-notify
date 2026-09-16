@@ -292,58 +292,120 @@ def _set_cafe_status(video_id, milestone, status, article_id=None):
     _save_state(cafe_posted=posted)
 
 
+def enqueue_cafe(alert, effective_artists):
+    """마일스톤 달성 시 카페 대기열에 추가 (전송은 drain에서)."""
+    if not CAFE_POST_ENABLED:
+        return
+    m = alert.get("milestone", 0)
+    if m < CAFE_MIN_MILESTONE:
+        return
+    vid = alert["video_id"]; key = f"{vid}:{m}"
+    st = _load_state()
+    q = st.get("cafe_queue", [])
+    if key in st.get("cafe_posted", {}):
+        return
+    if any(it.get("key") == key for it in q):
+        return
+    q.append({
+        "key": key, "vid": vid,
+        "artist": alert["artist"], "title": alert["title"],
+        "views_text": alert["views_text"],
+        "headid": cafe_headid_for(effective_artists, unit=resolve_unit(effective_artists)),
+        "opts": {},
+    })
+    _save_state(cafe_queue=q)
 
-def maybe_post_cafe(alert, effective_artists, card_opts=None):
-    """마일스톤 카드와 함께 카페 자동 축하글. 실패해도 절대 예외 안 냄."""
-    try:
-        if not CAFE_POST_ENABLED:
-            return
-        vid, m = alert["video_id"], alert.get("milestone", 0)
-        if m < CAFE_MIN_MILESTONE:
-            return
-        if _cafe_status(vid, m) in ("pending", "done"):
-            return
+
+
+def _send_cafe_summary(results, remaining):
+    if not results:
+        return
+    n_ok   = sum(1 for s, _, _ in results if s == "ok")
+    n_fail = sum(1 for s, _, _ in results if s == "failed")
+    n_wait = len(remaining)
+
+    lines = [f"📮 카페 축하글 결과 (성공 {n_ok} / 실패 {n_fail} / 대기 {n_wait})"]
+    icon = {"ok":"✅","failed":"❌","dry":"🧪","unknown":"❓"}
+    for status, item, url in results:
+        line = f"{icon.get(status,'•')} {item['artist']} - {item['title']} ({item['views_text']})"
+        if url:
+            line += f"\n   {url}"
+        lines.append(line)
+    if n_wait:
+        lines.append(f"⏳ 다음 실행에 {n_wait}건 재시도")
+
+    send_telegram("\n".join(lines))   # ← 너 코드의 '텍스트 전송' 함수명으로 바꿔줘
+
+
+def drain_cafe_queue():
+    if not CAFE_POST_ENABLED:
+        return
+    st = _load_state()
+    queue = st.get("cafe_queue", [])
+    # 같은 영상은 최신(최고) 마일스톤만 남김 — 오래된 5만 대신 현재 10만을 올림
+    best = {}
+    for it in queue:
+        vid = it["vid"]
+        m = int(it["key"].split(":")[1])          # enqueue에서 "milestone" 넣어뒀으면 it["milestone"]
+        if vid not in best or m > int(best[vid]["key"].split(":")[1]):
+            best[vid] = it
+    queue = list(best.values())
+
+    if not queue:
+        return
+
+    posted_map = st.get("cafe_posted", {})
+    start = time.time()
+    results, remaining, stop = [], [], False
+
+    for item in queue:
+        key = item.get("key")
+
+        if key in posted_map:          # 이미 올림 → 큐에서 제거(남기지 않음)
+            continue
+        if stop or (time.time() - start) > CAFE_TIME_BUDGET:
+            remaining.append(item)     # 중단됐거나 시간 초과 → 다음 run
+            continue
+
+        if results:                    # 첫 글은 바로, 그 다음부터 25초 대기
+            time.sleep(CAFE_POST_DELAY)
 
         subject = CAFE_SUBJECT_TEMPLATE.format(
-            artist=alert["artist"], title=alert["title"], views=alert["views_text"])
+            title=item["title"], views=item["views_text"])
         content = CAFE_CONTENT_TEMPLATE.format(
-            artist=alert["artist"], title=alert["title"],
-            views=alert["views_text"], video_id=vid)
-        headid = cafe_headid_for(effective_artists, unit=resolve_unit(effective_artists))
+            artist=item["artist"], title=item["title"],
+            views=item["views_text"], video_id=item["vid"])
 
-        # 텔레와 동일한 마일스톤 카드 생성 → 첨부
-        img = None
+        img_path = None
         if CAFE_ATTACH_IMAGE:
             try:
-                path = f"/tmp/cafe_card_{vid}.jpg"
-                make_milestone_card(vid, alert["title"], alert["artist"],
-                                    alert["views_text"], path, card_opts=card_opts or {})
-                img = path
-            except Exception as e:
-                print(f"⚠️ 카페 카드 생성 실패(텍스트로 진행): {e}")
+                img_path = f"/tmp/cafe_card_{item['vid']}.jpg"
+                make_milestone_card(item["vid"], item["title"], item["artist"],
+                                    item["views_text"], img_path,
+                                    card_opts=item.get("opts") or {})
+            except Exception:
+                img_path = None
 
-        if not CAFE_DRY_RUN:
-            _set_cafe_status(vid, m, "pending")
-        res = post_to_cafe(subject, content, headid=headid, image_path=img, dry_run=CAFE_DRY_RUN)
-        oc = res.get("outcome")
+        res = post_to_cafe(subject, content, headid=item.get("headid"),
+                           image_path=img_path, dry_run=CAFE_DRY_RUN)
+        outcome = res.get("outcome")
 
-        if oc == "dry":
-            send_telegram(f"🧪 [카페 미리보기] {alert['artist']} · {alert['views_text']} · {alert['title']}\n(실제 전송 안 함)")
-        elif oc == "ok":
+        if outcome == "ok":
             aid = res.get("articleId")
-            _set_cafe_status(vid, m, "done", aid)
-            link = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else ""
-            send_telegram(
-                f"📮 카페 축하글 등록 완료 — {alert['artist']} {alert['views_text']} ({alert['title']})"
-                + (f"\n{link}" if link else ""))
-        elif oc == "failed":
-            _set_cafe_status(vid, m, "failed")
-            send_telegram(f"⚠️ 카페 축하글 등록 실패(다음 실행 재시도) — {alert['title']}")
-        else:
-            send_telegram(f"❓ 카페 축하글 결과 불명 — 카페에 올라갔는지 직접 확인해줘 ({alert['title']})")
-    except Exception as e:
-        print(f"⚠️ maybe_post_cafe 예외(무시): {e}")
+            url = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else None
+            posted_map[key] = {"articleId": aid, "ts": int(time.time())}
+            results.append(("ok", item, url))
+        elif outcome == "dry":
+            results.append(("dry", item, None))
+        elif outcome == "unknown":     # 타임아웃 등 불확실 → 중복 방지 위해 큐에서 뺌
+            results.append(("unknown", item, None))
+        else:                          # failed(999 등) → 더 두드리지 말고 중단
+            results.append(("failed", item, None))
+            remaining.append(item)
+            stop = True
 
+    _save_state(cafe_queue=remaining, cafe_posted=posted_map)
+    _send_cafe_summary(results, remaining)
 
 
 
@@ -389,7 +451,9 @@ from config import (
     FRESH_MIN_HOURS,
     FOCUS_UNIT,
     FOCUS_BONUS,
-    CAFE_URL_NAME
+    CAFE_URL_NAME,
+    CAFE_POST_DELAY,
+    CAFE_TIME_BUDGET
 )
 
 from card import make_milestone_card
@@ -2556,7 +2620,7 @@ def main():
                     "card_opts": opts
                 }
             )
-            maybe_post_cafe(alert, effective_artists, card_opts=opts)
+            enqueue_cafe(alert, effective_artists)
 
 
 
@@ -2688,6 +2752,8 @@ def main():
     }
     
     sync_growth_playlist(top_videos, title_map)
+    drain_cafe_queue()
+
 
     switch_msgs = []
     if _current_key_index > start_key:

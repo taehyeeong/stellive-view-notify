@@ -160,6 +160,10 @@ CAFE_POST_ENABLED  = True         # [설정] 전체 on/off (끄면 아무것도 
 CAFE_DRY_RUN       = False         # [설정] True=미리보기만(실제 전송 X). 검증 끝나면 False로!
 CAFE_MIN_MILESTONE = 50000       # [설정] 이 조회수 이상 마일스톤만 카페에 자동게시
 CAFE_ATTACH_IMAGE  = True        # [설정] 카드 이미지 첨부(안정성 위해 기본 OFF)
+CAFE_POST_DELAY  = 25             # [설정] 카페 글 사이 간격(초) — 연속등록 방지
+CAFE_TIME_BUDGET = 250           # [설정] 한 실행 카페 등록 최대 시간(초) — 타임아웃 방어
+
+
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
 CAFE_SUBJECT_TEMPLATE = "{title}, {views} !!"

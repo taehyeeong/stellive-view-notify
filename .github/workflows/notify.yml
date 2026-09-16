@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # 비정상적으로 오래 걸리는 경우 중단
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     # ⏯️ 스케쥴 토글: 수동 실행은 항상 허용,
     # 정기 실행은 변수 SCHEDULE_ENABLED가 'false'일 때만 멈춤
