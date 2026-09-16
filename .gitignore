@@ -9,3 +9,12 @@ oauth_setup.py
 
 __pycache__/
 .vscode/
+
+__pycache__/
+*.pyc
+.env
+test_cafe.py
+get_naver_token.py
+get_refresh_token.py
+reget_refresh_token.py
+.folderslice.assetmeta/
