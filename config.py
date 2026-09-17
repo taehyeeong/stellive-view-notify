@@ -163,7 +163,7 @@ CAFE_ATTACH_IMAGE  = True        # [설정] 카드 이미지 첨부(안정성 �
 CAFE_POST_DELAY  = 25             # [설정] 카페 글 사이 간격(초) — 연속등록 방지
 CAFE_TIME_BUDGET = 250           # [설정] 한 실행 카페 등록 최대 시간(초) — 타임아웃 방어
 
-CAFE_UPCOMING_ENABLED = True
+CAFE_UPCOMING_ENABLED = True    # 곧 달성 예정 알림글 설정
 CAFE_UPCOMING_MENU_ID = 169     # 게시판 : 정보글
 CAFE_UPCOMING_HEADID  = 166     # 말머리 : 스텔라
 
@@ -172,7 +172,7 @@ CAFE_UPCOMING_HEADID  = 166     # 말머리 : 스텔라
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
 CAFE_SUBJECT_TEMPLATE = "{title}, {views} {mark}"
 CAFE_CONTENT_TEMPLATE = (
-    "{nickname}, {title} {views} 축하해 🥳 !!\n\n"
+    "{nickname} '{title}' {views} 축하해 🥳 !!\n\n"
     "함께 축하해주세요!\n\n"
 
     '▶ <a href="https://youtu.be/{video_id}">영상 보러가기</a>'
@@ -273,7 +273,7 @@ UNITS = {
                 "channel": "@Sakihanechannel",
                 "display": "사키하네 후야",
                 "keyword": "#huya_live",
-                "nickname": "후야곤!",
+                "nickname": "후~야야~",
                 "color": "",
                 "mark": "💜,🐲",
                 "aliases": [
@@ -298,7 +298,7 @@ UNITS = {
                 "channel": "@shirayukihina",
                 "display": "시라유키 히나",
                 "keyword": "#daily_hina",
-                "nickname": "히나얌",
+                "nickname": "히나야",
                 "color": "",
                 "mark": "🎀,❄️",
                 "aliases": [
@@ -364,7 +364,7 @@ UNITS = {
                 "channel": "@arahashitabi",
                 "display": "아라하시 타비",
                 "keyword": "#luv_tabi",
-                "nickname": "땁2야",
+                "nickname": "타비야",
                 "color": "",
                 "mark": "🌊,🧭",
                 "aliases": [
@@ -391,7 +391,7 @@ UNITS = {
                 "channel": "@tenkoshibuki",
                 "display": "텐코 시부키",
                 "keyword": "#for_shibuki",
-                "nickname": "부킈야",
+                "nickname": "부킈키",
                 "color": "",
                 "mark": "⛩️,🕹️",
                 "aliases": [

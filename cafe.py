@@ -5,6 +5,7 @@
 #   unknown = 결과 불명(타임아웃 등) → 재시도 금지, 수동 확인
 import os
 import requests
+import unicodedata
 
 NAVER_CLIENT_ID     = os.environ.get("NAVER_CLIENT_ID", "")
 NAVER_CLIENT_SECRET = os.environ.get("NAVER_CLIENT_SECRET", "")
@@ -19,8 +20,8 @@ def cafe_ready():
 
 
 def _enc(s):
-    # 네이버 카페는 euc-kr. euc-kr에 없는 글자(이모지 등)는 버려서 깨짐 방지.
-    return (s or "").encode("euc-kr", "ignore")
+    s = unicodedata.normalize("NFC", s or "")     # 분해된 자모 재결합
+    return s.encode("cp949", "ignore")            # euc-kr → cp949
 
 
 def _access_token():
@@ -37,14 +38,14 @@ def _access_token():
     return tok
 
 def _emoji_to_html(s):
-    """euc-kr로 안 되는 문자(이모지 등)를 HTML 숫자 참조로 변환"""
+    s = unicodedata.normalize("NFC", s or "")
     out = []
-    for ch in (s or ""):
+    for ch in s:
         try:
-            ch.encode("euc-kr")
+            ch.encode("cp949")                    # euc-kr → cp949
             out.append(ch)
         except UnicodeEncodeError:
-            out.append(f"&#{ord(ch)};")
+            out.append(f"&#{ord(ch)};")           # 이모지 등은 HTML 코드로
     return "".join(out)
 
 
