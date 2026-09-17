@@ -102,9 +102,10 @@ def post_to_cafe(subject, content, headid=None, image_path=None, dry_run=False):
         body = r.json()
         article_id = (body.get("message", {}).get("result", {}) or {}).get("articleId")
     except Exception:
-        article_id = None
+        body, article_id = {}, None          # ← body도 기본값
     if r.ok and article_id is not None:
         print(f"✅ 카페 등록 성공 articleId={article_id}")
         return {"outcome": "ok", "articleId": article_id}
+    err_code = (body.get("message", {}).get("error", {}) or {}).get("code", "")   # ← 에러코드 파싱
     print(f"⚠️ 카페 등록 실패: HTTP {r.status_code} {r.text[:300]}")
-    return {"outcome": "failed", "articleId": None}
+    return {"outcome": "failed", "articleId": None, "code": err_code}              # ← code 반환

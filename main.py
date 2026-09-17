@@ -326,20 +326,32 @@ def enqueue_cafe(alert, effective_artists, artist_info=None):
 
 
 def _send_cafe_summary(results, remaining):
-    if not results:
+    if not results and not remaining:
         return
     n_ok    = sum(1 for s, _, _ in results if s == "ok")
-    n_retry = len(remaining)      # 실패 + 미시도 전부 다음 실행 재시도
+    n_retry = len(remaining)
 
-    lines = [f"📮 카페 축하글 결과 (성공 {n_ok} / 다음 재시도 {n_retry})"]
-    icon = {"ok":"✅","failed":"❌","dry":"🧪","unknown":"❓"}
+    lines = [f"📮 카페 등록 결과 (성공 {n_ok} / 다음 재시도 {n_retry})"]
+    icon = {"ok": "✅", "failed": "❌", "dry": "🧪", "unknown": "❓"}
+
+    tried_keys = set()
     for status, item, url in results:
-        line = f"{icon.get(status,'•')} {item['artist']} - {item['title']} ({item.get('views_text','')})"
+        tried_keys.add(item.get("key"))
+        name = item.get("artist") or item.get("nickname", "")
+        line = f"{icon.get(status,'•')} {name} - {item.get('title','')} ({item.get('views_text','')})"
         if status == "ok" and url:
             line += f"\n   {url}"
         lines.append(line)
+
+    # 시도조차 못 하고 대기 중인 것들도 표시
+    for item in remaining:
+        if item.get("key") in tried_keys:
+            continue
+        name = item.get("artist") or item.get("nickname", "")
+        lines.append(f"⏳ {name} - {item.get('title','')} ({item.get('views_text','')})")
+
     if n_retry:
-        lines.append(f"⏳ 다음 실행에 총 {n_retry}건 재시도")
+        lines.append(f"↻ 다음 실행에 총 {n_retry}건 재시도")
     send_telegram("\n".join(lines))
 
 
@@ -416,10 +428,11 @@ try:
             else:                          # failed(999 등) → 더 두드리지 말고 중단
                 results.append(("failed", item, None))
                 remaining.append(item)
-                stop = True
-
-        _save_state(cafe_queue=remaining, cafe_posted=posted_map)
-        _send_cafe_summary(results, remaining)
+                if res.get("code") == "999":   # 조임(연속등록/오류발생) → 백오프
+                    stop = True
+                # 그 외(AP001 등)는 이 글만 건너뛰고 계속
+            _save_state(cafe_queue=remaining, cafe_posted=posted_map)
+            _send_cafe_summary(results, remaining)
 except Exception as e:
     send_telegram(f"⚠️ 카페 등록 처리 오류: {e}")
 
