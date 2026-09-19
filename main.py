@@ -468,7 +468,6 @@ from config import (
     SPIKE_MULT,
     SPIKE_MIN_DAILY,
     DDAY_MAJOR_STEP,
-    ACHIEVED_COOLDOWN_HOURS,
     IMMINENT_PING_HOURS,    
     LOCK_HOURS,
     SWAP_PER_HOUR,
@@ -1985,7 +1984,7 @@ def _mark_achieved(video_id):
     block = datetime.now(KST).timetuple().tm_yday * 24 + datetime.now(KST).hour
     state = _load_state()
     ach = state.get("achieved_until", {})
-    ach[video_id] = block + ACHIEVED_COOLDOWN_HOURS
+    ach[video_id] = block
     _save_state(achieved_until=ach)
 
 
