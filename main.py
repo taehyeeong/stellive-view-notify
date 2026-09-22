@@ -9,6 +9,7 @@
 #    이 파일에서 직접 만지는 소수의 값은 아래 [설정] 주석으로 표시.
 # =====================================================================
 
+from config import CAFE_WRITE_URL
 from copy import error
 import dataclasses
 import os
@@ -19,6 +20,7 @@ import time
 import random
 import hashlib
 import time 
+import html
 
 from datetime import datetime, timezone, timedelta, date
 from render_card import make_special_card
@@ -707,7 +709,7 @@ def save_data(data):
 # 텔레그램
 # ======================
 
-def send_telegram(message, reply_markup=None):
+def send_telegram(message, reply_markup=None, parse_mode=None):
 
     url = (
         f"https://api.telegram.org/"
@@ -719,6 +721,7 @@ def send_telegram(message, reply_markup=None):
         "text": message,
         "disable_web_page_preview": True
     }
+    if parse_mode: payload["parse_mode"] = parse_mode
     if reply_markup:
         payload["reply_markup"] = reply_markup
 
@@ -761,7 +764,7 @@ def _tg_delete(message_id):
 
 
 
-def send_telegram_photo(message, video_id, reply_markup=None):
+def send_telegram_photo(message, video_id, reply_markup=None, parse_mode=None):
 
     url = (
         f"https://api.telegram.org/"
@@ -778,6 +781,7 @@ def send_telegram_photo(message, video_id, reply_markup=None):
         "photo": thumbnail,
         "caption": message
     }
+    if parse_mode: payload["parse_mode"] = parse_mode
     if reply_markup:
         payload["reply_markup"] = reply_markup
 
@@ -790,7 +794,7 @@ def send_telegram_photo(message, video_id, reply_markup=None):
 
     return response.ok
 
-def send_card_photo(image_path, caption, reply_markup=None):
+def send_card_photo(image_path, caption, reply_markup=None, parse_mode=None):
 
     url = (
         f"https://api.telegram.org/"
@@ -801,6 +805,7 @@ def send_card_photo(image_path, caption, reply_markup=None):
         "chat_id": TELEGRAM_CHAT_ID,
         "caption": caption
     }
+    if parse_mode: data["parse_mode"] = parse_mode
     if reply_markup:
         data["reply_markup"] = json.dumps(reply_markup)
 
@@ -813,44 +818,71 @@ def send_card_photo(image_path, caption, reply_markup=None):
     print(response.status_code, response.text)
     return response.ok
 
+def cafe_headname_for(effective_artists, unit=None):
+    """말머리 표시용 이름 (예: '히나')."""
+    hid = cafe_headid_for(effective_artists, unit=unit)
+    for name, i in CAFE_HEADID.items():
+        if i == hid:
+            return name
+    return ""
 
-def make_x_button(text):
-    tweet_url = "https://twitter.com/intent/tweet?text=" + quote(text)
-    return {
-        "inline_keyboard": [[
-            {"text": "X에 POST", "url": tweet_url}
-        ]]
-    }
+def build_cafe_kit(alert, effective_artists, artist_info):
+    """카페 대상이면 (캡션용 HTML 블록, 글쓰기 URL), 아니면 (None, None)."""
+    if not CAFE_POST_ENABLED or alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
+        return None, None
+    nickname = (artist_info or {}).get("nickname") or alert["artist"]
+    marks = [m for m in resolve_artist_mark(alert["artist"], effective_artists).split(",") if m.strip()]
+    mark = random.choice(marks).strip() if marks else ""
+    fields = {"nickname": nickname, "mark": mark, "title": alert["title"],
+              "views": alert["views_text"], "video_id": alert["video_id"]}
+    subject = CAFE_SUBJECT_TEMPLATE.format(**fields)
+    content = CAFE_CONTENT_TEMPLATE.format(**fields)
+    headname = cafe_headname_for(effective_artists, unit=resolve_unit(effective_artists))
+    block = (
+        "\n\n📮 카페용 (탭해서 복사)\n"
+        f"🏷 말머리: {html.escape(headname)}\n"
+        f"📌 제목:\n<code>{html.escape(subject)}</code>\n"
+        f"📝 본문:\n<code>{html.escape(content)}</code>"
+    )
+    return block, CAFE_WRITE_URL
 
 
-def send_notification(message, video_id=None, card_info=None):
-    markup = make_x_button(message)
+def make_share_buttons(tweet_text, cafe_url=None):
+    row = [{"text": "X에 POST",
+            "url": "https://twitter.com/intent/tweet?text=" + quote(tweet_text)}]
+    if cafe_url:
+        row.append({"text": "카페 글쓰기", "url": cafe_url})
+    return {"inline_keyboard": [row]}
+
+
+def send_notification(message, video_id=None, card_info=None,
+                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None):
+    markup = make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
+    cap = caption if caption is not None else message          # 카드에 보일 캡션
     if video_id and card_info:
         try:
             milestone = card_info.get("milestone")
             if SPECIAL_CARD_ENABLED and milestone in SPECIAL_MILESTONES:
                 card_path = make_special_card(
                     video_id, card_info["title"], card_info["artist"],
-                    f"/tmp/card_{video_id}.jpg", milestone=milestone,
-                )
+                    f"/tmp/card_{video_id}.jpg", milestone=milestone)
             else:
                 card_opts = card_info.get("card_opts")
                 if isinstance(card_opts, dict) and card_opts.get("grand"):
                     card_opts = {k: v for k, v in card_opts.items()
-                                 if k not in ("grand", "accent", "tint", "tagline")} or None
+                                 if k not in ("grand","accent","tint","tagline")} or None
                 card_path = make_milestone_card(
                     video_id, card_info["title"], card_info["artist"],
                     card_info["views_text"], f"/tmp/card_{video_id}.jpg",
-                    song_type=card_info.get("song_type", ""),
-                    card_opts=card_opts,
-                )
-            if send_card_photo(card_path, message, reply_markup=markup):
+                    song_type=card_info.get("song_type",""), card_opts=card_opts)
+            if send_card_photo(card_path, cap, reply_markup=markup, parse_mode=parse_mode):
                 return
         except Exception as e:
             print(f"⚠️ 카드 생성/전송 실패 → 기본 썸네일로 대체: {e}")
-    if video_id and send_telegram_photo(message, video_id, reply_markup=markup):
+    if video_id and send_telegram_photo(cap, video_id, reply_markup=markup, parse_mode=parse_mode):
         return
-    send_telegram(message, reply_markup=markup)
+    send_telegram(cap, reply_markup=markup, parse_mode=parse_mode)
+
 
 
 def log_daily_snapshot(video_id, views):
@@ -2640,18 +2672,23 @@ def main():
             opts.update(special)             # 특별 마일스톤이 위
             opts.update(song_card)           # 곡별 지정이 최우선
 
-            send_notification(
-                alert["message"],
-                alert["video_id"],
-                card_info={
-                    "title": alert["title"],
-                    "artist": alert["artist"],
-                    "views_text": alert["views_text"],
-                    "song_type": detect_song_type(title) if SHOW_SONG_TYPE_BADGE else "",
-                    "card_opts": opts
-                }
-            )
-            enqueue_cafe(alert, effective_artists, artist_info)
+            card_info = {
+                "title": alert["title"], "artist": alert["artist"],
+                "views_text": alert["views_text"],
+                "song_type": detect_song_type(title) if SHOW_SONG_TYPE_BADGE else "",
+                "card_opts": opts,
+                "milestone": alert.get("milestone"),
+            }
+            cafe_block, cafe_url = build_cafe_kit(alert, effective_artists, artist_info)
+            if cafe_block:
+                send_notification(alert["message"], alert["video_id"], card_info=card_info,
+                                  cafe_url=cafe_url,
+                                  caption=html.escape(alert["message"]) + cafe_block,
+                                  parse_mode="HTML")
+            else:
+                send_notification(alert["message"], alert["video_id"], card_info=card_info)
+
+
 
 
 
@@ -2724,7 +2761,7 @@ def main():
         f"🆕 새 영상: {new_videos}개\n\n"
         f"상태: {status}"
     )
-    
+
     save_data(data)
 
     if titles_ok and titles_dirty:
@@ -2783,7 +2820,6 @@ def main():
     }
     
     sync_growth_playlist(top_videos, title_map)
-    drain_cafe_queue()
 
 
     switch_msgs = []

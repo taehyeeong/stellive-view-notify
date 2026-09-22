@@ -171,12 +171,14 @@ CAFE_UPCOMING_HEADID  = 166     # 말머리 : 스텔라
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
 CAFE_SUBJECT_TEMPLATE = "{title}, {views} {mark}"
+# 카페 반자동(복붙) 설정
+CAFE_WRITE_URL = "https://cafe.naver.com/ca-fe/cafes/29424353/menus/195/articles/write?boardType=L"
 CAFE_CONTENT_TEMPLATE = (
     "{nickname}\n"
-    "'{title}' {views} 축하해 🥳 !!\n\n"
+    "'{title}' {views} 축하해 !!\n\n"
     "함께 축하해주세요!\n\n"
 
-    '▶ <a href="https://youtu.be/{video_id}">영상 보러가기</a>'
+    "Full : https://youtu.be/{video_id}"
 )
 
 
