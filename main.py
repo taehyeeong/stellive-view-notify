@@ -38,7 +38,7 @@ from config import (
     CAFE_SUBJECT_TEMPLATE, CAFE_CONTENT_TEMPLATE,
     CAFE_HEADID, CAFE_HEADID_DEFAULT,
 )
-from card import make_milestone_card
+from card import make_milestone_card, make_special_card
 
 
 class QuotaExceededError(Exception):
@@ -862,10 +862,13 @@ def send_notification(message, video_id=None, card_info=None,
     if video_id and card_info:
         try:
             milestone = card_info.get("milestone")
-            if SPECIAL_CARD_ENABLED and milestone in SPECIAL_MILESTONES:
+            if SPECIAL_CARD_ENABLED and milestone and milestone % 1_000_000 == 0:
                 card_path = make_special_card(
                     video_id, card_info["title"], card_info["artist"],
-                    f"/tmp/card_{video_id}.jpg", milestone=milestone)
+                    card_info["views_text"], f"/tmp/card_{video_id}.jpg",
+                    song_type=card_info.get("song_type", ""),
+                    card_opts=card_info.get("card_opts"), milestone=milestone)
+
             else:
                 card_opts = card_info.get("card_opts")
                 if isinstance(card_opts, dict) and card_opts.get("grand"):

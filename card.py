@@ -9,6 +9,13 @@ import unicodedata
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 
+from PIL import ImageChops      
+
+# ── 홀로그램 튜닝 (렌더 보고 조절) ──
+HOLO_ALPHA = 0.22    # 전체 세기 (0.15 은은 ~ 0.30 강함)
+HOLO_ANGLE = 25      # 광택 대각선 각도
+HOLO_BRIGHT = 1.5    # 팔레트 색 밝기 배수
+
 
 FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
 
@@ -316,5 +323,53 @@ def make_milestone_card(video_id, title, artist, views_text, out_path,
 
 
     base.convert("RGB").save(out_path, "JPEG", quality=92)
+    return out_path
+def _multi_gradient(w, h, colors):
+    """색 리스트를 가로로 부드럽게 잇는 그라데이션 한 장."""
+    if not colors:
+        colors = [(230, 230, 245)]
+    strip = Image.new("RGB", (w, 1))
+    px = strip.load()
+    n = len(colors)
+    for x in range(w):
+        t = x / max(1, w - 1) * (n - 1)
+        i = int(t); f = t - i
+        c0 = colors[i]; c1 = colors[min(i + 1, n - 1)]
+        px[x, 0] = tuple(max(0, min(255, int(c0[k] + (c1[k] - c0[k]) * f))) for k in range(3))
+    return strip.resize((w, h))
+
+
+def _holo_overlay(video_id, base):
+    """썸네일 팔레트 색으로 만든 홀로 광택을 카드 위에 얹기."""
+    W, H = base.size
+    pal = _palette(_cover(_load_thumb(video_id), W, H))
+    pal = sorted(pal, key=lambda c: _sat_val(c)[0] * _sat_val(c)[1], reverse=True)
+    cols = [_scale(c, HOLO_BRIGHT) for c in pal[:3]] or [(200, 200, 255)]
+
+    # 색 사이에 밝은 밴드를 넣어 '포일 반짝임' 느낌
+    stops = []
+    for c in cols:
+        stops.append((245, 245, 250))
+        stops.append(c)
+    stops.append((245, 245, 250))
+
+    diag = int((W ** 2 + H ** 2) ** 0.5)
+    grad = _multi_gradient(diag, diag, stops).rotate(HOLO_ANGLE)
+    gx, gy = (grad.width - W) // 2, (grad.height - H) // 2
+    grad = grad.crop((gx, gy, gx + W, gy + H))
+
+    screened = ImageChops.screen(base, grad)     # 밝은 부분에 색이 흐르게
+    return Image.blend(base, screened, HOLO_ALPHA)
+
+
+def make_special_card(video_id, title, artist, views_text, out_path,
+                      song_type="", card_opts=None, milestone=None):
+    # 1) 기존 카드 그대로 생성
+    make_milestone_card(video_id, title, artist, views_text, out_path,
+                        song_type=song_type, card_opts=card_opts)
+    # 2) 그 위에 홀로 광택만 얹기
+    base = Image.open(out_path).convert("RGB")
+    base = _holo_overlay(video_id, base)
+    base.save(out_path, "JPEG", quality=92)
     return out_path
 

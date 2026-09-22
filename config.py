@@ -1,3 +1,4 @@
+from PIL.ImageFont import truetype
 import os
 
 # ============================================================
@@ -82,7 +83,7 @@ SPIKE_MIN_DAILY = 1500      # 하루 최소 이만큼은 늘어야 떡상(노이
 
 
 # ── 카드 / 표시 ──
-SPECIAL_CARD_ENABLED = False   # 특별 카드(100만/1000만 세로 HTML) on/off
+SPECIAL_CARD_ENABLED = True   # 특별 카드(100만/1000만 세로 HTML) on/off
 SHOW_SONG_TYPE_BADGE = False   # 카드 상단 ORIGINAL/COVER 배지 표시
 USE_ARTIST_COLOR = True        # 아티스트별 대표 색(비우면 자동 추출)
 # 특별 축하 카드 (마일스톤값: 스타일)

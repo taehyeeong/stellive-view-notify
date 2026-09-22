@@ -107,58 +107,15 @@ def _split_number(milestone):
     return str(man), "만"
 
 
-def make_special_card(video_id, title, artist, out_path,
-                      milestone=1_000_000, accent=None):
-    """특별 카드를 렌더해 out_path(PNG)에 저장하고 경로를 반환."""
-    img = _download_thumb(video_id)
-    if img is None:
-        raise RuntimeError("썸네일 다운로드 실패: %s" % video_id)
-
-    buf = io.BytesIO()
-    img.save(buf, "JPEG", quality=90)
-    thumb_uri = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
-
-    if accent is None:
-        accent = _accent(img)
-
-    num_main, num_unit = _split_number(milestone)
-
-    with open(TEMPLATE, encoding="utf-8") as f:
-        page = f.read()
-
-    page = (page
-            .replace("{{FONT_FACES}}", _font_faces())
-            .replace("{{THUMB}}", thumb_uri)
-            .replace("{{ARTIST}}", html.escape(artist))
-            .replace("{{SONG}}", html.escape(title))
-            .replace("{{ACCENT}}", accent)
-            .replace("{{NUM_MAIN}}", html.escape(num_main))
-            .replace("{{NUM_UNIT}}", html.escape(num_unit)))
-
-    # 폰트를 상대경로로 로드하려면 HTML이 레포 루트(fonts/ 옆)에 있어야 함
-    tmp_path = os.path.join(HERE, ".card_tmp_%s.html" % uuid.uuid4().hex)
-    with open(tmp_path, "w", encoding="utf-8") as tf:
-        tf.write(page)
-
-    try:
-        from playwright.sync_api import sync_playwright
-        with sync_playwright() as p:
-            browser = p.chromium.launch(args=["--allow-file-access-from-files"])
-            pg = browser.new_page(
-                viewport={"width": _VIEW_W, "height": _VIEW_H},
-                device_scale_factor=_SCALE,
-            )
-            pg.goto(pathlib.Path(tmp_path).as_uri())
-            pg.wait_for_timeout(350)   # 폰트/이미지/자동축소 스크립트 완료 대기
-            pg.screenshot(path=out_path, type="jpeg", quality=92)
-            browser.close()
-    finally:
-        try:
-            os.remove(tmp_path)
-        except OSError:
-            pass
-
+def make_special_card(video_id, title, artist, views_text, out_path,
+                      song_type="", card_opts=None, milestone=None):
+    make_milestone_card(video_id, title, artist, views_text, out_path,
+                        song_type=song_type, card_opts=card_opts)
+    base = Image.open(out_path).convert("RGB")
+    base = _holo_overlay(video_id, base)
+    base.save(out_path, "JPEG", quality=92)
     return out_path
+
 
 
 if __name__ == "__main__":
