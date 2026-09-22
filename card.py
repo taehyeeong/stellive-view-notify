@@ -342,7 +342,7 @@ def _multi_gradient(w, h, colors):
 def _holo_overlay(video_id, base):
     """썸네일 팔레트 색으로 만든 홀로 광택을 카드 위에 얹기."""
     W, H = base.size
-    pal = _palette(_cover(_load_thumb(video_id), W, H))
+    pal = [rgb for _c, rgb in _palette(base)]   # (count, rgb) → rgb만 뽑기
     pal = sorted(pal, key=lambda c: _sat_val(c)[0] * _sat_val(c)[1], reverse=True)
     cols = [_scale(c, HOLO_BRIGHT) for c in pal[:3]] or [(200, 200, 255)]
 

@@ -730,6 +730,10 @@ def make_share_buttons(tweet_text, cafe_url=None):
 
 def send_notification(message, video_id=None, card_info=None,
                       tweet_text=None, cafe_url=None, caption=None, parse_mode=None):
+    if cafe_url is None and card_info:
+        ms = card_info.get("milestone")
+        if ms and ms >= CAFE_MIN_MILESTONE:
+            cafe_url = CAFE_WRITE_URL
     markup = make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
     cap = caption if caption is not None else message          # 카드에 보일 캡션
     if video_id and card_info:
@@ -2562,7 +2566,13 @@ def main():
                                   caption=html.escape(alert["message"]) + cafe_block,
                                   parse_mode="HTML")
             else:
-                send_notification(alert["message"], alert["video_id"], card_info=card_info)
+                milestone = card_info.get("milestone")
+                cafe_url = CAFE_WRITE_URL if (milestone and milestone >= CAFE_MIN_MILESTONE) else None
+                send_notification(
+                    alert["message"], video_id=alert["video_id"], card_info=card_info,
+                    cafe_url=cafe_url,
+                )
+
 
 
 
