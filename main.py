@@ -476,6 +476,7 @@ from config import (
     ADD_RANDOM,
     GEM_VIEW_MAX,
     FRESH_MIN_HOURS,
+    ACHIEVED_COOLDOWN_HOURS,
     FOCUS_UNIT,
     FOCUS_BONUS,
     CAFE_URL_NAME,
@@ -1984,10 +1985,10 @@ def _mark_achieved(video_id):
     block = datetime.now(KST).timetuple().tm_yday * 24 + datetime.now(KST).hour
     state = _load_state()
     ach = state.get("achieved_until", {})
-    ach[video_id] = block
+    ach[video_id] = block + ACHIEVED_COOLDOWN_HOURS
     _save_state(achieved_until=ach)
 
-
+ 
 
 
 def detect_song_type(raw_title):
@@ -2297,7 +2298,8 @@ def sync_growth_playlist(top_videos, title_map=None):
             if vid and vid not in pinned:
                 pinned.append(vid)
 
-        desired_ids = pinned + [vid for vid in desired_ids if vid not in pinned]
+        desired_ids = (pinned + [vid for vid in desired_ids if vid not in pinned])[:MAX_GROWTH_PLAYLIST_VIDEOS]
+
 
         desired_set = set(desired_ids)
 
@@ -2323,6 +2325,31 @@ def sync_growth_playlist(top_videos, title_map=None):
         added_titles = []       
         removed_titles = []
 
+        # ── 추가 ──
+        if not quota_hit:
+            for target_position, video_id in enumerate(desired_ids):
+                if video_id in current_set:
+                    continue
+                if ops >= MAX_PLAYLIST_OPS_PER_RUN:
+                    break
+                while True:
+                    try:
+                        playlist_insert(access_token, GROWTH_PLAYLIST_ID, video_id, position=target_position)
+                        added += 1; ops += 1
+                        added_titles.append(f"{title_map.get(video_id, video_id)}  ({video_id})")
+                        break
+                    except Exception as e:
+                        if _is_quota_error(e):
+                            if _advance_oauth(exhausted_oauth_indices):
+                                access_token = get_usable_access_token()
+                                continue
+                            quota_hit = True
+                            break
+                        print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
+                        break
+                if quota_hit:
+                    break
+
         # ── 삭제 ──
         if GROWTH_PLAYLIST_REMOVE_MISSING:
             for item in current_items:
@@ -2345,31 +2372,6 @@ def sync_growth_playlist(top_videos, title_map=None):
                             quota_hit = True
                             break
                         print(f"⚠️ 플리 삭제 실패 {item.get('video_id')}: {e}")
-                        break
-                if quota_hit:
-                    break
-
-        # ── 추가 ──
-        if not quota_hit:
-            for target_position, video_id in enumerate(desired_ids):
-                if video_id in current_set:
-                    continue
-                if ops >= MAX_PLAYLIST_OPS_PER_RUN:
-                    break
-                while True:
-                    try:
-                        playlist_insert(access_token, GROWTH_PLAYLIST_ID, video_id, position=target_position)
-                        added += 1; ops += 1
-                        added_titles.append(f"{title_map.get(video_id, video_id)}  ({video_id})")
-                        break
-                    except Exception as e:
-                        if _is_quota_error(e):
-                            if _advance_oauth(exhausted_oauth_indices):
-                                access_token = get_usable_access_token()
-                                continue
-                            quota_hit = True
-                            break
-                        print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
                         break
                 if quota_hit:
                     break
@@ -2494,6 +2496,7 @@ def main():
 
     view_data = get_view_counts(video_ids)
 
+    any_milestone_sent = False
     for video in videos:
 
         checked_videos += 1
@@ -2622,6 +2625,7 @@ def main():
 
 
         for alert in messages:
+            any_milestone_sent = True
             song_card = {
                 k: v for k, v in
                 (((overrides.get(video_id) or {}).get("card")) or {}).items() if v
@@ -2709,18 +2713,18 @@ def main():
         if error_playlists == 0
         else f"⚠️ 오류 {error_playlists}개 있음"
     )
-
-    send_telegram(
-        f"✅ YouTube Notify 실행 완료\n\n"
-        f"⏰ 실행 시간: {now_kst()}\n\n"
-        f"🏠 확인 유닛: {', '.join(UNITS.keys())}\n"
-        f"👥 확인 아티스트: {len(checked_artists)}명\n"
+    if not any_milestone_sent:
+        send_telegram(
+            f"✅ YouTube Notify 실행 완료\n\n"
+            f"⏰ 실행 시간: {now_kst()}\n\n"
+            f"🏠 확인 유닛: {', '.join(UNITS.keys())}\n"
+            f"👥 확인 아티스트: {len(checked_artists)}명\n"
         f"📁 확인 플레이리스트: {checked_playlists}개\n"
         f"🎵 확인 영상: {checked_videos}개\n"
         f"🆕 새 영상: {new_videos}개\n\n"
         f"상태: {status}"
     )
-
+    
     save_data(data)
 
     if titles_ok and titles_dirty:

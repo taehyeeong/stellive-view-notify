@@ -35,7 +35,7 @@ GROWTH_PLAYLIST_PINNED = [
 
 
 # ── 성장 플리: 선곡/회전(매시간 믹스) ──
-LOCK_HOURS      = 6        # eta 이 시간 이내면 '코앞' → 달성까지 고정(쿨다운 무시)
+LOCK_HOURS      = 4        # eta 이 시간 이내면 '코앞' → 달성까지 고정(쿨다운 무시)
 SWAP_PER_HOUR   = 16       # 매시간 갈아끼울 곡 수
 ADD_RISING      = 4        # 교체분 중 급상승
 ADD_GEMS        = 7        # 교체분 중 묻힌 보석
@@ -63,14 +63,14 @@ GROWTH_BOOST = [
 ]
 BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
 # 마일스톤 달성한 곡을 플리에서 자동 제외하는 기간
-ACHIEVED_COOLDOWN_HO1URS = 12
+ACHIEVED_COOLDOWN_HOURS = 12
 
 
 
 # ── 알림: 곧 달성 / D-Day / 떡상 ──
 # 곧 조회수 달성 알림
 IMMINENT_HOURS = 6          # 다음 목표까지 이 시간 이내면 대상
-IMMINENT_PING_HOURS = 3      # 이 시간마다 새 알림 (3이면 3시간마다)
+IMMINENT_PING_HOURS = 4      # 이 시간마다 새 알림 (3이면 3시간마다)
 # D-Day 알림
 DDAY_THRESHOLD_DAYS = 10    # 다음 목표까지 이 일수 이내면 '곧 달성'
 DDAY_ALERT_HOUR = 21        # 매일 이 시각(KST) 이후 첫 실행에 1회
