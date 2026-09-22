@@ -9,8 +9,7 @@
 #    이 파일에서 직접 만지는 소수의 값은 아래 [설정] 주석으로 표시.
 # =====================================================================
 
-from config import CAFE_WRITE_URL
-from copy import error
+
 import dataclasses
 import os
 import json
@@ -23,10 +22,10 @@ import time
 import html
 
 from datetime import datetime, timezone, timedelta, date
-from render_card import make_special_card
 from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
+from config import CAFE_WRITE_URL
 try:
     from cafe import post_to_cafe
 except Exception as e:
@@ -283,49 +282,6 @@ def cafe_headid_for(effective_artists, unit=None):
     return CAFE_HEADID_DEFAULT         # 못 찾으면 스텔라이브
 
 
-def _cafe_status(video_id, milestone):
-    return (_load_state().get("cafe_posted", {})
-            .get(f"{video_id}:{milestone}", {}).get("status"))
-
-def _set_cafe_status(video_id, milestone, status, article_id=None):
-    st = _load_state()
-    posted = st.get("cafe_posted", {})
-    posted[f"{video_id}:{milestone}"] = {"status": status, "at": now_kst(), "article": article_id}
-    _save_state(cafe_posted=posted)
-
-
-def enqueue_cafe(alert, effective_artists, artist_info=None):
-    if not CAFE_POST_ENABLED:
-        return
-    m = alert.get("milestone", 0)
-    if m < CAFE_MIN_MILESTONE:
-        return
-    vid = alert["video_id"]
-    key = f"{vid}:{m}"
-    st = _load_state()
-    q = st.get("cafe_queue", [])
-    if key in st.get("cafe_posted", {}):
-        return
-    if any(it.get("key") == key for it in q):
-        return
-    nickname = (artist_info or {}).get("nickname") or alert["artist"]
-    raw_mark = resolve_artist_mark(alert["artist"], effective_artists)
-    marks = [m for m in raw_mark.split(",") if m.strip()]
-    mark = random.choice(marks).strip() if marks else ""
-    q.append({
-        "key": key, "vid": vid, "milestone": m,
-        "artist": alert["artist"],
-        "nickname": nickname,
-        "mark": mark,
-        "title": alert["title"],
-        "views_text": alert["views_text"],
-        "headid": cafe_headid_for(effective_artists, unit=resolve_unit(effective_artists)),
-        "opts": {},
-    })
-    _save_state(cafe_queue=q)
-
-
-
 
 def _send_cafe_summary(results, remaining):
     if not results and not remaining:
@@ -355,88 +311,6 @@ def _send_cafe_summary(results, remaining):
     if n_retry:
         lines.append(f"↻ 다음 실행에 총 {n_retry}건 재시도")
     send_telegram("\n".join(lines))
-
-
-try:
-    def drain_cafe_queue():
-        if not CAFE_POST_ENABLED:
-            return
-        st = _load_state()
-        queue = st.get("cafe_queue", [])
-        # 같은 영상은 최신(최고) 마일스톤만 남김 — 오래된 5만 대신 현재 10만을 올림
-        best = {}
-        for it in queue:
-            vid = it["vid"]
-            m = int(it["key"].split(":")[1])          # enqueue에서 "milestone" 넣어뒀으면 it["milestone"]
-            if vid not in best or m > int(best[vid]["key"].split(":")[1]):
-                best[vid] = it
-        queue = list(best.values())
-
-        if not queue:
-            return
-
-        posted_map = st.get("cafe_posted", {})
-        start = time.time()
-        results, remaining, stop = [], [], False
-
-        for item in queue:
-            key = item.get("key")
-
-            if key in posted_map:          # 이미 올림 → 큐에서 제거(남기지 않음)
-                continue
-            if stop or (time.time() - start) > CAFE_TIME_BUDGET:
-                remaining.append(item)     # 중단됐거나 시간 초과 → 다음 run
-                continue
-
-            if results:                    # 첫 글은 바로, 그 다음부터 25초 대기
-                time.sleep(CAFE_POST_DELAY)
-
-            fields = {
-                "nickname": item.get("nickname", item.get("artist", "")),
-                "artist":   item.get("artist", ""),
-                "mark":     item.get("mark", ""),
-                "title":    item.get("title", ""),
-                "views":    item.get("views_text", ""),
-                "video_id": item.get("vid", ""),
-            }
-            subject = CAFE_SUBJECT_TEMPLATE.format(**fields)
-            content = CAFE_CONTENT_TEMPLATE.format(**fields)
-
-
-
-            img_path = None
-            if CAFE_ATTACH_IMAGE:
-                try:
-                    img_path = f"/tmp/cafe_card_{item['vid']}.jpg"
-                    make_milestone_card(item["vid"], item["title"], item["artist"],
-                                        item["views_text"], img_path,
-                                        card_opts=item.get("opts") or {})
-                except Exception:
-                    img_path = None
-
-            res = post_to_cafe(subject, content, headid=item.get("headid"),
-                            image_path=img_path, dry_run=CAFE_DRY_RUN)
-            outcome = res.get("outcome")
-
-            if outcome == "ok":
-                aid = res.get("articleId")
-                url = f"https://cafe.naver.com/{CAFE_URL_NAME}/{aid}" if aid else None
-                posted_map[key] = {"articleId": aid, "ts": int(time.time())}
-                results.append(("ok", item, url))
-            elif outcome == "dry":
-                results.append(("dry", item, None))
-            elif outcome == "unknown":     # 타임아웃 등 불확실 → 중복 방지 위해 큐에서 뺌
-                results.append(("unknown", item, None))
-            else:                          # failed(999 등) → 더 두드리지 말고 중단
-                results.append(("failed", item, None))
-                remaining.append(item)
-                if res.get("code") == "999":   # 조임(연속등록/오류발생) → 백오프
-                    stop = True
-                # 그 외(AP001 등)는 이 글만 건너뛰고 계속
-            _save_state(cafe_queue=remaining, cafe_posted=posted_map)
-            _send_cafe_summary(results, remaining)
-except Exception as e:
-    send_telegram(f"⚠️ 카페 등록 처리 오류: {e}")
 
 
 
@@ -486,7 +360,6 @@ from config import (
     CAFE_TIME_BUDGET
 )
 
-from card import make_milestone_card
 
 
 
