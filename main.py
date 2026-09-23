@@ -26,6 +26,7 @@ from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
 from config import CAFE_WRITE_URL
+from html import escape
 try:
     from cafe import post_to_cafe
 except Exception as e:
@@ -58,6 +59,7 @@ def now_kst():
     )
 
 BOT_STATE_FILE = "bot_state.json"
+_HEADID_TO_NAME = {v: k for k, v in CAFE_HEADID.items()}
 
 def _pt_quota_date():
     """태평양 기준 오늘 날짜 (YouTube 할당량 리셋 경계)."""
@@ -699,6 +701,37 @@ def cafe_headname_for(effective_artists, unit=None):
             return name
     return ""
 
+
+def cafe_headname_for(card_info):
+    a = card_info.get("artist") or ""
+    names = set(CAFE_HEADID.keys())
+    cand = {a}
+    info = get_artist_info(a)
+    cand.add(info.get("display", ""))
+    cand.add(info.get("nickname", ""))
+    cand.update(info.get("aliases", []))
+    hit = cand & names
+    if hit:
+        return next(iter(hit))
+    return _HEADID_TO_NAME.get(CAFE_HEADID_DEFAULT, "스텔라이브")
+
+def build_cafe_caption(card_info, video_id):
+    title    = card_info.get("title", "")
+    views    = card_info.get("views_text", "")
+    nickname = card_info.get("nickname", card_info.get("artist", ""))
+    mark     = card_info.get("mark", "")
+    headname = cafe_headname_for(card_info)
+    subject = CAFE_SUBJECT_TEMPLATE.format(title=title, views=views, mark=mark)
+    body    = CAFE_CONTENT_TEMPLATE.format(nickname=nickname, title=title,
+                                           views=views, video_id=video_id)
+    return (
+        f"📮 카페 축하글  ·  말머리: <b>{escape(headname)}</b>\n"
+        f"↓ 탭하면 복사돼요\n\n"
+        f"<b>제목</b>\n<code>{escape(subject)}</code>\n\n"
+        f"<b>본문</b>\n<code>{escape(body)}</code>"
+    )
+
+
 def build_cafe_kit(alert, effective_artists, artist_info):
     """카페 대상이면 (캡션용 HTML 블록, 글쓰기 URL), 아니면 (None, None)."""
     if not CAFE_POST_ENABLED or alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
@@ -734,6 +767,10 @@ def send_notification(message, video_id=None, card_info=None,
         ms = card_info.get("milestone")
         if ms and ms >= CAFE_MIN_MILESTONE:
             cafe_url = CAFE_WRITE_URL
+            if cafe_url and caption is None:                      # ← 추가
+                caption = build_cafe_caption(card_info, video_id) # ← 추가
+            if parse_mode is None:                            # ← 추가
+                parse_mode = "HTML"    
     markup = make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
     cap = caption if caption is not None else message          # 카드에 보일 캡션
     if video_id and card_info:
@@ -1741,7 +1778,9 @@ def check_milestone(
                     "artist": artist_display,
                     "views_text": views_text,
                     "views_count": views,
-                    "milestone": count
+                    "milestone": count,
+                    "nickname": nicknames,
+                    "mark": artist_info.get("mark", "")
                 })
                 new_notified.append(count)
 
@@ -1758,7 +1797,9 @@ def check_milestone(
                 "artist": artist_display,
                 "views_text": views_text,
                 "views_count": views,
-                "milestone": milestone
+                "milestone": milestone,
+                "nickname": nicknames,
+                "mark": artist_info.get("mark", "")
             })
         if old_views < milestone <= views:
             new_notified.append(milestone)
