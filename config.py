@@ -53,7 +53,7 @@ PLAYLIST_ROTATE_HOURS = 1              # 회전 주기(시간)
 
 # ── 자동핀 / 부스트 / 달성 쿨다운 ──
 # 신곡 자동핀: 감지된 신곡을 성장 플리에 자동 등록해두는 기간(일). 0이면 끔.
-AUTO_PIN_NEW_SONG_DAYS = 10
+AUTO_PIN_NEW_SONG_DAYS = 5
 # 게시 N일 이내 영상만 성장 플리 자동핀
 AUTO_PIN_MAX_AGE_DAYS = 5
 # 성장 점수 부스트 — 지정 곡/아티스트를 플리에 더 자주.
