@@ -62,7 +62,7 @@ GROWTH_BOOST = [
     # {"type": "song", "target": "https://youtu.be/rQaluJS-Tc0", "pct": 50},  # URL 가능
     # {"type": "song", "target": "rQaluJS-Tc0", "pct": 50},                   # ID도 가능
 ]
-BOOST_DEFAULT_DAYS = 10   # until 없을 때 기본 부스트 기간(일)
+BOOST_DEFAULT_DAYS = 5   # until 없을 때 기본 부스트 기간(일)
 # 마일스톤 달성한 곡을 플리에서 자동 제외하는 기간
 ACHIEVED_COOLDOWN_HOURS = 12
 
