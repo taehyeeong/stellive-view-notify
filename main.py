@@ -1361,8 +1361,9 @@ def get_playlist_videos():
 
                 try:
                     next_page = None
-
+                    page = 0
                     while True:
+                        page += 1
                         params = {
                             "part": "snippet",
                             "playlistId": playlist_id,
@@ -1378,8 +1379,9 @@ def get_playlist_videos():
                             params,
                             f"개인 재생목록 조회: {playlist_id}"
                         )
-
-                        for item in data.get("items", []):
+                        items = data.get("items", [])
+                        print(f"   page {page}: {len(items)}곡", flush=True)
+                        for item in items:
                             video_id = item["snippet"]["resourceId"]["videoId"]
                             title = item["snippet"]["title"]
 
@@ -1401,7 +1403,7 @@ def get_playlist_videos():
                             add_title_artists(videos[video_id], title)
 
                         next_page = data.get("nextPageToken")
-                        if not next_page:
+                        if not next_page or not items or page >= 20:
                             break
                 except QuotaExceededError:
                     raise
@@ -1434,8 +1436,9 @@ def get_playlist_videos():
 
             try:
                 next_page = None
-
+                page = 0
                 while True:
+                    page += 1
                     params = {
                         "part": "snippet",
                         "playlistId": playlist_id,
@@ -1451,8 +1454,9 @@ def get_playlist_videos():
                         params,
                         f"스텔라이브 재생목록 조회: {playlist_id}"
                     )
-
-                    for item in data.get("items", []):
+                    items = data.get("items", [])
+                    print(f"   page {page}: {len(items)}곡", flush=True)
+                    for item in items:
                         video_id = item["snippet"]["resourceId"]["videoId"]
                         title = item["snippet"]["title"]
                         owner_title = item["snippet"].get("videoOwnerChannelTitle", "")
@@ -1491,7 +1495,7 @@ def get_playlist_videos():
                             }
 
                     next_page = data.get("nextPageToken")
-                    if not next_page:
+                    if not next_page or not items or page >= 20:
                         break
 
             except QuotaExceededError:
