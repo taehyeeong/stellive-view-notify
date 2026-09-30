@@ -20,6 +20,7 @@ import random
 import hashlib
 import time 
 import html
+import sys
 import socket
 socket.setdefaulttimeout(30)   # DNS/소켓 hang 방지 (requests timeout이 못 잡는 경우 대비)
 
@@ -381,14 +382,11 @@ TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 # ===== API 키 (읽기) — 소진 시 자동 전환 =====
 YOUTUBE_API_KEYS = [
-    k.strip() for k in (
+    v.strip() for v in (
         os.environ.get("YOUTUBE_API_KEY", ""),
-        os.environ.get("YOUTUBE_API_KEY_2", ""),
-        os.environ.get("YOUTUBE_API_KEY_3", ""),
-        os.environ.get("YOUTUBE_API_KEY_4", ""),
-        os.environ.get("YOUTUBE_API_KEY_5", ""),
-    ) if k.strip()
-]
+        *[os.environ.get(f"YOUTUBE_API_KEY_{i}", "") for i in range(2, 11)],  # _2 ~ _10
+    ) if v.strip()
+] 
 
 if not YOUTUBE_API_KEYS:
     raise RuntimeError("YOUTUBE_API_KEY 환경변수가 없습니다.")
@@ -400,7 +398,7 @@ def current_api_key():
 
 # ===== OAuth (쓰기) — 소진 시 자동 전환 =====
 YOUTUBE_OAUTH = []
-for _sfx in ("", "_2", "_3", "_4", "_5"):
+for _sfx in ("",) + tuple(f"_{i}" for i in range(2, 11)):   # "" , _2 ~ _10
     _cid = os.environ.get(f"YOUTUBE_CLIENT_ID{_sfx}")
     _csec = os.environ.get(f"YOUTUBE_CLIENT_SECRET{_sfx}")
     _rtok = os.environ.get(f"YOUTUBE_REFRESH_TOKEN{_sfx}")
@@ -2768,12 +2766,10 @@ def main():
 
 
 if __name__ == "__main__":
-
     try:
         main()
-
+    except QuotaExceededError:
+        sys.exit(0)          # 쿼터 소진 = 정상 종료 (상세 알림은 이미 나감)
     except Exception as e:
-
         send_error(str(e))
-
         raise
