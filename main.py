@@ -703,20 +703,6 @@ def cafe_headname_for(effective_artists, unit=None):
             return name
     return ""
 
-
-def cafe_headname_for(card_info):
-    a = card_info.get("artist") or ""
-    names = set(CAFE_HEADID.keys())
-    cand = {a}
-    info = get_artist_info(a)
-    cand.add(info.get("display", ""))
-    cand.add(info.get("nickname", ""))
-    cand.update(info.get("aliases", []))
-    hit = cand & names
-    if hit:
-        return next(iter(hit))
-    return _HEADID_TO_NAME.get(CAFE_HEADID_DEFAULT, "스텔라이브")
-
 def build_cafe_caption(card_info, video_id):
     title    = card_info.get("title", "")
     views    = card_info.get("views_text", "")
