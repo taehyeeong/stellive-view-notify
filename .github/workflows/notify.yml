@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # 비정상적으로 오래 걸리는 경우 중단
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     # ⏯️ 스케쥴 토글: 수동 실행은 항상 허용,
     # 정기 실행은 변수 SCHEDULE_ENABLED가 'false'일 때만 멈춤
@@ -48,6 +48,7 @@ jobs:
 
       - name: Run monitor
         env:
+          PYTHONUNBUFFERED: "1"
           GROWTH_PLAYLIST_ID: ${{ secrets.GROWTH_PLAYLIST_ID }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           YOUTUBE_API_KEY_2: ${{ secrets.YOUTUBE_API_KEY_2 }}
@@ -80,6 +81,7 @@ jobs:
           python main.py
 
       - name: Save views
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -102,7 +104,7 @@ jobs:
 
 
       - name: Send Telegram failure alert
-        if: failure()
+        if: failure() || cancelled()
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
