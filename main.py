@@ -23,6 +23,11 @@ import html
 import socket
 socket.setdefaulttimeout(30)   # DNS/소켓 hang 방지 (requests timeout이 못 잡는 경우 대비)
 
+import signal
+class WatchdogTimeout(Exception): pass
+def _watchdog(signum, frame):
+    raise WatchdogTimeout("실행 240초 초과 — 네트워크(DNS 추정)에서 멈춤")
+
 from datetime import datetime, timezone, timedelta, date
 from requests import RequestException
 from dotenv import load_dotenv
@@ -1349,6 +1354,7 @@ def get_playlist_videos():
             for playlist_id in info["playlists"]:
 
                 checked_playlists += 1
+                print(f"▶ {artist_name} · {playlist_id}", flush=True)   # ← 추가
 
                 try:
                     next_page = None
@@ -1421,6 +1427,7 @@ def get_playlist_videos():
         for playlist_id in info["playlists"]:
 
             checked_playlists += 1
+            print(f"▶ {artist_name} · {playlist_id}", flush=True)   # ← 추가
 
             try:
                 next_page = None
@@ -2398,6 +2405,8 @@ def sync_growth_playlist(top_videos, title_map=None):
 # ======================
 
 def main():
+    signal.signal(signal.SIGALRM, _watchdog)
+    signal.alarm(240)      # 4분 넘으면 스스로 중단 → 아래 except가 텔레 알림
     global _current_key_index, _current_oauth_index
     # 이전 실행에서 쿼터 때문에 넘긴 API/OAuth 프로젝트부터 다시 시작한다.
     _current_key_index, _current_oauth_index = load_start_indices()
@@ -2754,6 +2763,7 @@ def main():
     update_imminent_message(data)      # 임박 즉시 알림 ← 추가    
     send_spike_alerts(data)
 
+    signal.alarm(0)        # 정상 완료 시 해제
 
 
 
