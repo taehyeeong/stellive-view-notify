@@ -20,6 +20,8 @@ import random
 import hashlib
 import time 
 import html
+import socket
+socket.setdefaulttimeout(30)   # DNS/소켓 hang 방지 (requests timeout이 못 잡는 경우 대비)
 
 from datetime import datetime, timezone, timedelta, date
 from requests import RequestException
