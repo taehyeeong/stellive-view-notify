@@ -95,6 +95,11 @@ def _save_state(**kw):
     except Exception as e:
         print("⚠️ bot_state 저장 실패:", e)
 
+def _watchdog(signum, frame):
+    try:
+        send_telegram("⏱️ 실행 240초 초과 — 네트워크(DNS 추정) 멈춤으로 강제 종료")
+    finally:
+        os._exit(1)
 
 def get_active_auto_pins():
     """만료 안 지난 신곡 자동핀 video_id 목록. 만료된 건 정리해서 저장."""
@@ -1405,7 +1410,7 @@ def get_playlist_videos():
                     send_telegram(
                         f"⚠️ 플레이리스트 오류\n\n"
                         f"🎤 아티스트: {artist_name}\n"
-                        f"📁 Playlist ID: {playlist_id}\n\n"
+                        f"📁 https://www.youtube.com/playlist?list={playlist_id}\n\n"
                         f"❌ 내용:\n{e}"
                     )
                     continue
@@ -1496,7 +1501,7 @@ def get_playlist_videos():
                 send_telegram(
                     f"⚠️ 플레이리스트 오류\n\n"
                     f"🎤 아티스트: {artist_name}\n"
-                    f"📁 Playlist ID: {playlist_id}\n\n"
+                    f"📁 https://www.youtube.com/playlist?list={playlist_id}\n\n"
                     f"❌ 내용:\n{e}"
                 )
                 continue
