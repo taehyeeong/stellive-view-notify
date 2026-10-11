@@ -482,6 +482,100 @@ UNITS = {
                 ]
             }
         }
+    },
+    "어비스": {
+        "nickname": "얘들아 !!",
+        "members": {
+            "시즈키 토아": {
+                "channel": "@ShizukiToa",
+                "display": "시즈키 토아",
+                "keyword": "",
+                "nickname": "토아야",
+                "color": "",
+                "mark": "",
+                "aliases": [
+                    "시즈키 토아", 
+                    "shizuki toa", 
+                    "SHIZUKI TOA", 
+                    "시즈키", 
+                    "토아"
+                ],
+                "playlists": [
+                    "", #오리곡
+                    "", #커버곡
+                    ""  #3D
+                ],
+                "videos": [
+
+                ]
+            },
+            "코가네 랑": {
+                "channel": "@coganerang",
+                "display": "코가네 랑",
+                "keyword": "",
+                "nickname": "랑~",
+                "color": "",
+                "mark": "",
+                "aliases": [
+                    "코가네 랑", 
+                    "cogane rang", 
+                    "COGANE RANG", 
+                    "랑"
+                ],
+                "playlists": [
+                    "", #오리곡
+                    "", #커버곡
+                    "" #3D
+                ],
+                "videos": [
+
+                ]
+            },
+            "하나요 히요리": {
+                "channel": "@HanayoHiyori",
+                "display": "하나요 히요리",
+                "keyword": "",
+                "nickname": "히요야",
+                "color": "",
+                "mark": "",
+                "aliases": [
+                    "하나요 히요리", 
+                    "hanayo hiyori", 
+                    "HANAYO HIYORI", 
+                    "히요리"
+                ],
+                "playlists": [
+                    "", #오리곡
+                    "", #커버곡
+                    "" #3D
+                ],
+                "videos": [
+
+                ]
+            },
+            "토키노 메리": {
+                "channel": "@TokinoMaryChannel",
+                "display": "토키노 메리",
+                "keyword": "",
+                "nickname": "메리야!",
+                "color": "",
+                "mark": "",
+                "aliases": [
+                    "토키노 메리", 
+                    "tokino mary", 
+                    "TOKINO MARY", 
+                    "메리"
+                ],
+                "playlists": [
+                    "", #오리곡
+                    "", #커버곡
+                    "" #3D
+                ],
+                "videos": [
+
+                ]
+            }
+        }
     }
 }
 
