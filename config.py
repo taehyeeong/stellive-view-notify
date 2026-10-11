@@ -318,7 +318,7 @@ UNITS = {
                     "PLzdLDJsHzz2NJ0hQg7PBLepqAs5sbo4lO" # 3D
                 ],
                 "videos": [
-
+                    "https://www.youtube.com/watch?v=fXoGiuE6e-I" # Loop in June
                 ]
             },
             "네네코 마시로": {
