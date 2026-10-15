@@ -504,7 +504,7 @@ UNITS = {
                     
                 ],
                 "videos": [
-
+                    "https://youtu.be/MZNKiadMo3U?si=lCW25Ndhn6Df4RFr" # 첫 커버곡
                 ]
             },
             "코가네 랑": {
