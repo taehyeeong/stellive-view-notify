@@ -524,7 +524,7 @@ UNITS = {
                     
                 ],
                 "videos": [
-
+                    "https://youtu.be/iAoU1UGPoXc?si=AOKdXMZkP0EqME_e" # 첫 커버곡
                 ]
             },
             "하나요 히요리": {
