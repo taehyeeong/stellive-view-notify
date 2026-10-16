@@ -564,7 +564,7 @@ UNITS = {
                    
                 ],
                 "videos": [
-
+                    "https://youtu.be/rKQptWhAvO0?si=4mqrUiC56OROVLlb" # 첫 커버곡
                 ]
             }
         }
