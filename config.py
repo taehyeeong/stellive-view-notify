@@ -544,7 +544,7 @@ UNITS = {
                     
                 ],
                 "videos": [
-
+                    "https://youtu.be/ouKcRBeyKbk?si=NKYVTDFvEIDqx4bS" # 첫 커버곡
                 ]
             },
             "토키노 메리": {
