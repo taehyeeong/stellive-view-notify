@@ -339,7 +339,7 @@ UNITS = {
                     "PLWwhuXFHGLvhgZZb5_rmQEMI1B0ysKJxG" #커버곡
                 ],
                 "videos": [
-
+                    "https://youtu.be/ObfmBcrG6D4?si=LumVek7TLuSoAtSD" # 사랑의 시 3D
                 ]
             },
             "아카네 리제": {
