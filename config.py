@@ -489,10 +489,10 @@ UNITS = {
             "시즈키 토아": {
                 "channel": "@ShizukiToa",
                 "display": "시즈키 토아",
-                "keyword": "",
-                "nickname": "토아야",
+                "keyword": "#toazzang",
+                "nickname": "토아짱",
                 "color": "",
-                "mark": "",
+                "mark": "🩷,🪦",
                 "aliases": [
                     "시즈키 토아", 
                     "shizuki toa", 
@@ -511,9 +511,9 @@ UNITS = {
                 "channel": "@coganerang",
                 "display": "코가네 랑",
                 "keyword": "",
-                "nickname": "랑~",
+                "nickname": "랑아가",
                 "color": "",
-                "mark": "",
+                "mark": "🐯,⚠️",
                 "aliases": [
                     "코가네 랑", 
                     "cogane rang", 
