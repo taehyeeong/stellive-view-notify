@@ -510,7 +510,7 @@ UNITS = {
             "코가네 랑": {
                 "channel": "@coganerang",
                 "display": "코가네 랑",
-                "keyword": "",
+                "keyword": "#Rang_log",
                 "nickname": "랑아가",
                 "color": "",
                 "mark": "🐯,⚠️",
