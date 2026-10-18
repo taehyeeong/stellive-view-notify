@@ -339,7 +339,8 @@ UNITS = {
                     "PLWwhuXFHGLvhgZZb5_rmQEMI1B0ysKJxG" #커버곡
                 ],
                 "videos": [
-                    "https://youtu.be/ObfmBcrG6D4?si=LumVek7TLuSoAtSD" # 사랑의 시 3D
+                    "https://youtu.be/ObfmBcrG6D4?si=LumVek7TLuSoAtSD", # 사랑의 시 3D
+                    "https://youtu.be/VjLC811FeTc?si=qMwLGKSRIcWPWjH5" # 방해쟁이 3D
                 ]
             },
             "아카네 리제": {
@@ -530,7 +531,7 @@ UNITS = {
             "하나요 히요리": {
                 "channel": "@HanayoHiyori",
                 "display": "하나요 히요리",
-                "keyword": "",
+                "keyword": "#hiyorizori",
                 "nickname": "요리야",
                 "color": "",
                 "mark": "👻,🌸",
