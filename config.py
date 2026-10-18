@@ -533,7 +533,7 @@ UNITS = {
                 "keyword": "",
                 "nickname": "히요야",
                 "color": "",
-                "mark": "",
+                "mark": "👻,🌸",
                 "aliases": [
                     "하나요 히요리", 
                     "hanayo hiyori", 
@@ -550,10 +550,10 @@ UNITS = {
             "토키노 메리": {
                 "channel": "@TokinoMaryChannel",
                 "display": "토키노 메리",
-                "keyword": "",
-                "nickname": "메리야!",
+                "keyword": "#mary_review",
+                "nickname": "메릿치 !",
                 "color": "",
-                "mark": "",
+                "mark": "🪡,🧸",
                 "aliases": [
                     "토키노 메리", 
                     "tokino mary", 
