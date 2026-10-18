@@ -531,7 +531,7 @@ UNITS = {
                 "channel": "@HanayoHiyori",
                 "display": "하나요 히요리",
                 "keyword": "",
-                "nickname": "히요야",
+                "nickname": "요리야",
                 "color": "",
                 "mark": "👻,🌸",
                 "aliases": [
