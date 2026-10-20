@@ -245,7 +245,6 @@ UNITS = {
                 "videos": [
                     "https://youtu.be/_BrWJ31tzYs?si=HW5gG6IhWdQdPG_O", # 유니버스 3D BLACKHOLE 커버
                     "https://youtu.be/imggwZXeePQ?si=NJQI49wCXUxbqVHq",  # 유니버스 3D 학원천국 커버
-                        "https://youtu.be/EKEts5IShas?si=j1ZaSSZrXC4Dy__e" # 어비스 첫 오리곡_별이 시작되는 곳
                 ]
             }
         }
@@ -507,6 +506,7 @@ UNITS = {
                 ],
                 "videos": [
                     "https://youtu.be/MZNKiadMo3U?si=lCW25Ndhn6Df4RFr" # 첫 커버곡
+                    "https://youtu.be/EKEts5IShas?si=j1ZaSSZrXC4Dy__e" # 별이 시작되는 곳
                 ]
             },
             "코가네 랑": {
