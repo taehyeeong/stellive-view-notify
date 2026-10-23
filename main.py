@@ -2114,6 +2114,8 @@ def fetch_playlist_items(access_token, playlist_id):
 
     return items
 
+class ManualSortRequired(Exception):
+    pass
 
 def playlist_insert(access_token, playlist_id, video_id, position=None):
     headers = {"Authorization": f"Bearer {access_token}"}
@@ -2134,6 +2136,11 @@ def playlist_insert(access_token, playlist_id, video_id, position=None):
         json={"snippet": snippet},
         timeout=10,
     )
+    if response.status_code == 400 and position is not None:
+        print(f"   ↳ 400 사유: {response.text[:300]}", flush=True)
+        return playlist_insert(access_token, playlist_id, video_id, position=None)  # 순서 없이 맨 뒤에 추가
+    if response.status_code == 400 and "manualSortRequired" in response.text:
+        raise ManualSortRequired("플리 정렬이 '수동'이 아님")
     response.raise_for_status()
     return response.json()
 
@@ -2277,6 +2284,7 @@ def sync_growth_playlist(top_videos, title_map=None):
         added = 0
         ops = 0
         quota_hit = False
+        sort_blocked = False
         added_titles = []       
         removed_titles = []
 
@@ -2293,6 +2301,15 @@ def sync_growth_playlist(top_videos, title_map=None):
                         added += 1; ops += 1
                         added_titles.append(f"{title_map.get(video_id, video_id)}  ({video_id})")
                         break
+                    except ManualSortRequired:
+                        sort_blocked = True
+                        send_telegram(
+                            "⚠️ 성장 플리 정렬이 '수동'이 아니에요\n\n"
+                            "곡 추가가 막혀서 이번 실행은 추가·삭제를 모두 건너뛰었어요.\n"
+                            "YouTube에서 플리 정렬을 '수동'으로 바꿔 주세요.\n\n"
+                            f"https://www.youtube.com/playlist?list={GROWTH_PLAYLIST_ID}"
+                        )
+                        break
                     except Exception as e:
                         if _is_quota_error(e):
                             if _advance_oauth(exhausted_oauth_indices):
@@ -2302,11 +2319,16 @@ def sync_growth_playlist(top_videos, title_map=None):
                             break
                         print(f"⚠️ 플리 추가 실패 {video_id}: {e}")
                         break
-                if quota_hit:
+                if quota_hit or sort_blocked:
                     break
-
+                add_needed = sum(1 for vid in desired_ids if vid not in current_set)
+        if add_needed > 0 and added == 0:
+            print("⚠️ 추가가 전부 실패 → 이번 실행은 삭제 건너뜀 (플리 고갈 방지)", flush=True)
+            GROWTH_PLAYLIST_REMOVE_MISSING_RUN = False
+        else:
+            GROWTH_PLAYLIST_REMOVE_MISSING_RUN = GROWTH_PLAYLIST_REMOVE_MISSING
         # ── 삭제 ──
-        if GROWTH_PLAYLIST_REMOVE_MISSING:
+        if GROWTH_PLAYLIST_REMOVE_MISSING_RUN and not sort_blocked:
             for item in current_items:
                 if item.get("video_id") in desired_set:
                     continue
@@ -2333,7 +2355,7 @@ def sync_growth_playlist(top_videos, title_map=None):
 
 
         still_to_remove = 0
-        if GROWTH_PLAYLIST_REMOVE_MISSING:
+        if GROWTH_PLAYLIST_REMOVE_MISSING_RUN:
             still_to_remove = sum(
                 1 for it in current_items
                 if it.get("video_id") not in desired_set
