@@ -270,7 +270,7 @@ UNITS = {
                     "PL3HtH_xx9h_7ZGoZ9zMUQ-MPumwe21_cc"  # 노래
                 ],
                 "videos": [
-
+                    "https://youtu.be/CGYa8wsbii4?si=txa6asnJPGx2Py3z" # SUPERPOWER 발로 챔피언 테마곡
                 ]
             },
             "사키하네 후야": {
@@ -290,7 +290,7 @@ UNITS = {
                     "PL3rF5rqFNO48ZMgPuZ6XbQ1J9IT3TQtcs" #커버곡
                     ],
                 "videos": [
-
+                    "https://youtu.be/SRMTyNLUnZY?si=kek8pvR9gs_IBX3v" # Letters to me 커버곡
                 ]
             }
         }
