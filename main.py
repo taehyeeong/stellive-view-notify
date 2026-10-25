@@ -66,6 +66,8 @@ def now_kst():
         "%Y-%m-%d %H:%M:%S"
     )
 
+_REPO = os.environ.get("GITHUB_REPOSITORY", "taehyeeong/stellive-view-notify")
+TITLES_EDIT_URL = f"https://github.com/{_REPO}/edit/main/titles.json"
 BOT_STATE_FILE = "bot_state.json"
 _HEADID_TO_NAME = {v: k for k, v in CAFE_HEADID.items()}
 
@@ -101,35 +103,46 @@ def _watchdog(signum, frame):
     finally:
         os._exit(1)
 
+def _kst_naive(iso_utc):
+    """'2026-10-27T05:00:00Z' → KST 기준 datetime."""
+    dt = datetime.fromisoformat(iso_utc.replace("Z", "+00:00"))
+    return (dt + timedelta(hours=9)).replace(tzinfo=None)
+
 def get_active_auto_pins():
-    """만료 안 지난 신곡 자동핀 video_id 목록. 만료된 건 정리해서 저장."""
-    state = _load_state()
-    pins = state.get("auto_pinned", {})
+    """공개 시각 LEAD분 전부터 공개 시각+N일까지 활성. 만료된 건 정리해서 저장."""
+    pins = _load_state().get("auto_pinned", {})
     if not pins:
         return []
-    today = date.today()
-    kept = {}
-    for vid, added in pins.items():
+    now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
+    lead = timedelta(minutes=PREMIERE_LEAD_MINUTES)
+    span = timedelta(days=AUTO_PIN_NEW_SONG_DAYS)
+    kept, active = {}, []
+    for vid, start in pins.items():
         try:
-            added_date = date.fromisoformat(added)
+            st = datetime.fromisoformat(start)   # 예전 'YYYY-MM-DD'는 자정으로 읽힘
         except (ValueError, TypeError):
             continue
-        if (today - added_date).days < AUTO_PIN_NEW_SONG_DAYS:
-            kept[vid] = added
-    if kept != pins:                      # 만료된 게 있으면 정리 후 저장
+        if now >= st + span:
+            continue                             # 만료
+        kept[vid] = start
+        if now >= st - lead:
+            active.append(vid)                   # 공개 직전부터 플리에
+    if kept != pins:
         _save_state(auto_pinned=kept)
-    return list(kept.keys())
+    return active
 
-def add_auto_pin(video_id):
-    """신곡 감지 시 호출. 이미 등록돼 있으면 날짜 유지(무시)."""
+def add_auto_pin(video_id, start_at=None):
+    """신곡 자동핀. start_at = 카운트 시작 시각(최초 공개면 공개 시각, 아니면 지금)."""
     if AUTO_PIN_NEW_SONG_DAYS <= 0:
         return
-    state = _load_state()
-    pins = state.get("auto_pinned", {})
-    if video_id in pins:
+    pins = _load_state().get("auto_pinned", {})
+    if video_id in pins and start_at is None:
         return
-    pins[video_id] = date.today().isoformat()
-    _save_state(auto_pinned=pins)
+    start = start_at or datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
+    value = start.isoformat(timespec="minutes")
+    if pins.get(video_id) != value:
+        pins[video_id] = value
+        _save_state(auto_pinned=pins)
 
 def _views_n_days_ago(history, days=7):
     """history에서 days일 전 시점에 가장 가까운(그 이전) 조회수. 7일치 안 되면 가장 오래된 값."""
@@ -372,7 +385,8 @@ from config import (
     FOCUS_BONUS,
     CAFE_URL_NAME,
     CAFE_POST_DELAY,
-    CAFE_TIME_BUDGET
+    CAFE_TIME_BUDGET,
+    PREMIERE_LEAD_MINUTES
 )
 
 
@@ -824,23 +838,12 @@ def send_error(error):
     send_telegram(message)
 
 
-def send_photo(photo, caption):
-
-    url = (
-        f"https://api.telegram.org/"
-        f"bot{TELEGRAM_TOKEN}/sendPhoto"
-    )
-
-    requests.post(
-        url,
-        json={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "photo": photo,
-            "caption": caption
-        },
-        timeout=10
-    )
-
+def send_photo(photo, caption, reply_markup=None):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
+    payload = {"chat_id": TELEGRAM_CHAT_ID, "photo": photo, "caption": caption}
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    requests.post(url, json=payload, timeout=10)
 
 def get_reached_milestones(views):
 
@@ -1562,7 +1565,7 @@ def get_view_counts(video_ids):
         data = youtube_get(
             "https://www.googleapis.com/youtube/v3/videos",
             {
-                "part": "snippet,statistics",
+                "part": "snippet,statistics,liveStreamingDetails",
                 "id": ",".join(chunk),
                 "key": YOUTUBE_API_KEY
             }
@@ -1582,11 +1585,14 @@ def get_view_counts(video_ids):
                 or {}
             ).get("url", "")
 
+            live = item.get("liveStreamingDetails", {})
             result[video_id] = {
                 "views": int(statistics.get("viewCount", 0)),
                 "title": snippet.get("title", ""),
                 "thumb": thumbnail,
-                "published": snippet.get("publishedAt", "")
+                "published": snippet.get("publishedAt", ""),
+                "live": snippet.get("liveBroadcastContent", "none"),
+                "premiere_at": live.get("scheduledStartTime", ""),
             }
 
     return result
@@ -1819,10 +1825,13 @@ def get_top_growth_videos(data, limit=None):
         limit = MAX_GROWTH_PLAYLIST_VIDEOS
 
     candidates = []
+    excluded_ids = get_excluded_video_ids()
     for video_id, info in data.items():
         if video_id.startswith("_") or not isinstance(info, dict):
             continue
         if "growth" not in info:
+            continue
+        if video_id in excluded_ids or is_excluded(info.get("title", "")):
             continue
         override = normalize_artists(info.get("artists_override"))
         if override:
@@ -1837,6 +1846,8 @@ def get_top_growth_videos(data, limit=None):
             "views": info.get("views", 0), "score": info.get("growth_score", 0),
             "eta_days": info["growth"].get("eta_days"),
         })
+        if info.get("upcoming"):
+            continue
 
     now = datetime.now(KST)
     slot = now.toordinal() * 24 + now.hour
@@ -2474,6 +2485,10 @@ def main():
     video_ids = [video["id"] for video in videos]
 
     view_data = get_view_counts(video_ids)
+    pinned_now = _load_state().get("auto_pinned", {})
+    for vid, v in view_data.items():
+        if vid in pinned_now and v.get("live") == "upcoming" and v.get("premiere_at"):
+            add_auto_pin(vid, start_at=_kst_naive(v["premiere_at"]))
 
     any_milestone_sent = False
     for video in videos:
@@ -2549,16 +2564,29 @@ def main():
             new_videos += 1
 
         if is_new and not INITIAL_SETUP and not baseline_mode:
+            premiere = info.get("premiere_at") if info.get("live") == "upcoming" else ""
+            if premiere:
+                start = _kst_naive(premiere)
+                add_auto_pin(video_id, start_at=start)
+                pin_line = (f"⏳ 최초 공개 {start:%m/%d %H:%M} — 공개 {PREMIERE_LEAD_MINUTES}분 전부터 "
+                            f"성장 플리 등록, 공개 시각부터 {AUTO_PIN_NEW_SONG_DAYS}일")
+            else:
+                add_auto_pin(video_id)
+                pin_line = f"🎼 성장 플리 자동 등록 (D-{AUTO_PIN_NEW_SONG_DAYS})"
             send_photo(
                 info["thumb"],
                 f"🆕 새로운 음악 영상 발견!\n\n"
-                f"👤 {', '.join(effective_artists)}\n\n"
-                f"🎵 {display_title}\n\n"
-                f"📊 현재 조회수: {views:,}회\n\n"
-                f"🔗 {url}"
+                f"👤 {', '.join(effective_artists)}\n"
+                f"🎵 원제목: {title}\n\n"
+                f"📝 titles.json 등록 제목: 『{display_title}』\n"
+                f"👥 등록 아티스트: {', '.join(collapse_artists(effective_artists))}\n\n"
+                f"📊 현재 조회수: {views:,}회\n"
+                f"{pin_line}\n\n"
+                f"🔗 {url}",
+                reply_markup={"inline_keyboard": [[
+                    {"text": "✏️ titles.json 수정", "url": TITLES_EDIT_URL},
+                ]]},
             )
-            add_auto_pin(extract_video_id(url))   # 신곡 → 성장 플리 10일 자동핀
-            send_telegram(f"🎼 플리 자동 등록 (D-{AUTO_PIN_NEW_SONG_DAYS})")
 
         old_views = data.get(video_id, {}).get("views", views)
 
@@ -2682,7 +2710,8 @@ def main():
             },
             "growth_score": score,
             "notified": sorted(set(notified)),
-            "updated": str(now_kst())
+            "updated": str(now_kst()),
+            "upcoming": info.get("live") == "upcoming",
         }
         
 
@@ -2717,10 +2746,14 @@ def main():
 
     save_data(data)
 
-    if titles_ok and titles_dirty:
-        with open(TITLE_FILE, "w", encoding="utf-8") as f:
-            json.dump(titles_raw, f, ensure_ascii=False, indent=2)
-        print("📝 titles.json에 새 영상 자동 추가")
+    if titles_ok:
+        def _pub(key):
+            return (data.get(extract_video_id(key)) or {}).get("published", "")
+        ordered = dict(sorted(titles_raw.items(), key=lambda kv: _pub(kv[0]), reverse=True))
+        if titles_dirty or list(ordered) != list(titles_raw):
+            with open(TITLE_FILE, "w", encoding="utf-8") as f:
+                json.dump(ordered, f, ensure_ascii=False, indent=2)
+            print("📝 titles.json 저장 (최신 공개순)")
 
     if not titles_ok:
         send_telegram(

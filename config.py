@@ -32,6 +32,7 @@ MAX_PLAYLIST_OPS_PER_RUN = 40
 GROWTH_PLAYLIST_PINNED = [
     # "https://www.youtube.com/watch?v=xxxx",
 ]
+PREMIERE_LEAD_MINUTES = 60   # 최초 공개 몇 분 전부터 성장 플리에 넣을지
 
 
 
