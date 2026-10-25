@@ -341,7 +341,12 @@ UNITS = {
                 ],
                 "videos": [
                     "https://youtu.be/ObfmBcrG6D4?si=LumVek7TLuSoAtSD", # 사랑의 시 3D
-                    "https://youtu.be/VjLC811FeTc?si=qMwLGKSRIcWPWjH5" # 방해쟁이 3D
+                    "https://youtu.be/VjLC811FeTc?si=qMwLGKSRIcWPWjH5", # 방해쟁이 3D
+                    "https://youtu.be/v2qdpBGHUrE?si=872imA6ylQ4Oiiee", # 달맞이 리사이틀 3D
+                    "https://youtu.be/jHc5yW6iOPk?si=OyKoAXxJfTOafOc4", # Land of Lola 방구석 뮤지컬
+                    "https://youtu.be/j_RAn7yvq_0?si=EYLvebp0jvlrUHME", # ALIVE II 방구석 뮤지컬
+                    "https://youtu.be/Da77IyHlwao?si=JZ_0miOc27fHjEJg", # 웃는남자 방구석 뮤지컬
+                    "https://youtu.be/OlJ-7k9Trm0?si=2zuc2kmewvbNzUmg" # Confrontation 방구석 뮤지컬
                 ]
             },
             "아카네 리제": {
