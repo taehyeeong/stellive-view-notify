@@ -67,7 +67,7 @@ def now_kst():
     )
 
 _REPO = os.environ.get("GITHUB_REPOSITORY", "taehyeeong/stellive-view-notify")
-TITLES_EDIT_URL = f"https://github.com/{_REPO}/edit/main/titles.json"
+TITLES_VIEW_URL = f"https://github.com/{_REPO}/blob/main/titles.json"
 BOT_STATE_FILE = "bot_state.json"
 _HEADID_TO_NAME = {v: k for k, v in CAFE_HEADID.items()}
 
@@ -1826,6 +1826,12 @@ def get_top_growth_videos(data, limit=None):
 
     candidates = []
     excluded_ids = get_excluded_video_ids()
+
+    latest = max((i.get("updated", "") for i in data.values() if isinstance(i, dict)), default="")
+    cutoff = ""
+    if latest:
+        cutoff = str(datetime.strptime(latest[:19], "%Y-%m-%d %H:%M:%S") - timedelta(hours=6))
+
     for video_id, info in data.items():
         if video_id.startswith("_") or not isinstance(info, dict):
             continue
@@ -1833,6 +1839,8 @@ def get_top_growth_videos(data, limit=None):
             continue
         if video_id in excluded_ids or is_excluded(info.get("title", "")):
             continue
+        if cutoff and info.get("updated", "") < cutoff:
+            continue   # 이번 수집에서 빠진 영상 (제외 키워드·삭제·비공개)  
         override = normalize_artists(info.get("artists_override"))
         if override:
             artists = override
@@ -2210,6 +2218,52 @@ def _is_quota_error(error):
     text = response.text or ""
     return "quotaExceeded" in text or "dailyLimitExceeded" in text
 
+PLAYLIST_RECENT_DAYS = 7    # 이 기간 안에 빠졌으면 🔵, 넘으면 🔴
+PLAYLIST_LOG_KEEP = 10      # 곡당 남길 기록 수
+
+def _playlist_status(in_now, log, now):
+    if in_now:
+        since = next((l[:16] for l in log if l.endswith("➕")), "")
+        return f"🟢 플리에 있음 · {since[5:]}부터"
+    if not log:
+        return "⚪ 아직 안 들어감"
+    last = datetime.strptime(log[0][:16], "%Y-%m-%d %H:%M")
+    days = (now - last).days
+    if days < PLAYLIST_RECENT_DAYS:
+        return f"🔵 최근에 빠짐 · {log[0][5:16]} ({days}일 전)"
+    return f"🔴 오래됨 · 마지막 {log[0][5:16]} ({days}일 전)"
+
+def record_playlist_history(in_playlist, added_ids, removed_ids):
+    try:
+        with open(TITLE_FILE, encoding="utf-8") as f:
+            titles = json.load(f)
+    except Exception as e:
+        print(f"⚠️ titles.json 플리 기록 실패: {e}")
+        return
+    now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
+    stamp = now.strftime("%Y-%m-%d %H:%M")
+    changed = False
+    for key, entry in titles.items():
+        if not isinstance(entry, dict):
+            continue
+        vid = extract_video_id(key) or key
+        old_log = entry.get("playlist_log", [])
+        log = list(old_log)
+        if vid in added_ids or (vid in in_playlist and not log):
+            log.insert(0, f"{stamp} ➕")
+        if vid in removed_ids:
+            log.insert(0, f"{stamp} ➖")
+        log = log[:PLAYLIST_LOG_KEEP]
+        status = _playlist_status(vid in in_playlist, log, now)
+        if log != old_log or status != entry.get("playlist"):
+            entry["playlist"] = status
+            if log:
+                entry["playlist_log"] = log
+            changed = True
+    if changed:
+        with open(TITLE_FILE, "w", encoding="utf-8") as f:
+            json.dump(titles, f, ensure_ascii=False, indent=2)
+        print("📝 titles.json 플리 기록 갱신")
 
 def sync_growth_playlist(top_videos, title_map=None):
     title_map = title_map or {}
@@ -2298,6 +2352,7 @@ def sync_growth_playlist(top_videos, title_map=None):
         sort_blocked = False
         added_titles = []       
         removed_titles = []
+        added_ids, removed_ids = [], []
 
         # ── 추가 ──
         if not quota_hit:
@@ -2310,6 +2365,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                     try:
                         playlist_insert(access_token, GROWTH_PLAYLIST_ID, video_id, position=target_position)
                         added += 1; ops += 1
+                        added_ids.append(video_id)
                         added_titles.append(f"{title_map.get(video_id, video_id)}  ({video_id})")
                         break
                     except ManualSortRequired:
@@ -2332,7 +2388,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                         break
                 if quota_hit or sort_blocked:
                     break
-                add_needed = sum(1 for vid in desired_ids if vid not in current_set)
+        add_needed = sum(1 for vid in desired_ids if vid not in current_set)
         if add_needed > 0 and added == 0:
             print("⚠️ 추가가 전부 실패 → 이번 실행은 삭제 건너뜀 (플리 고갈 방지)", flush=True)
             GROWTH_PLAYLIST_REMOVE_MISSING_RUN = False
@@ -2349,6 +2405,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                     try:
                         playlist_delete(access_token, item["playlist_item_id"])
                         removed += 1; ops += 1
+                        removed_ids.append(item.get("video_id"))
                         vid = item.get("video_id")
                         removed_titles.append(f"{title_map.get(vid, vid)}  ({vid})")
                         break
@@ -2364,6 +2421,8 @@ def sync_growth_playlist(top_videos, title_map=None):
                 if quota_hit:
                     break
 
+        in_playlist = (current_set | set(added_ids)) - set(removed_ids)
+        record_playlist_history(in_playlist, set(added_ids), set(removed_ids))
 
         still_to_remove = 0
         if GROWTH_PLAYLIST_REMOVE_MISSING_RUN:
@@ -2571,11 +2630,19 @@ def main():
                 pin_line = (f"⏳ 최초 공개 {start:%m/%d %H:%M} — 공개 {PREMIERE_LEAD_MINUTES}분 전부터 "
                             f"성장 플리 등록, 공개 시각부터 {AUTO_PIN_NEW_SONG_DAYS}일")
             else:
-                add_auto_pin(video_id)
-                pin_line = f"🎼 성장 플리 자동 등록 (D-{AUTO_PIN_NEW_SONG_DAYS})"
+                pub = info.get("published", "")
+                start = _kst_naive(pub) if pub else None
+                now_dt = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
+                age_days = (now_dt - start).days if start else 0
+                if age_days >= AUTO_PIN_NEW_SONG_DAYS:
+                    pin_line = f"📼 예전 영상 ({start:%Y-%m-%d} 공개) — 신곡 자동핀 없음"
+                else:
+                    add_auto_pin(video_id, start_at=start)
+                    pin_line = (f"🎼 성장 플리 자동 등록 "
+                                f"(공개 기준, {AUTO_PIN_NEW_SONG_DAYS - age_days}일 남음)")
             send_photo(
                 info["thumb"],
-                f"🆕 새로운 음악 영상 발견!\n\n"
+                ("📥 예전 영상 추적 시작\n\n" if pin_line.startswith("📼") else "🆕 새로운 음악 영상 발견!\n\n") +
                 f"👤 {', '.join(effective_artists)}\n"
                 f"🎵 원제목: {title}\n\n"
                 f"📝 titles.json 등록 제목: 『{display_title}』\n"
@@ -2584,7 +2651,7 @@ def main():
                 f"{pin_line}\n\n"
                 f"🔗 {url}",
                 reply_markup={"inline_keyboard": [[
-                    {"text": "✏️ titles.json 수정", "url": TITLES_EDIT_URL},
+                    {"text": "✏️ titles.json 수정", "url": TITLES_VIEW_URL},
                 ]]},
             )
 
