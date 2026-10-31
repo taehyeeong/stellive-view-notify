@@ -440,7 +440,7 @@ UNITS = {
                     "PLSDRWR15h-o5YHBDW4fvHU8UlSCfSuV3r" #3D
                 ],
                 "videos": [
-
+                    "https://youtu.be/qNOFi7GzpfM?si=e7HYRkY6loH8a_RT" #괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~
                 ]
             },
             "하나코 나나": {
