@@ -7,7 +7,7 @@ import os
 
 # ── 조회수 알림 단위 ──
 # 50000 = 5만 조회수마다 알림
-VIEW_STEP = 50000
+VIEW_STEP = 100000
 
 # ── 특별 알림 마일스톤 ──
 MILESTONES = [
