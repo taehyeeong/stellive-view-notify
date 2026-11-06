@@ -18,7 +18,16 @@ MILESTONES = [
     10000000,   # 1000만
 ]
 
-
+# ─── 텔레그램 알림 토글 (True = 받기, False = 끄기) ───
+# 마일스톤 카드·카페 제목/본문·버튼, 성장 플리 갱신, 쿼터 전환/소진은 항상 옴
+NOTIFY = {
+    "run_done":     False,  # ✅ 실행 완료 (마일스톤 없을 때)
+    "imminent":     False,   # ⚡ 곧 달성 예정
+    "dday":         False,   # 🎯 다가오는 100만 달성 (하루 1회)
+    "weekly_recap": False,   # 📊 주간 결산 (일요일 밤)
+    "spike":        False,   # 🚀 떡상 감지
+    "new_song":     True,   # 🆕 새 음악 영상 + 🎼 플리 자동 등록
+}
 
 # ── 성장 플리: 기본 ──
 GROWTH_PLAYLIST_ID = os.environ.get("GROWTH_PLAYLIST_ID", "")

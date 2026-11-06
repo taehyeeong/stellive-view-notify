@@ -10,6 +10,7 @@
 # =====================================================================
 
 
+from PIL import ExifTags
 import dataclasses
 import os
 import json
@@ -33,7 +34,7 @@ from datetime import datetime, timezone, timedelta, date
 from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
-from config import CAFE_WRITE_URL
+from config import CAFE_WRITE_URL, NOTIFY
 from html import escape
 try:
     from cafe import post_to_cafe
@@ -47,6 +48,7 @@ from config import (
     CAFE_HEADID, CAFE_HEADID_DEFAULT,
 )
 from card import make_milestone_card, make_special_card
+
 
 
 class QuotaExceededError(Exception):
@@ -158,6 +160,7 @@ def _views_n_days_ago(history, days=7):
 
 def maybe_send_weekly_recap(data):
     """일요일 21시 이후 첫 실행에 지난 7일 결산 1회 전송 (bot_state 중복 방지)."""
+    if not NOTIFY.get("weekly_recap", True): return
     now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
     if now.weekday() != 6 or now.hour < 21:   # 월=0 … 일=6
         return
@@ -427,6 +430,7 @@ _current_oauth_index = 0
 
 def maybe_send_dday_digest(data):
     """다가오는 큰 목표(100만 단위) 곡을 매일 1회 텔레그램으로 (bot_state 중복 방지)."""
+    if not NOTIFY.get("dday", True): return
     now = datetime.strptime(str(now_kst()), "%Y-%m-%d %H:%M:%S")
     if now.hour < DDAY_ALERT_HOUR:
         return
@@ -468,6 +472,7 @@ def maybe_send_dday_digest(data):
 
 def update_imminent_message(data):
     """곧 달성 예정 곡을 IMMINENT_PING_HOURS 주기로 새 알림 전송 (직전 건 삭제)."""
+    if not NOTIFY.get("imminent", True): return
     now = datetime.now(KST)
     cur_block = now.timetuple().tm_yday * 24 + now.hour
     state = _load_state()
@@ -524,6 +529,7 @@ def update_imminent_message(data):
 
 def send_spike_alerts(data):
     """최근 성장 속도가 평소보다 급등한 곡을 즉시 알림 (곡별 하루 1회)."""
+    if not NOTIFY.get("spike", True): return
     today = now_kst()[:10]
     fired = dict(_load_state().get("spike_fired", {}))   # {video_id: "YYYY-MM-DD"}
     changed = False
@@ -608,7 +614,9 @@ def save_data(data):
 # 텔레그램
 # ======================
 
-def send_telegram(message, reply_markup=None, parse_mode=None):
+def send_telegram(message, reply_markup=None, parse_mode=None, kind=None):
+    if kind and not NOTIFY.get(kind, True):
+        return
 
     url = (
         f"https://api.telegram.org/"
@@ -817,7 +825,9 @@ def send_error(error):
     send_telegram(message)
 
 
-def send_photo(photo, caption, reply_markup=None):
+def send_photo(photo, caption, reply_markup=None, kind=None):
+    if kind and not NOTIFY.get(kind, True):
+        return    
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendPhoto"
     payload = {"chat_id": TELEGRAM_CHAT_ID, "photo": photo, "caption": caption}
     if reply_markup:
@@ -2632,6 +2642,7 @@ def main():
                 reply_markup={"inline_keyboard": [[
                     {"text": "✏️ titles.json 수정", "url": TITLES_VIEW_URL},
                 ]]},
+                kind="new_song",
             )
 
         old_views = data.get(video_id, {}).get("views", views)
@@ -2774,7 +2785,7 @@ def main():
         if error_playlists == 0
         else f"⚠️ 오류 {error_playlists}개 있음"
     )
-    if not any_milestone_sent:
+    if not any_milestone_sent and NOTIFY.get("run_done", True):
         send_telegram(
             f"✅ YouTube Notify 실행 완료\n\n"
             f"⏰ 실행 시간: {now_kst()}\n\n"
