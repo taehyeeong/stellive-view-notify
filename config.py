@@ -181,7 +181,7 @@ CAFE_UPCOMING_HEADID  = 166     # 말머리 : 스텔라
 
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
-CAFE_SUBJECT_TEMPLATE = "{mark} {title} {views} !!"
+CAFE_SUBJECT_TEMPLATE = "{title} {views} {mark}"
 # 카페 반자동(복붙) 설정
 CAFE_WRITE_URL = "https://m.cafe.naver.com/ca-fe/web/cafes/29424353/menus/195/articles/write?boardType=L"
 # 쓸 수 있는 칸: {headname} 말머리, {subject} 카페 제목, {nickname} 닉네임,
