@@ -725,26 +725,10 @@ def cafe_headname_for(effective_artists, unit=None):
             return name
     return ""
 
-def build_cafe_caption(card_info, video_id):
-    title    = card_info.get("title", "")
-    views    = card_info.get("views_text", "")
-    nickname = card_info.get("nickname", card_info.get("artist", ""))
-    mark     = card_info.get("mark", "")
-    headname = cafe_headname_for(card_info)
-    subject = CAFE_SUBJECT_TEMPLATE.format(title=title, views=views, mark=mark)
-    body    = CAFE_CONTENT_TEMPLATE.format(nickname=nickname, title=title,
-                                           views=views, video_id=video_id)
-    return (
-        f"📮 카페 축하글  ·  말머리: <b>{escape(headname)}</b>\n"
-        f"↓ 탭하면 복사돼요\n\n"
-        f"<b>제목</b>\n<code>{escape(subject)}</code>\n\n"
-        f"<b>본문</b>\n<code>{escape(body)}</code>"
-    )
-
 
 def build_cafe_kit(alert, effective_artists, artist_info):
-    """카페 대상이면 (캡션용 HTML 블록, 글쓰기 URL), 아니면 (None, None)."""
-    if not CAFE_POST_ENABLED or alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
+    """카페 대상이면 (카드 캡션, 본문 메시지), 아니면 (None, None)."""
+    if alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
         return None, None
     nickname = (artist_info or {}).get("nickname") or alert["artist"]
     marks = [m for m in resolve_artist_mark(alert["artist"], effective_artists).split(",") if m.strip()]
@@ -754,13 +738,16 @@ def build_cafe_kit(alert, effective_artists, artist_info):
     subject = CAFE_SUBJECT_TEMPLATE.format(**fields)
     content = CAFE_CONTENT_TEMPLATE.format(**fields)
     headname = cafe_headname_for(effective_artists, unit=resolve_unit(effective_artists))
-    block = (
-        "\n\n📮 카페용 (탭해서 복사)\n"
-        f"🏷 말머리: {html.escape(headname)}\n"
-        f"📌 제목:\n<code>{html.escape(subject)}</code>\n"
-        f"📝 본문:\n<code>{html.escape(content)}</code>"
+
+    caption = (
+        f"📮 카페용  ·  🏷 말머리: <b>{html.escape(headname)}</b>\n\n"
+        f"📌 제목 (탭해서 복사)\n<code>{html.escape(subject)}</code>\n\n"
+        f"📝 본문은 아래 메시지를 꾹 눌러 복사"
     )
-    return block, CAFE_WRITE_URL
+    # 유튜브 주소에 링크 서식을 걸어야 카페에 붙여넣을 때 바로 링크가 됨
+    url = f"https://youtu.be/{alert['video_id']}"
+    body = html.escape(content).replace(url, f'<a href="{url}">{url}</a>')
+    return caption, body
 
 
 def make_share_buttons(tweet_text, cafe_url=None):
@@ -772,15 +759,7 @@ def make_share_buttons(tweet_text, cafe_url=None):
 
 
 def send_notification(message, video_id=None, card_info=None,
-                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None):
-    if cafe_url is None and card_info:
-        ms = card_info.get("milestone")
-        if ms and ms >= CAFE_MIN_MILESTONE:
-            cafe_url = CAFE_WRITE_URL
-            if cafe_url and caption is None:                      # ← 추가
-                caption = build_cafe_caption(card_info, video_id) # ← 추가
-            if parse_mode is None:                            # ← 추가
-                parse_mode = "HTML"    
+                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None):  
     markup = make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
     cap = caption if caption is not None else message          # 카드에 보일 캡션
     if video_id and card_info:
@@ -2721,19 +2700,15 @@ def main():
                 "card_opts": opts,
                 "milestone": alert.get("milestone"),
             }
-            cafe_block, cafe_url = build_cafe_kit(alert, effective_artists, artist_info)
-            if cafe_block:
-                send_notification(alert["message"], alert["video_id"], card_info=card_info,
-                                  cafe_url=cafe_url,
-                                  caption=html.escape(alert["message"]) + cafe_block,
-                                  parse_mode="HTML")
-            else:
-                milestone = card_info.get("milestone")
-                cafe_url = CAFE_WRITE_URL if (milestone and milestone >= CAFE_MIN_MILESTONE) else None
-                send_notification(
-                    alert["message"], video_id=alert["video_id"], card_info=card_info,
-                    cafe_url=cafe_url,
-                )
+            cafe_caption, cafe_body = build_cafe_kit(alert, effective_artists, artist_info)
+            send_notification(
+                alert["message"], video_id=alert["video_id"], card_info=card_info,
+                cafe_url=CAFE_WRITE_URL if cafe_caption else None,
+                caption=cafe_caption,
+                parse_mode="HTML" if cafe_caption else None,
+            )
+            if cafe_body:
+                send_telegram(cafe_body, parse_mode="HTML")
 
 
 
