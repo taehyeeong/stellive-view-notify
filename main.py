@@ -34,7 +34,7 @@ from datetime import datetime, timezone, timedelta, date
 from requests import RequestException
 from dotenv import load_dotenv
 from urllib.parse import quote
-from config import CAFE_WRITE_URL, NOTIFY
+from config import CAFE_WRITE_URL, NOTIFY, UNITS, CAFE_CAPTION_TEMPLATE
 from html import escape
 try:
     from cafe import post_to_cafe
@@ -733,11 +733,24 @@ def cafe_headname_for(effective_artists, unit=None):
             return name
     return ""
 
+def cafe_enabled(headname):
+    """말머리 이름으로 UNITS에서 cafe 설정 찾기. 없으면 False."""
+    if headname in UNITS:                                   # 유닛 / 스텔라이브
+        return UNITS[headname].get("cafe", False)
+    for unit in UNITS.values():                             # 멤버 (aliases로 찾기)
+        for name, m in unit.get("members", {}).items():
+            if headname == name or headname in m.get("aliases", []):
+                return m.get("cafe", False)
+    return False
 
 def build_cafe_kit(alert, effective_artists, artist_info):
     """카페 대상이면 (카드 캡션, 본문 메시지), 아니면 (None, None)."""
     if alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
         return None, None
+    headname = cafe_headname_for(effective_artists, unit=resolve_unit(effective_artists))
+    if not cafe_enabled(headname):      # 카페 안 켠 멤버 → X만
+        return None, None
+
     nickname = (artist_info or {}).get("nickname") or alert["artist"]
     marks = [m for m in resolve_artist_mark(alert["artist"], effective_artists).split(",") if m.strip()]
     mark = random.choice(marks).strip() if marks else ""
@@ -745,14 +758,13 @@ def build_cafe_kit(alert, effective_artists, artist_info):
               "views": alert["views_text"], "video_id": alert["video_id"]}
     subject = CAFE_SUBJECT_TEMPLATE.format(**fields)
     content = CAFE_CONTENT_TEMPLATE.format(**fields)
-    headname = cafe_headname_for(effective_artists, unit=resolve_unit(effective_artists))
 
-    caption = (
-        f"📮 카페용  ·  🏷 말머리: <b>{html.escape(headname)}</b>\n\n"
-        f"📌 제목 (탭해서 복사)\n<code>{html.escape(subject)}</code>\n\n"
-        f"📝 본문은 아래 메시지를 꾹 눌러 복사"
-    )
-    # 유튜브 주소에 링크 서식을 걸어야 카페에 붙여넣을 때 바로 링크가 됨
+    esc = {k: html.escape(str(v)) for k, v in fields.items()}
+    caption = CAFE_CAPTION_TEMPLATE.format(
+        **esc, headname=html.escape(headname),
+        subject=f"<code>{html.escape(subject)}</code>")
+
+    # 유튜브 주소에만 링크 서식 → 카페에 붙여넣으면 바로 링크
     url = f"https://youtu.be/{alert['video_id']}"
     body = html.escape(content).replace(url, f'<a href="{url}">{url}</a>')
     return caption, body
@@ -767,8 +779,8 @@ def make_share_buttons(tweet_text, cafe_url=None):
 
 
 def send_notification(message, video_id=None, card_info=None,
-                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None):  
-    markup = make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
+                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None, no_buttons=False):  
+    markup = None if no_buttons else make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
     cap = caption if caption is not None else message          # 카드에 보일 캡션
     if video_id and card_info:
         try:
@@ -795,7 +807,7 @@ def send_notification(message, video_id=None, card_info=None,
             print(f"⚠️ 카드 생성/전송 실패 → 기본 썸네일로 대체: {e}")
     if video_id and send_telegram_photo(cap, video_id, reply_markup=markup, parse_mode=parse_mode):
         return
-    send_telegram(cap, reply_markup=markup, parse_mode=parse_mode)
+    send_telegram(cap or message, reply_markup=markup, parse_mode=parse_mode)
 
 
 
@@ -2712,14 +2724,16 @@ def main():
                 "milestone": alert.get("milestone"),
             }
             cafe_caption, cafe_body = build_cafe_kit(alert, effective_artists, artist_info)
-            send_notification(
-                alert["message"], video_id=alert["video_id"], card_info=card_info,
-                cafe_url=CAFE_WRITE_URL if cafe_caption else None,
-                caption=cafe_caption,
-                parse_mode="HTML" if cafe_caption else None,
-            )
-            if cafe_body:
-                send_telegram(cafe_body, parse_mode="HTML")
+            if cafe_caption:
+                # 카드 + 제목 (버튼 없음) → 본문 + 버튼
+                send_notification(alert["message"], video_id=alert["video_id"],
+                                  card_info=card_info, caption=cafe_caption,
+                                  parse_mode="HTML", no_buttons=True)
+                send_telegram(cafe_body, parse_mode="HTML",
+                              reply_markup=make_share_buttons(alert["message"], CAFE_WRITE_URL))
+            else:
+                send_notification(alert["message"], video_id=alert["video_id"],
+                                  card_info=card_info, caption="")
 
 
 

@@ -181,11 +181,17 @@ CAFE_UPCOMING_HEADID  = 166     # 말머리 : 스텔라
 
 
 # 본문은 euc-kr → 이모지 넣지 말 것(자동 제거됨). 순수 텍스트만.
-CAFE_SUBJECT_TEMPLATE = "{title}, {views} {mark}"
+CAFE_SUBJECT_TEMPLATE = "{mark} {title} {views} !!"
 # 카페 반자동(복붙) 설정
 CAFE_WRITE_URL = "https://m.cafe.naver.com/ca-fe/web/cafes/29424353/menus/195/articles/write?boardType=L"
+# 쓸 수 있는 칸: {headname} 말머리, {subject} 카페 제목, {nickname} 닉네임,
+#              {title} 곡 제목, {views} 조회수, {mark} 이모지
+# {subject}는 자동으로 '탭하면 복사' 글자가 됨.
+CAFE_CAPTION_TEMPLATE = (
+    "{subject}"
+)
 CAFE_CONTENT_TEMPLATE = (
-    "{nickname}\n"
+    "{nickname}\n\n"
     "'{title}' {views} 축하해 !!\n\n"
     "함께 축하해주세요!\n\n"
 
@@ -234,6 +240,7 @@ BOT_SELECT_MEMBER_TEXT = (
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
     "스텔라이브": {
+        "cafe": False,
         "nickname": "얘들아 !!",
         "members": {
             "스텔라이브": {
@@ -260,9 +267,11 @@ UNITS = {
         }
     },
     "에버리스": {
+        "cafe": False,
         "nickname": "얘들아 !!",
         "members": {
             "아야츠노 유니": {
+                "cafe": False,
                 "channel": "@ayatsunoyuni",
                 "display": "아야츠노 유니",
                 "keyword": "#yunikki",
@@ -284,6 +293,7 @@ UNITS = {
                 ]
             },
             "사키하네 후야": {
+                "cafe": True,
                 "channel": "@Sakihanechannel",
                 "display": "사키하네 후야",
                 "keyword": "#huya_live",
@@ -306,9 +316,11 @@ UNITS = {
         }
     }, 
     "유니버스": {
+        "cafe": False,
         "nickname": "얘들아 !!",
         "members": {
             "시라유키 히나": {
+                "cafe": False,
                 "channel": "@shirayukihina",
                 "display": "시라유키 히나",
                 "keyword": "#daily_hina",
@@ -332,6 +344,7 @@ UNITS = {
                 ]
             },
             "네네코 마시로": {
+                "cafe": False,
                 "channel": "@neneko_mashiro",
                 "display": "네네코 마시로",
                 "keyword": "#dayshiro",
@@ -359,6 +372,7 @@ UNITS = {
                 ]
             },
             "아카네 리제": {
+                "cafe": False,
                 "channel": "@akanelize",
                 "display": "아카네 리제",
                 "keyword": "#Lize_daze",
@@ -381,6 +395,7 @@ UNITS = {
                 ]
             },
             "아라하시 타비": {
+                "cafe": False,
                 "channel": "@arahashitabi",
                 "display": "아라하시 타비",
                 "keyword": "#luv_tabi",
@@ -405,9 +420,11 @@ UNITS = {
         }
     },
     "클리셰": {
+        "cafe": False,
         "nickname": "얘들아 !!",
         "members": {
             "텐코 시부키": {
+                "cafe": True,
                 "channel": "@tenkoshibuki",
                 "display": "텐코 시부키",
                 "keyword": "#for_shibuki",
@@ -431,6 +448,7 @@ UNITS = {
                 ]
             },
             "아오쿠모 린": {
+                "cafe": False,
                 "channel": "@aokumorin",
                 "display": "아오쿠모 린",
                 "keyword": "#happy_rin",
@@ -453,6 +471,7 @@ UNITS = {
                 ]
             },
             "하나코 나나": {
+                "cafe": False,
                 "channel": "@hanako_nana",
                 "display": "하나코 나나",
                 "keyword": "#nanaiary",
@@ -477,6 +496,7 @@ UNITS = {
                 ]
             },
             "유즈하 리코": {
+                "cafe": True,
                 "channel": "@yuzuhariko",
                 "display": "유즈하 리코",
                 "keyword": "#riko_diary",
@@ -500,9 +520,11 @@ UNITS = {
         }
     },
     "어비스": {
+        "cafe": False,
         "nickname": "얘들아 !!",
         "members": {
             "시즈키 토아": {
+                "cafe": False,
                 "channel": "@ShizukiToa",
                 "display": "시즈키 토아",
                 "keyword": "#toazzang",
@@ -525,6 +547,7 @@ UNITS = {
                 ]
             },
             "코가네 랑": {
+                "cafe": False,
                 "channel": "@coganerang",
                 "display": "코가네 랑",
                 "keyword": "#Rang_log",
@@ -545,6 +568,7 @@ UNITS = {
                 ]
             },
             "하나요 히요리": {
+                "cafe": False,
                 "channel": "@HanayoHiyori",
                 "display": "하나요 히요리",
                 "keyword": "#hiyorizori",
@@ -565,6 +589,7 @@ UNITS = {
                 ]
             },
             "토키노 메리": {
+                "cafe": False,
                 "channel": "@TokinoMaryChannel",
                 "display": "토키노 메리",
                 "keyword": "#mary_review",
