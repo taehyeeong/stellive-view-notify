@@ -744,19 +744,20 @@ def cafe_enabled(headname):
     return False
 
 def build_cafe_kit(alert, effective_artists, artist_info):
-    """카페 대상이면 (카드 캡션, 본문 메시지), 아니면 (None, None)."""
+    """카페 대상이면 대기 목록용 dict, 아니면 None."""
     if alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
-        return None, None
-    headname = cafe_headname_for(effective_artists, unit=resolve_unit(effective_artists))
+        return None
+    unit = resolve_unit(effective_artists)
+    headname = cafe_headname_for(effective_artists, unit=unit)
     if not cafe_enabled(headname):      # 카페 안 켠 멤버 → X만
-        return None, None
+        return None
 
     nickname = (artist_info or {}).get("nickname") or alert["artist"]
     marks = [m for m in resolve_artist_mark(alert["artist"], effective_artists).split(",") if m.strip()]
     mark = random.choice(marks).strip() if marks else ""
     fields = {"nickname": nickname, "mark": mark, "title": alert["title"],
               "views": alert["views_text"], "video_id": alert["video_id"]}
-    subject = CAFE_SUBJECT_TEMPLATE.format(**fields)
+    subject = CAFE_SUBJECT_TEMPLATE.format(**fields).strip()
     content = CAFE_CONTENT_TEMPLATE.format(**fields)
 
     esc = {k: html.escape(str(v)) for k, v in fields.items()}
@@ -764,43 +765,82 @@ def build_cafe_kit(alert, effective_artists, artist_info):
         **esc, headname=html.escape(headname),
         subject=f"<code>{html.escape(subject)}</code>")
 
-    # 유튜브 주소에만 링크 서식 → 카페에 붙여넣으면 바로 링크
     url = f"https://youtu.be/{alert['video_id']}"
+    # 텔레 수동용: 유튜브 주소에만 링크 서식
     body = html.escape(content).replace(url, f'<a href="{url}">{url}</a>')
-    return caption, body
+    # 카페 API용: 줄바꿈은 <br>, 속성은 작은따옴표 (큰따옴표면 999 사례 있음)
+    api_content = (html.escape(content, quote=False).replace("\n", "<br>")
+                   .replace(url, f"<a href='{url}'>{url}</a>"))
+
+    return {"message": alert["message"], "video_id": alert["video_id"],
+            "caption": caption, "body": body,
+            "subject": subject, "content": api_content,
+            "headid": cafe_headid_for(effective_artists, unit=unit)}
 
 
-def make_share_buttons(tweet_text, cafe_url=None):
+CAFE_QUEUE_FILE = "/tmp/cafe_queue.json"   # 본 실행 → cafe_runner.py 전달용 (커밋 안 됨)
+
+def queue_cafe(item):
+    try:
+        with open(CAFE_QUEUE_FILE, encoding="utf-8") as f:
+            q = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        q = []
+    q.append(item)
+    with open(CAFE_QUEUE_FILE, "w", encoding="utf-8") as f:
+        json.dump(q, f, ensure_ascii=False)
+
+
+def send_cafe_manual(item):
+    """API 실패·시간 초과 → 수동용: 카드+제목 → 본문+버튼."""
+    send_notification(item["message"], video_id=item["video_id"], card_info=item["card_info"],
+                      caption=item["caption"], parse_mode="HTML", no_buttons=True)
+    send_telegram(item["body"], parse_mode="HTML",
+                  reply_markup=make_share_buttons(item["message"], CAFE_WRITE_URL))
+
+
+def send_cafe_done(item, article_url):
+    """API 성공 → 카드 + 성공 표시 + [X에 POST] [카페 글 보기]."""
+    send_notification(item["message"], video_id=item["video_id"], card_info=item["card_info"],
+                      caption="✅ 카페 API 성공", cafe_url=article_url, cafe_label="카페 글 보기")
+
+
+def make_share_buttons(tweet_text, cafe_url=None, cafe_label="카페 글쓰기"):
     row = [{"text": "X에 POST",
             "url": "https://twitter.com/intent/tweet?text=" + quote(tweet_text)}]
     if cafe_url:
-        row.append({"text": "카페 글쓰기", "url": cafe_url})
+        row.append({"text": cafe_label, "url": cafe_url})
     return {"inline_keyboard": [row]}
 
 
+def make_card(video_id, card_info):
+    """마일스톤 카드 이미지 경로 (100만 단위 특별 카드 포함)."""
+    milestone = card_info.get("milestone")
+    if SPECIAL_CARD_ENABLED and milestone and milestone % 1_000_000 == 0:
+        return make_special_card(
+            video_id, card_info["title"], card_info["artist"],
+            card_info["views_text"], f"/tmp/card_{video_id}.jpg",
+            song_type=card_info.get("song_type", ""),
+            card_opts=card_info.get("card_opts"), milestone=milestone)
+    card_opts = card_info.get("card_opts")
+    if isinstance(card_opts, dict) and card_opts.get("grand"):
+        card_opts = {k: v for k, v in card_opts.items()
+                     if k not in ("grand", "accent", "tint", "tagline")} or None
+    return make_milestone_card(
+        video_id, card_info["title"], card_info["artist"],
+        card_info["views_text"], f"/tmp/card_{video_id}.jpg",
+        song_type=card_info.get("song_type", ""), card_opts=card_opts)
+
+
 def send_notification(message, video_id=None, card_info=None,
-                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None, no_buttons=False):  
-    markup = None if no_buttons else make_share_buttons(tweet_text if tweet_text is not None else message, cafe_url)
+                      tweet_text=None, cafe_url=None, caption=None, parse_mode=None,
+                      no_buttons=False, cafe_label="카페 글쓰기"):
+    markup = None if no_buttons else make_share_buttons(
+        tweet_text if tweet_text is not None else message, cafe_url, cafe_label)
     cap = caption if caption is not None else message          # 카드에 보일 캡션
     if video_id and card_info:
         try:
-            milestone = card_info.get("milestone")
-            if SPECIAL_CARD_ENABLED and milestone and milestone % 1_000_000 == 0:
-                card_path = make_special_card(
-                    video_id, card_info["title"], card_info["artist"],
-                    card_info["views_text"], f"/tmp/card_{video_id}.jpg",
-                    song_type=card_info.get("song_type", ""),
-                    card_opts=card_info.get("card_opts"), milestone=milestone)
-
-            else:
-                card_opts = card_info.get("card_opts")
-                if isinstance(card_opts, dict) and card_opts.get("grand"):
-                    card_opts = {k: v for k, v in card_opts.items()
-                                 if k not in ("grand","accent","tint","tagline")} or None
-                card_path = make_milestone_card(
-                    video_id, card_info["title"], card_info["artist"],
-                    card_info["views_text"], f"/tmp/card_{video_id}.jpg",
-                    song_type=card_info.get("song_type",""), card_opts=card_opts)
+            card_path = make_card(video_id, card_info)
             if send_card_photo(card_path, cap, reply_markup=markup, parse_mode=parse_mode):
                 return
         except Exception as e:
@@ -808,7 +848,6 @@ def send_notification(message, video_id=None, card_info=None,
     if video_id and send_telegram_photo(cap, video_id, reply_markup=markup, parse_mode=parse_mode):
         return
     send_telegram(cap or message, reply_markup=markup, parse_mode=parse_mode)
-
 
 
 def log_daily_snapshot(video_id, views):
@@ -2723,18 +2762,13 @@ def main():
                 "card_opts": opts,
                 "milestone": alert.get("milestone"),
             }
-            cafe_caption, cafe_body = build_cafe_kit(alert, effective_artists, artist_info)
-            if cafe_caption:
-                # 카드 + 제목 (버튼 없음) → 본문 + 버튼
-                send_notification(alert["message"], video_id=alert["video_id"],
-                                  card_info=card_info, caption=cafe_caption,
-                                  parse_mode="HTML", no_buttons=True)
-                send_telegram(cafe_body, parse_mode="HTML",
-                              reply_markup=make_share_buttons(alert["message"], CAFE_WRITE_URL))
+            kit = build_cafe_kit(alert, effective_artists, artist_info)
+            if kit:
+                kit["card_info"] = card_info
+                queue_cafe(kit)          # 카페 글은 본 실행 뒤 cafe_runner.py가 처리
             else:
                 send_notification(alert["message"], video_id=alert["video_id"],
                                   card_info=card_info, caption="")
-
 
 
 
