@@ -17,6 +17,16 @@ def _post(item):
         card = None
     return post_to_cafe(item["subject"], item["content"], item["headid"], card)
 
+def send_late_messages():
+    """본 실행이 미뤄둔 메시지(성장 플리 갱신 등)를 카페 다음에 전송."""
+    try:
+        with open(bot.LATE_MSG_FILE, encoding="utf-8") as f:
+            msgs = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return
+    os.remove(bot.LATE_MSG_FILE)
+    for m in msgs:
+        bot.send_telegram(m)
 
 def run():
     try:
@@ -67,4 +77,7 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    try:
+        run()
+    finally:
+        send_late_messages()     # 카페 처리 중 오류가 나도 플리 메시지는 보냄

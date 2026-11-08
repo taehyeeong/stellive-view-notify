@@ -779,6 +779,18 @@ def build_cafe_kit(alert, effective_artists, artist_info):
 
 
 CAFE_QUEUE_FILE = "/tmp/cafe_queue.json"   # 본 실행 → cafe_runner.py 전달용 (커밋 안 됨)
+LATE_MSG_FILE = "/tmp/late_messages.json"   # 카페 단계 뒤에 보낼 메시지 (커밋 안 됨)
+
+def send_telegram_late(message):
+    """지금 안 보내고 적어둠 → cafe_runner.py가 맨 마지막에 전송."""
+    try:
+        with open(LATE_MSG_FILE, encoding="utf-8") as f:
+            msgs = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        msgs = []
+    msgs.append(message)
+    with open(LATE_MSG_FILE, "w", encoding="utf-8") as f:
+        json.dump(msgs, f, ensure_ascii=False)
 
 def queue_cafe(item):
     try:
@@ -2501,7 +2513,7 @@ def sync_growth_playlist(top_videos, title_map=None):
                 body += f"\n  …외 {len(titles) - cap}곡"
             return "\n" + body
 
-        send_telegram(
+        send_telegram_late(
             "🎶 성장 플리 자동 갱신\n\n"
             f"🕒 {now_kst()}\n"
             f"➕ 추가: {added}곡{_fmt(added_titles)}\n\n"
@@ -2915,7 +2927,7 @@ def main():
     if _current_oauth_index > start_oauth:
         switch_msgs.append(f"✍️ 쓰기 프로젝트 {start_oauth + 1}번 → {_current_oauth_index + 1}번")
     if switch_msgs:
-        send_telegram(
+        send_telegram_late(
             "⚙️ 프로젝트 전환 (쿼터 소진)\n\n"
             f"🕒 {now_kst()}\n" + "\n".join(switch_msgs)
         )
