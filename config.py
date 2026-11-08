@@ -368,7 +368,8 @@ UNITS = {
                     "https://youtu.be/jHc5yW6iOPk?si=OyKoAXxJfTOafOc4", # Land of Lola 방구석 뮤지컬
                     "https://youtu.be/j_RAn7yvq_0?si=EYLvebp0jvlrUHME", # ALIVE II 방구석 뮤지컬
                     "https://youtu.be/Da77IyHlwao?si=JZ_0miOc27fHjEJg", # 웃는남자 방구석 뮤지컬
-                    "https://youtu.be/OlJ-7k9Trm0?si=2zuc2kmewvbNzUmg" # Confrontation 방구석 뮤지컬
+                    "https://youtu.be/OlJ-7k9Trm0?si=2zuc2kmewvbNzUmg", # Confrontation 방구석 뮤지컬
+                    "https://youtu.be/Z5N_XqM9Nl8?si=BMkzFPyKRrXFtk83" # BUMPA - 비비 커버곡
                 ]
             },
             "아카네 리제": {
