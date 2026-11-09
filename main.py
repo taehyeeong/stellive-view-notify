@@ -70,6 +70,7 @@ def now_kst():
 
 _REPO = os.environ.get("GITHUB_REPOSITORY", "taehyeeong/stellive-view-notify")
 TITLES_VIEW_URL = f"https://github.com/{_REPO}/blob/main/titles.json"
+TITLES_EDIT_URL = f"https://github.com/{_REPO}/edit/main/titles.json"
 BOT_STATE_FILE = "bot_state.json"
 _HEADID_TO_NAME = {v: k for k, v in CAFE_HEADID.items()}
 
@@ -2697,13 +2698,12 @@ def main():
                 ("📥 예전 영상 추적 시작\n\n" if pin_line.startswith("📼") else "🆕 새로운 음악 영상 발견!\n\n") +
                 f"👤 {', '.join(effective_artists)}\n"
                 f"🎵 원제목: {title}\n\n"
-                f"📝 titles.json 등록 제목: 『{display_title}』\n"
+                f"📝 등록 제목: 『{display_title}』\n"
                 f"👥 등록 아티스트: {', '.join(collapse_artists(effective_artists))}\n\n"
-                f"📊 현재 조회수: {views:,}회\n"
                 f"{pin_line}\n\n"
                 f"🔗 {url}",
                 reply_markup={"inline_keyboard": [[
-                    {"text": "✏️ titles.json 수정", "url": TITLES_VIEW_URL},
+                    {"text": "✏️ titles.json 수정", "url": TITLES_EDIT_URL},
                 ]]},
                 kind="new_song",
             )
