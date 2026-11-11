@@ -217,6 +217,11 @@ CAFE_HEADID = {
     "린": 714, 
     "나나": 715, 
     "리코": 716,
+    "어비스": 956,
+    "토아": 957,
+    "랑": 958,
+    "히요리": 959,
+    "메리": 960,
 }
 CAFE_HEADID_DEFAULT = 215   # 매칭 실패 시 '스텔라이브' 말머리
 
@@ -240,7 +245,7 @@ BOT_SELECT_MEMBER_TEXT = (
 # 아티스트별 유튜브 플레이리스트
 UNITS = {
     "스텔라이브": {
-        "cafe": False,
+        "cafe": True,
         "nickname": "얘들아 !!",
         "members": {
             "스텔라이브": {
@@ -267,11 +272,11 @@ UNITS = {
         }
     },
     "에버리스": {
-        "cafe": False,
+        "cafe": True,
         "nickname": "얘들아 !!",
         "members": {
             "아야츠노 유니": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@ayatsunoyuni",
                 "display": "아야츠노 유니",
                 "keyword": "#yunikki",
@@ -316,11 +321,11 @@ UNITS = {
         }
     }, 
     "유니버스": {
-        "cafe": False,
+        "cafe": True,
         "nickname": "얘들아 !!",
         "members": {
             "시라유키 히나": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@shirayukihina",
                 "display": "시라유키 히나",
                 "keyword": "#daily_hina",
@@ -344,7 +349,7 @@ UNITS = {
                 ]
             },
             "네네코 마시로": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@neneko_mashiro",
                 "display": "네네코 마시로",
                 "keyword": "#dayshiro",
@@ -373,7 +378,7 @@ UNITS = {
                 ]
             },
             "아카네 리제": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@akanelize",
                 "display": "아카네 리제",
                 "keyword": "#Lize_daze",
@@ -396,7 +401,7 @@ UNITS = {
                 ]
             },
             "아라하시 타비": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@arahashitabi",
                 "display": "아라하시 타비",
                 "keyword": "#luv_tabi",
@@ -421,7 +426,7 @@ UNITS = {
         }
     },
     "클리셰": {
-        "cafe": False,
+        "cafe": True,
         "nickname": "얘들아 !!",
         "members": {
             "텐코 시부키": {
@@ -449,7 +454,7 @@ UNITS = {
                 ]
             },
             "아오쿠모 린": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@aokumorin",
                 "display": "아오쿠모 린",
                 "keyword": "#happy_rin",
@@ -472,7 +477,7 @@ UNITS = {
                 ]
             },
             "하나코 나나": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@hanako_nana",
                 "display": "하나코 나나",
                 "keyword": "#nanaiary",
@@ -521,11 +526,11 @@ UNITS = {
         }
     },
     "어비스": {
-        "cafe": False,
+        "cafe": True,
         "nickname": "얘들아 !!",
         "members": {
             "시즈키 토아": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@ShizukiToa",
                 "display": "시즈키 토아",
                 "keyword": "#toazzang",
@@ -548,7 +553,7 @@ UNITS = {
                 ]
             },
             "코가네 랑": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@coganerang",
                 "display": "코가네 랑",
                 "keyword": "#Rang_log",
@@ -569,7 +574,7 @@ UNITS = {
                 ]
             },
             "하나요 히요리": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@HanayoHiyori",
                 "display": "하나요 히요리",
                 "keyword": "#hiyorizori",
@@ -590,7 +595,7 @@ UNITS = {
                 ]
             },
             "토키노 메리": {
-                "cafe": False,
+                "cafe": True,
                 "channel": "@TokinoMaryChannel",
                 "display": "토키노 메리",
                 "keyword": "#mary_review",
