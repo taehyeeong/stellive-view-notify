@@ -22,6 +22,7 @@ import hashlib
 import time 
 import html
 import sys
+import shutil
 import socket
 socket.setdefaulttimeout(30)   # DNS/소켓 hang 방지 (requests timeout이 못 잡는 경우 대비)
 
@@ -820,6 +821,40 @@ def send_cafe_done(item, article_url):
     send_notification(item["message"], video_id=item["video_id"], card_info=item["card_info"],
                       caption="✅ 카페 API 성공", cafe_url=article_url, cafe_label="카페 글 보기")
 
+SHARE_DIR = "share"                       # 단축어용 X 공유 자료 (Save views가 커밋)
+SHARE_FILE = f"{SHARE_DIR}/x_share.json"
+SHARE_KEEP = 10                           # 최근 몇 개만 남길지
+SHARE_RAW = f"https://raw.githubusercontent.com/{_REPO}/main/{SHARE_DIR}"
+
+def add_x_share(alert, card_info):
+    """마일스톤 카드 + X 문구를 share/에 저장 → 아이폰 단축어가 받아서 X로 공유."""
+    try:
+        os.makedirs(SHARE_DIR, exist_ok=True)
+        card_path = make_card(alert["video_id"], card_info)
+        ext = os.path.splitext(card_path)[1] or ".jpg"
+        name = f"{alert['video_id']}_{alert.get('milestone', 0)}{ext}"
+        shutil.copy(card_path, f"{SHARE_DIR}/{name}")
+
+        try:
+            with open(SHARE_FILE, encoding="utf-8") as f:
+                old = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            old = {}
+        key = f"{now_kst()[5:16]} · {alert['title']} {alert['views_text']}"
+        items = {key: {"text": alert["message"], "image": f"{SHARE_RAW}/{name}", "file": name}}
+        for k, v in old.items():               # 최신이 맨 앞
+            if v.get("file") != name:
+                items[k] = v
+        keep = dict(list(items.items())[:SHARE_KEEP])
+
+        used = {v["file"] for v in keep.values()}
+        for fn in os.listdir(SHARE_DIR):       # 목록에서 빠진 옛 이미지 정리
+            if fn != "x_share.json" and fn not in used:
+                os.remove(f"{SHARE_DIR}/{fn}")
+        with open(SHARE_FILE, "w", encoding="utf-8") as f:
+            json.dump(keep, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"⚠️ X 공유 자료 저장 실패: {e}")
 
 def make_share_buttons(tweet_text, cafe_url=None, cafe_label="카페 글쓰기"):
     row = [{"text": "X에 POST",
@@ -2781,6 +2816,7 @@ def main():
                 "card_opts": opts,
                 "milestone": alert.get("milestone"),
             }
+            add_x_share(alert, card_info)        # 단축어 X 공유용 (카페 켠/안 켠 멤버 모두)
             kit = build_cafe_kit(alert, effective_artists, artist_info)
             if kit:
                 kit["card_info"] = card_info
