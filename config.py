@@ -21,12 +21,14 @@ MILESTONES = [
 # ─── 텔레그램 알림 토글 (True = 받기, False = 끄기) ───
 # 마일스톤 카드·카페 제목/본문·버튼, 성장 플리 갱신, 쿼터 전환/소진은 항상 옴
 NOTIFY = {
+    "growth_sync":  False,  # 🎶 성장 플리 자동 갱신 (정상일 때만, 오류는 항상 옴)
     "run_done":     False,  # ✅ 실행 완료 (마일스톤 없을 때)
     "imminent":     False,   # ⚡ 곧 달성 예정
     "dday":         False,   # 🎯 다가오는 100만 달성 (하루 1회)
     "weekly_recap": False,   # 📊 주간 결산 (일요일 밤)
     "spike":        False,   # 🚀 떡상 감지
     "new_song":     True,   # 🆕 새 음악 영상 + 🎼 플리 자동 등록
+    "project_switch": True, # ⚙️ 프로젝트 전환 (정상 동작, ⛔ 전부 소진은 항상 옴)
 }
 
 # ── 성장 플리: 기본 ──
@@ -51,7 +53,8 @@ SWAP_PER_HOUR   = 16       # 매시간 갈아끼울 곡 수
 ADD_RISING      = 4        # 교체분 중 급상승
 ADD_GEMS        = 7        # 교체분 중 묻힌 보석
 ADD_RANDOM      = 5        # 교체분 중 가중 랜덤  (4+7+5 = 16)
-GEM_VIEW_MAX    = 500000   # 이 미만이면 '묻힌 곡'
+GEM_VIEW_MAX    = 500000   # 이 미만이면 '묻힌 곡'\
+GEMS_FIRST      = True     # 묻힌 곡을 플리 앞쪽에 배치 (False면 예전 순서)
 FRESH_MIN_HOURS = 6        # 방금 뺀 곡 재진입 억제(flip-flop 방지)
 FOCUS_UNIT      = None     # 예: "에버리스" 로 켜면 그 유닛을 얹어줌(평소 None)
 FOCUS_BONUS     = 2.0

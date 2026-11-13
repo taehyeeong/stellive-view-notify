@@ -383,6 +383,7 @@ from config import (
     ADD_GEMS,
     ADD_RANDOM,
     GEM_VIEW_MAX,
+    GEMS_FIRST,
     FRESH_MIN_HOURS,
     ACHIEVED_COOLDOWN_HOURS,
     FOCUS_UNIT,
@@ -782,8 +783,10 @@ def build_cafe_kit(alert, effective_artists, artist_info):
 CAFE_QUEUE_FILE = "/tmp/cafe_queue.json"   # 본 실행 → cafe_runner.py 전달용 (커밋 안 됨)
 LATE_MSG_FILE = "/tmp/late_messages.json"   # 카페 단계 뒤에 보낼 메시지 (커밋 안 됨)
 
-def send_telegram_late(message):
+def send_telegram_late(message, kind=None):
     """지금 안 보내고 적어둠 → cafe_runner.py가 맨 마지막에 전송."""
+    if kind and not NOTIFY.get(kind, True):
+        return
     try:
         with open(LATE_MSG_FILE, encoding="utf-8") as f:
             msgs = json.load(f)
@@ -2363,6 +2366,9 @@ def sync_growth_playlist(top_videos, title_map=None):
     try:
         access_token = get_usable_access_token()
 
+        # 묻힌 곡(GEM_VIEW_MAX 미만)을 앞으로 → 새로 들어오는 묻힌 곡이 플리 위쪽에 꽂힘
+        if GEMS_FIRST:
+            top_videos = sorted(top_videos, key=lambda v: v.get("views", 0) >= GEM_VIEW_MAX)
         arranged = arrange_for_variety(top_videos)
         desired_ids = [v["video_id"] for v in arranged if v.get("video_id")]
 
@@ -2521,7 +2527,8 @@ def sync_growth_playlist(top_videos, title_map=None):
             f"➖ 삭제: {removed}곡{_fmt(removed_titles)}\n\n"
             f"📼 목표: {len(desired_ids)}곡\n"
             f"🔑 읽기 프로젝트: {_current_key_index + 1}번 · 쓰기 프로젝트: {_current_oauth_index + 1}번\n"
-            f"{note}"
+            f"{note}",
+            kind="growth_sync",
         )
 
 
@@ -2929,7 +2936,8 @@ def main():
     if switch_msgs:
         send_telegram_late(
             "⚙️ 프로젝트 전환 (쿼터 소진)\n\n"
-            f"🕒 {now_kst()}\n" + "\n".join(switch_msgs)
+            f"🕒 {now_kst()}\n" + "\n".join(switch_msgs),
+            kind="project_switch",
         )
 
 
