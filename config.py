@@ -53,7 +53,7 @@ SWAP_PER_HOUR   = 16       # 매시간 갈아끼울 곡 수
 ADD_RISING      = 4        # 교체분 중 급상승
 ADD_GEMS        = 7        # 교체분 중 묻힌 보석
 ADD_RANDOM      = 5        # 교체분 중 가중 랜덤  (4+7+5 = 16)
-GEM_VIEW_MAX    = 500000   # 이 미만이면 '묻힌 곡'\
+GEM_VIEW_MAX    = 500000   # 이 미만이면 '묻힌 곡'
 GEMS_FIRST      = True     # 묻힌 곡을 플리 앞쪽에 배치 (False면 예전 순서)
 FRESH_MIN_HOURS = 6        # 방금 뺀 곡 재진입 억제(flip-flop 방지)
 FOCUS_UNIT      = None     # 예: "에버리스" 로 켜면 그 유닛을 얹어줌(평소 None)

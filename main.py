@@ -719,14 +719,21 @@ def send_card_photo(image_path, caption, reply_markup=None, parse_mode=None):
     if reply_markup:
         data["reply_markup"] = json.dumps(reply_markup)
 
-    with open(image_path, "rb") as f:
-        response = requests.post(
-            url, data=data, files={"photo": f}, timeout=30
-        )
-
-    print("===== Telegram Card 결과 =====")
-    print(response.status_code, response.text)
-    return response.ok
+    # 연결이 잠깐 끊기는 경우가 있어서 최대 3번 시도 (21시 오버라이드 카드 사례)
+    for attempt in range(3):
+        try:
+            with open(image_path, "rb") as f:
+                response = requests.post(
+                    url, data=data, files={"photo": f}, timeout=30
+                )
+            print("===== Telegram Card 결과 =====")
+            print(response.status_code, response.text)
+            if response.ok or response.status_code < 500:
+                return response.ok      # 성공, 또는 다시 해도 안 될 오류(400 등)
+        except RequestException as e:
+            print(f"⚠️ 카드 전송 {attempt + 1}번째 실패: {e}")
+        time.sleep(3)
+    return False
 
 def cafe_headname_for(effective_artists, unit=None):
     """말머리 표시용 이름 (예: '히나')."""
@@ -746,6 +753,25 @@ def cafe_enabled(headname):
                 return m.get("cafe", False)
     return False
 
+def pick_marks(artist_display, effective_artists):
+    """멤버마다 이모지 1개씩 랜덤 → config 순서(데뷔 순). 솔로면 1개, 스텔라이브 단체곡이면 없음."""
+    artists = list(effective_artists or [])
+    if "스텔라이브" in artists or artist_display == "스텔라이브":
+        return ""                                    # 스텔라이브 공식/단체곡
+    grouped = collapse_artists(artists)              # 유닛 전원이면 유닛 이름 하나로 묶임
+    if any(a in UNITS for a in grouped) and len(grouped) >= 2:
+        return ""                                    # 유닛 전원 + 다른 사람 = 스텔라이브 단체곡                                   # 유닛 2개 이상 통째로 = 단체곡
+
+    picks = []
+    for name in sort_artists_by_config_order(artists):
+        opts = [m.strip() for m in get_artist_info(name).get("mark", "").split(",") if m.strip()]
+        if opts:
+            picks.append(random.choice(opts))
+    if not picks:          # 멤버 이모지를 못 찾으면 예전 방식
+        opts = [m.strip() for m in resolve_artist_mark(artist_display, effective_artists).split(",") if m.strip()]
+        picks = [random.choice(opts)] if opts else []
+    return "".join(picks)
+
 def build_cafe_kit(alert, effective_artists, artist_info):
     """카페 대상이면 대기 목록용 dict, 아니면 None."""
     if alert.get("milestone", 0) < CAFE_MIN_MILESTONE:
@@ -756,8 +782,7 @@ def build_cafe_kit(alert, effective_artists, artist_info):
         return None
 
     nickname = (artist_info or {}).get("nickname") or alert["artist"]
-    marks = [m for m in resolve_artist_mark(alert["artist"], effective_artists).split(",") if m.strip()]
-    mark = random.choice(marks).strip() if marks else ""
+    mark = pick_marks(alert["artist"], effective_artists)
     fields = {"nickname": nickname, "mark": mark, "title": alert["title"],
               "views": alert["views_text"], "video_id": alert["video_id"]}
     subject = CAFE_SUBJECT_TEMPLATE.format(**fields).strip()
@@ -882,24 +907,30 @@ def make_card(video_id, card_info):
         card_info["views_text"], f"/tmp/card_{video_id}.jpg",
         song_type=card_info.get("song_type", ""), card_opts=card_opts)
 
-
 def send_notification(message, video_id=None, card_info=None,
                       tweet_text=None, cafe_url=None, caption=None, parse_mode=None,
                       no_buttons=False, cafe_label="카페 글쓰기"):
     markup = None if no_buttons else make_share_buttons(
         tweet_text if tweet_text is not None else message, cafe_url, cafe_label)
     cap = caption if caption is not None else message          # 카드에 보일 캡션
+    card_err = None
     if video_id and card_info:
         try:
             card_path = make_card(video_id, card_info)
             if send_card_photo(card_path, cap, reply_markup=markup, parse_mode=parse_mode):
                 return
+            card_err = "텔레그램 전송 3번 실패"
         except Exception as e:
-            print(f"⚠️ 카드 생성/전송 실패 → 기본 썸네일로 대체: {e}")
-    if video_id and send_telegram_photo(cap, video_id, reply_markup=markup, parse_mode=parse_mode):
-        return
-    send_telegram(cap or message, reply_markup=markup, parse_mode=parse_mode)
-
+            card_err = f"카드 생성 실패: {e}"
+        print(f"⚠️ 카드 생성/전송 실패 → 기본 썸네일로 대체: {card_err}")
+    if not (video_id and send_telegram_photo(cap, video_id, reply_markup=markup, parse_mode=parse_mode)):
+        send_telegram(cap or message, reply_markup=markup, parse_mode=parse_mode)
+    if card_err:
+        send_telegram(
+            "⚠️ 마일스톤 카드 이미지 실패 → 썸네일로 대체했어요\n"
+            f"🎵 {card_info.get('title', '')} {card_info.get('views_text', '')}\n"
+            f"❌ {card_err}"
+        )
 
 def log_daily_snapshot(video_id, views):
     """하루 1개만 조회수 스냅샷 저장 (연말결산용, 절대 안 지움)."""
