@@ -1,11 +1,18 @@
 {
   "order": [
+    "Overdose 350만 · 15일 04:30",
     "로스트원의 호곡 150만 · 14일 23:00",
     "별이 시작되는 곳 140만 · 14일 20:00",
     "푸름과 여름 240만 · 14일 20:00",
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Overdose 350만 · 15일 04:30": {
+      "text": "\n#happy_rin\n\n린~\n\n『 Overdose 』 350만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=pM8_wnJ7JsE\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/pM8_wnJ7JsE_3500000.jpg",
+      "file": "pM8_wnJ7JsE_3500000.jpg",
+      "at": "2026-11-15 04:30"
+    },
     "로스트원의 호곡 150만 · 14일 23:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1500000.jpg",
