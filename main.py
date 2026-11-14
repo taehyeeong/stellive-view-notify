@@ -848,11 +848,13 @@ def send_cafe_done(item, article_url):
 
 SHARE_DIR = "share"                       # 단축어용 X 공유 자료 (Save views가 커밋)
 SHARE_FILE = f"{SHARE_DIR}/x_share.json"
-SHARE_KEEP = 10                           # 최근 몇 개만 남길지
+SHARE_HOURS = 48                          # 최근 몇 시간까지 단축어 목록에 보일지
+SHARE_KEEP = 40                           # 최대 몇 개까지
 SHARE_RAW = f"https://raw.githubusercontent.com/{_REPO}/main/{SHARE_DIR}"
 
 def add_x_share(alert, card_info):
-    """마일스톤 카드 + X 문구를 share/에 저장 → 아이폰 단축어가 받아서 X로 공유."""
+    """마일스톤 카드 + X 문구를 share/에 저장 → 아이폰 단축어가 받아서 X로 공유.
+    파일 구조: {"order": [최신순 이름들], "items": {이름: {text, image, file, at}}}"""
     try:
         os.makedirs(SHARE_DIR, exist_ok=True)
         card_path = make_card(alert["video_id"], card_info)
@@ -865,19 +867,29 @@ def add_x_share(alert, card_info):
                 old = json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             old = {}
-        key = f"{now_kst()[5:16]} · {alert['title']} {alert['views_text']}"
-        items = {key: {"text": alert["message"], "image": f"{SHARE_RAW}/{name}", "file": name}}
-        for k, v in old.items():               # 최신이 맨 앞
-            if v.get("file") != name:
-                items[k] = v
-        keep = dict(list(items.items())[:SHARE_KEEP])
+        old_items = old.get("items", {}) if isinstance(old.get("items"), dict) else {}
+        old_order = old.get("order", []) if isinstance(old.get("order"), list) else []
 
-        used = {v["file"] for v in keep.values()}
+        kst = datetime.now(timezone(timedelta(hours=9)))
+        at = kst.strftime("%Y-%m-%d %H:%M")
+        cutoff = (kst - timedelta(hours=SHARE_HOURS)).strftime("%Y-%m-%d %H:%M")
+        key = f"{alert['title']} {alert['views_text']} · {kst.day}일 {kst.strftime('%H:%M')}"
+
+        items = {key: {"text": alert["message"], "image": f"{SHARE_RAW}/{name}",
+                       "file": name, "at": at}}
+        order = [key]
+        for k in old_order:                    # 최신이 맨 앞, 48시간 지난 건 빠짐
+            v = old_items.get(k)
+            if v and v.get("file") != name and v.get("at", "") >= cutoff and len(order) < SHARE_KEEP:
+                items[k] = v
+                order.append(k)
+
+        used = {v["file"] for v in items.values()}
         for fn in os.listdir(SHARE_DIR):       # 목록에서 빠진 옛 이미지 정리
             if fn != "x_share.json" and fn not in used:
                 os.remove(f"{SHARE_DIR}/{fn}")
         with open(SHARE_FILE, "w", encoding="utf-8") as f:
-            json.dump(keep, f, ensure_ascii=False, indent=2)
+            json.dump({"order": order, "items": items}, f, ensure_ascii=False, indent=2)
     except Exception as e:
         print(f"⚠️ X 공유 자료 저장 실패: {e}")
 
