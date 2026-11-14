@@ -1,10 +1,17 @@
 {
   "order": [
+    "로스트원의 호곡 150만 · 14일 23:00",
     "별이 시작되는 곳 140만 · 14일 20:00",
     "푸름과 여름 240만 · 14일 20:00",
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "로스트원의 호곡 150만 · 14일 23:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1500000.jpg",
+      "file": "liPEQZJLQh4_1500000.jpg",
+      "at": "2026-11-14 23:00"
+    },
     "별이 시작되는 곳 140만 · 14일 20:00": {
       "text": "\n#toazzang #Rang_log #hiyorizori #mary_review\n\n얘들아 !!\n\n『 별이 시작되는 곳 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=EKEts5IShas\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/EKEts5IShas_1400000.jpg",
