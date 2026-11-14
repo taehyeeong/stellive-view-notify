@@ -2,10 +2,10 @@ name: YouTube View Monitor
 
 on:
   schedule:
-    # 매시간 43분에 실행
-    - cron: "43 * * * *"
+    # 매시간 7분에 실행 (감시 장치: 단축어가 빠졌을 때만 대신 돌림)
+    - cron: "7 * * * *"
 
-  # 수동 실행
+  # 수동 실행 (아이폰 단축어)
   workflow_dispatch:
 
 # 동시에 두 번 실행되는 것 방지
@@ -13,20 +13,52 @@ concurrency:
   group: youtube-view-monitor
   cancel-in-progress: false
 
-# 저장된 view 데이터 커밋을 허용
+# 저장된 view 데이터 커밋 + 실행 기록 읽기 허용
 permissions:
   contents: write
+  actions: read
 
 jobs:
+  # 🛡️ 감시 장치: 지난 60분 안에 단축어 실행이 없을 때만 monitor를 돌림
+  guard:
+    runs-on: ubuntu-latest
+    # ⏯️ 스케쥴 토글: 변수 SCHEDULE_ENABLED가 'false'면 감시 장치도 멈춤
+    if: github.event_name != 'schedule' || vars.SCHEDULE_ENABLED != 'false'
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # 단축어로 실행된 거면 검사 없이 통과
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          # 지난 60분 안에 단축어 실행이 있었는지 확인 (조회 실패하면 0 → 대신 돌림)
+          SINCE=$(date -u -d '-60 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          COUNT=$(gh api -X GET "repos/${{ github.repository }}/actions/workflows/notify.yml/runs" \
+                  -f event=workflow_dispatch -f created=">=$SINCE" --jq '.total_count') || COUNT=0
+          if [ "${COUNT:-0}" -gt 0 ]; then
+            echo "✅ 단축어 실행 확인 → 건너뜀"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            HOUR=$(TZ=Asia/Seoul date +%H)
+            curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              -d chat_id="${TG_CHAT}" \
+              --data-urlencode text="⚠️ ${HOUR}시 단축어 자동 실행이 안 됐어요 → GitHub이 대신 돌릴게요"
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   monitor:
+    needs: guard
+    if: needs.guard.outputs.skip != 'true'
     runs-on: ubuntu-latest
 
     # 비정상적으로 오래 걸리는 경우 중단 (본 실행 5분 + 카페 12분 + 여유)
     timeout-minutes: 20
-
-    # ⏯️ 스케쥴 토글: 수동 실행은 항상 허용,
-    # 정기 실행은 변수 SCHEDULE_ENABLED가 'false'일 때만 멈춤
-    if: github.event_name != 'schedule' || vars.SCHEDULE_ENABLED != 'false'
 
     # 🔑 모든 단계가 같이 쓰는 키 (키 추가는 여기 한 군데만)
     env:
@@ -62,7 +94,7 @@ jobs:
       YOUTUBE_REFRESH_TOKEN_2: ${{ secrets.YOUTUBE_REFRESH_TOKEN_2 }}
       YOUTUBE_REFRESH_TOKEN_3: ${{ secrets.YOUTUBE_REFRESH_TOKEN_3 }}
       YOUTUBE_REFRESH_TOKEN_4: ${{ secrets.YOUTUBE_REFRESH_TOKEN_4 }}
-      YOUTUBE_REFRESH_TOKEN_5: ${{ secrets.YOUTUBE_REFRESH_TOKEN_5 }}
+      YOUTUBE_REFRESH_TOKEN_5: ${{ secrets. YOUTUBE_REFRESH_TOKEN_5 }}
       YOUTUBE_REFRESH_TOKEN_6: ${{ secrets.YOUTUBE_REFRESH_TOKEN_6 }}
       YOUTUBE_REFRESH_TOKEN_7: ${{ secrets.YOUTUBE_REFRESH_TOKEN_7 }}
       YOUTUBE_REFRESH_TOKEN_8: ${{ secrets.YOUTUBE_REFRESH_TOKEN_8 }}
