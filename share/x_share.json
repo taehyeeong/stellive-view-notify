@@ -1,5 +1,6 @@
 {
   "order": [
+    "안녕, 또 언젠가！ 60만 · 16일 03:00",
     "로스트원의 호곡 160만 · 16일 01:00",
     "Ref:rain 130만 · 16일 00:00",
     "호랑풍류가 160만 · 15일 23:00",
@@ -26,6 +27,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "안녕, 또 언젠가！ 60만 · 16일 03:00": {
+      "text": "\n#dayshiro #luv_tabi\n\n찌로야 타비야\n\n『 안녕, 또 언젠가！ 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CmaLZo-DTlU\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CmaLZo-DTlU_600000.jpg",
+      "file": "CmaLZo-DTlU_600000.jpg",
+      "at": "2026-11-16 03:00"
+    },
     "로스트원의 호곡 160만 · 16일 01:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1600000.jpg",
