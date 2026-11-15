@@ -1,5 +1,6 @@
 {
   "order": [
+    "비행정 620만 · 15일 15:00",
     "All I Want For Christmas Is You 250만 · 15일 14:00",
     "TOMBOY 140만 · 15일 13:00",
     "아 프리오리 120만 · 15일 13:00",
@@ -10,6 +11,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "비행정 620만 · 15일 15:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 비행정 』 620만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=YC-QnlIEbJU\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/YC-QnlIEbJU_6200000.jpg",
+      "file": "YC-QnlIEbJU_6200000.jpg",
+      "at": "2026-11-15 15:00"
+    },
     "All I Want For Christmas Is You 250만 · 15일 14:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 All I Want For Christmas Is You 』 250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=zHbh6KO1dFo\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/zHbh6KO1dFo_2500000.jpg",
