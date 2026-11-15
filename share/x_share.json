@@ -1,5 +1,6 @@
 {
   "order": [
+    "All I Want For Christmas Is You 250만 · 15일 14:00",
     "TOMBOY 140만 · 15일 13:00",
     "아 프리오리 120만 · 15일 13:00",
     "Overdose 350만 · 15일 04:30",
@@ -9,6 +10,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "All I Want For Christmas Is You 250만 · 15일 14:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 All I Want For Christmas Is You 』 250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=zHbh6KO1dFo\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/zHbh6KO1dFo_2500000.jpg",
+      "file": "zHbh6KO1dFo_2500000.jpg",
+      "at": "2026-11-15 14:00"
+    },
     "TOMBOY 140만 · 15일 13:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 TOMBOY 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=td73oLSQug0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/td73oLSQug0_1400000.jpg",
