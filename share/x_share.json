@@ -1,5 +1,7 @@
 {
   "order": [
+    "Stand By You 190만 · 15일 18:00",
+    "발묘 1700만 · 15일 18:00",
     "Stellar Stellar 110만 · 15일 17:00",
     "Loveit? 30만 · 15일 16:00",
     "취한 줄을 모르고 260만 · 15일 16:00",
@@ -14,6 +16,18 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Stand By You 190만 · 15일 18:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 Stand By You 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=RpX0r_l7FzI\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/RpX0r_l7FzI_1900000.jpg",
+      "file": "RpX0r_l7FzI_1900000.jpg",
+      "at": "2026-11-15 18:00"
+    },
+    "발묘 1700만 · 15일 18:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1700만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17000000.jpg",
+      "file": "R_B4tmy2DVA_17000000.jpg",
+      "at": "2026-11-15 18:00"
+    },
     "Stellar Stellar 110만 · 15일 17:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 Stellar Stellar 』 110만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=DHG3s8GF1DM\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/DHG3s8GF1DM_1100000.jpg",
