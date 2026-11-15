@@ -1,5 +1,6 @@
 {
   "order": [
+    "Stellar Stellar 110만 · 15일 17:00",
     "Loveit? 30만 · 15일 16:00",
     "취한 줄을 모르고 260만 · 15일 16:00",
     "비행정 620만 · 15일 15:00",
@@ -13,6 +14,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Stellar Stellar 110만 · 15일 17:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 Stellar Stellar 』 110만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=DHG3s8GF1DM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/DHG3s8GF1DM_1100000.jpg",
+      "file": "DHG3s8GF1DM_1100000.jpg",
+      "at": "2026-11-15 17:00"
+    },
     "Loveit? 30만 · 15일 16:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 Loveit? 』 30만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=TM-uVDKQxhg\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/TM-uVDKQxhg_300000.jpg",
