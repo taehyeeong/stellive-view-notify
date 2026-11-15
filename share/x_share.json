@@ -1,5 +1,6 @@
 {
   "order": [
+    "Ref:rain 130만 · 16일 00:00",
     "호랑풍류가 160만 · 15일 23:00",
     "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00",
     "STAR TRAIL 270만 · 15일 22:00",
@@ -24,6 +25,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Ref:rain 130만 · 16일 00:00": {
+      "text": "\n#luv_tabi\n\n타비야\n\n『 Ref:rain 』 130만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=1HCo6-YL9AY\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/1HCo6-YL9AY_1300000.jpg",
+      "file": "1HCo6-YL9AY_1300000.jpg",
+      "at": "2026-11-16 00:00"
+    },
     "호랑풍류가 160만 · 15일 23:00": {
       "text": "\n#Rang_log\n\n랑아가\n\n『 호랑풍류가 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=iAoU1UGPoXc\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/iAoU1UGPoXc_1600000.jpg",
