@@ -1,5 +1,6 @@
 {
   "order": [
+    "Universe 210만 · 15일 20:00",
     "도쿄 테디베어 450만 · 15일 19:00",
     "수평선 240만 · 15일 19:00",
     "발랄라이카 40만 · 15일 19:00",
@@ -19,6 +20,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Universe 210만 · 15일 20:00": {
+      "text": "\n#daily_hina #dayshiro #Lize_daze #luv_tabi\n\n얘들아 !!\n\n『 Universe 』 210만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CbuiRlGeA-g\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CbuiRlGeA-g_2100000.jpg",
+      "file": "CbuiRlGeA-g_2100000.jpg",
+      "at": "2026-11-15 20:00"
+    },
     "도쿄 테디베어 450만 · 15일 19:00": {
       "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 450만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4500000.jpg",
