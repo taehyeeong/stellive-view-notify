@@ -1,5 +1,6 @@
 {
   "order": [
+    "로스트원의 호곡 160만 · 16일 01:00",
     "Ref:rain 130만 · 16일 00:00",
     "호랑풍류가 160만 · 15일 23:00",
     "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00",
@@ -25,6 +26,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "로스트원의 호곡 160만 · 16일 01:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1600000.jpg",
+      "file": "liPEQZJLQh4_1600000.jpg",
+      "at": "2026-11-16 01:00"
+    },
     "Ref:rain 130만 · 16일 00:00": {
       "text": "\n#luv_tabi\n\n타비야\n\n『 Ref:rain 』 130만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=1HCo6-YL9AY\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/1HCo6-YL9AY_1300000.jpg",
