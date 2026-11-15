@@ -1,5 +1,8 @@
 {
   "order": [
+    "도쿄 테디베어 450만 · 15일 19:00",
+    "수평선 240만 · 15일 19:00",
+    "발랄라이카 40만 · 15일 19:00",
     "Stand By You 190만 · 15일 18:00",
     "발묘 1700만 · 15일 18:00",
     "Stellar Stellar 110만 · 15일 17:00",
@@ -16,6 +19,24 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "도쿄 테디베어 450만 · 15일 19:00": {
+      "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 450만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4500000.jpg",
+      "file": "rKQptWhAvO0_4500000.jpg",
+      "at": "2026-11-15 19:00"
+    },
+    "수평선 240만 · 15일 19:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 수평선 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=lZHyUw7LWSw\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/lZHyUw7LWSw_2400000.jpg",
+      "file": "lZHyUw7LWSw_2400000.jpg",
+      "at": "2026-11-15 19:00"
+    },
+    "발랄라이카 40만 · 15일 19:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 40만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_400000.jpg",
+      "file": "8lD-6Xyq4Lg_400000.jpg",
+      "at": "2026-11-15 19:00"
+    },
     "Stand By You 190만 · 15일 18:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 Stand By You 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=RpX0r_l7FzI\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/RpX0r_l7FzI_1900000.jpg",
