@@ -1,5 +1,6 @@
 {
   "order": [
+    "Henceforth 270만 · 16일 05:00",
     "안녕, 또 언젠가！ 60만 · 16일 03:00",
     "로스트원의 호곡 160만 · 16일 01:00",
     "Ref:rain 130만 · 16일 00:00",
@@ -27,6 +28,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Henceforth 270만 · 16일 05:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 Henceforth 』 270만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=apj5_-osMd4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/apj5_-osMd4_2700000.jpg",
+      "file": "apj5_-osMd4_2700000.jpg",
+      "at": "2026-11-16 05:00"
+    },
     "안녕, 또 언젠가！ 60만 · 16일 03:00": {
       "text": "\n#dayshiro #luv_tabi\n\n찌로야 타비야\n\n『 안녕, 또 언젠가！ 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CmaLZo-DTlU\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CmaLZo-DTlU_600000.jpg",
