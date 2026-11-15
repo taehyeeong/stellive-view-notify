@@ -1,5 +1,7 @@
 {
   "order": [
+    "Loveit? 30만 · 15일 16:00",
+    "취한 줄을 모르고 260만 · 15일 16:00",
     "비행정 620만 · 15일 15:00",
     "All I Want For Christmas Is You 250만 · 15일 14:00",
     "TOMBOY 140만 · 15일 13:00",
@@ -11,6 +13,18 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "Loveit? 30만 · 15일 16:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 Loveit? 』 30만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=TM-uVDKQxhg\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/TM-uVDKQxhg_300000.jpg",
+      "file": "TM-uVDKQxhg_300000.jpg",
+      "at": "2026-11-15 16:00"
+    },
+    "취한 줄을 모르고 260만 · 15일 16:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 취한 줄을 모르고 』 260만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=209_dJOJa0Y\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/209_dJOJa0Y_2600000.jpg",
+      "file": "209_dJOJa0Y_2600000.jpg",
+      "at": "2026-11-15 16:00"
+    },
     "비행정 620만 · 15일 15:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 비행정 』 620만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=YC-QnlIEbJU\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/YC-QnlIEbJU_6200000.jpg",
