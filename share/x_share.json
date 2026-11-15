@@ -1,5 +1,6 @@
 {
   "order": [
+    "호랑풍류가 160만 · 15일 23:00",
     "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00",
     "STAR TRAIL 270만 · 15일 22:00",
     "Surges 530만 · 15일 22:00",
@@ -23,6 +24,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "호랑풍류가 160만 · 15일 23:00": {
+      "text": "\n#Rang_log\n\n랑아가\n\n『 호랑풍류가 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=iAoU1UGPoXc\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/iAoU1UGPoXc_1600000.jpg",
+      "file": "iAoU1UGPoXc_1600000.jpg",
+      "at": "2026-11-15 23:00"
+    },
     "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 』 90만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=X7pjwim9NHE\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/X7pjwim9NHE_900000.jpg",
