@@ -1,5 +1,7 @@
 {
   "order": [
+    "TOMBOY 140만 · 15일 13:00",
+    "아 프리오리 120만 · 15일 13:00",
     "Overdose 350만 · 15일 04:30",
     "로스트원의 호곡 150만 · 14일 23:00",
     "별이 시작되는 곳 140만 · 14일 20:00",
@@ -7,6 +9,18 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "TOMBOY 140만 · 15일 13:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 TOMBOY 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=td73oLSQug0\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/td73oLSQug0_1400000.jpg",
+      "file": "td73oLSQug0_1400000.jpg",
+      "at": "2026-11-15 13:00"
+    },
+    "아 프리오리 120만 · 15일 13:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 아 프리오리 』 120만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=JLM7z8afU4s\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/JLM7z8afU4s_1200000.jpg",
+      "file": "JLM7z8afU4s_1200000.jpg",
+      "at": "2026-11-15 13:00"
+    },
     "Overdose 350만 · 15일 04:30": {
       "text": "\n#happy_rin\n\n린~\n\n『 Overdose 』 350만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=pM8_wnJ7JsE\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/pM8_wnJ7JsE_3500000.jpg",
