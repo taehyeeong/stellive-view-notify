@@ -1,5 +1,7 @@
 {
   "order": [
+    "유령도쿄 550만 · 17일 02:00",
+    "내일의 밤하늘 초계반 1150만 · 17일 02:00",
     "Drowning 1250만 · 17일 01:00",
     "Bunny Girl 260만 · 17일 01:00",
     "사신 270만 · 16일 22:00",
@@ -36,6 +38,18 @@
     "Overdose 350만 · 15일 04:30"
   ],
   "items": {
+    "유령도쿄 550만 · 17일 02:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 유령도쿄 』 550만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=UWa_OiXDiQA\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/UWa_OiXDiQA_5500000.jpg",
+      "file": "UWa_OiXDiQA_5500000.jpg",
+      "at": "2026-11-17 02:00"
+    },
+    "내일의 밤하늘 초계반 1150만 · 17일 02:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 내일의 밤하늘 초계반 』 1150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=fTqvR0U0EC4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/fTqvR0U0EC4_11500000.jpg",
+      "file": "fTqvR0U0EC4_11500000.jpg",
+      "at": "2026-11-17 02:00"
+    },
     "Drowning 1250만 · 17일 01:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 Drowning 』 1250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CyOAmEihVHs\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CyOAmEihVHs_12500000.jpg",
