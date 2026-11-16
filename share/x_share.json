@@ -1,5 +1,6 @@
 {
   "order": [
+    "낙향 830만 · 16일 21:00",
     "댄스홀 230만 · 16일 20:00",
     "✧Alice in Musicland✧ 230만 · 16일 20:00",
     "Deja vu 50만 · 16일 19:00",
@@ -30,12 +31,15 @@
     "TOMBOY 140만 · 15일 13:00",
     "아 프리오리 120만 · 15일 13:00",
     "Overdose 350만 · 15일 04:30",
-    "로스트원의 호곡 150만 · 14일 23:00",
-    "별이 시작되는 곳 140만 · 14일 20:00",
-    "푸름과 여름 240만 · 14일 20:00",
-    "연예인 110만 · 14일 20:00"
+    "로스트원의 호곡 150만 · 14일 23:00"
   ],
   "items": {
+    "낙향 830만 · 16일 21:00": {
+      "text": "\n#daily_hina\n\n히나야\n\n『 낙향 』 830만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=gBWIv6NvLcU\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/gBWIv6NvLcU_8300000.jpg",
+      "file": "gBWIv6NvLcU_8300000.jpg",
+      "at": "2026-11-16 21:00"
+    },
     "댄스홀 230만 · 16일 20:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 댄스홀 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=jTUOSAmCqeI\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/jTUOSAmCqeI_2300000.jpg",
@@ -221,24 +225,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1500000.jpg",
       "file": "liPEQZJLQh4_1500000.jpg",
       "at": "2026-11-14 23:00"
-    },
-    "별이 시작되는 곳 140만 · 14일 20:00": {
-      "text": "\n#toazzang #Rang_log #hiyorizori #mary_review\n\n얘들아 !!\n\n『 별이 시작되는 곳 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=EKEts5IShas\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/EKEts5IShas_1400000.jpg",
-      "file": "EKEts5IShas_1400000.jpg",
-      "at": "2026-11-14 20:00"
-    },
-    "푸름과 여름 240만 · 14일 20:00": {
-      "text": "\n#for_shibuki\n\n부킈키\n\n『 푸름과 여름 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=d281GlN0nWo\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/d281GlN0nWo_2400000.jpg",
-      "file": "d281GlN0nWo_2400000.jpg",
-      "at": "2026-11-14 20:00"
-    },
-    "연예인 110만 · 14일 20:00": {
-      "text": "\n#dayshiro\n\n찌로야\n\n『 연예인 』 110만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Nse1CbmfIj4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Nse1CbmfIj4_1100000.jpg",
-      "file": "Nse1CbmfIj4_1100000.jpg",
-      "at": "2026-11-14 20:00"
     }
   }
 }
