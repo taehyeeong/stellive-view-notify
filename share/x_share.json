@@ -1,5 +1,6 @@
 {
   "order": [
+    "제육감 220만 · 17일 04:00",
     "여우비 510만 · 17일 03:00",
     "로스트원의 호곡 170만 · 17일 03:00",
     "유령도쿄 550만 · 17일 02:00",
@@ -40,6 +41,12 @@
     "Overdose 350만 · 15일 04:30"
   ],
   "items": {
+    "제육감 220만 · 17일 04:00": {
+      "text": "\n#toazzang\n\n토아짱\n\n『 제육감 』 220만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=MZNKiadMo3U\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/MZNKiadMo3U_2200000.jpg",
+      "file": "MZNKiadMo3U_2200000.jpg",
+      "at": "2026-11-17 04:00"
+    },
     "여우비 510만 · 17일 03:00": {
       "text": "\n#for_shibuki\n\n부킈키\n\n『 여우비 』 510만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=sWZoIawG0tA\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/sWZoIawG0tA_5100000.jpg",
