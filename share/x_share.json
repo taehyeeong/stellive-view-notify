@@ -1,5 +1,7 @@
 {
   "order": [
+    "댄스홀 230만 · 16일 20:00",
+    "✧Alice in Musicland✧ 230만 · 16일 20:00",
     "Deja vu 50만 · 16일 19:00",
     "Mela! 40만 · 16일 19:00",
     "생명에게 미움받고 있어 350만 · 16일 17:00",
@@ -34,6 +36,18 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "댄스홀 230만 · 16일 20:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 댄스홀 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=jTUOSAmCqeI\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/jTUOSAmCqeI_2300000.jpg",
+      "file": "jTUOSAmCqeI_2300000.jpg",
+      "at": "2026-11-16 20:00"
+    },
+    "✧Alice in Musicland✧ 230만 · 16일 20:00": {
+      "text": "\n#daily_hina\n\n히나야\n\n『 ✧Alice in Musicland✧ 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=DMk4_4Xytz4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/DMk4_4Xytz4_2300000.jpg",
+      "file": "DMk4_4Xytz4_2300000.jpg",
+      "at": "2026-11-16 20:00"
+    },
     "Deja vu 50만 · 16일 19:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 Deja vu 』 50만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=KmH0RhhenzE\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/KmH0RhhenzE_500000.jpg",
