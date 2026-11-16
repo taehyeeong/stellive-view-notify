@@ -1,5 +1,6 @@
 {
   "order": [
+    "케세라세라 300만 · 17일 08:00",
     "도쿄 테디베어 460만 · 17일 05:00",
     "제육감 220만 · 17일 04:00",
     "여우비 510만 · 17일 03:00",
@@ -41,6 +42,12 @@
     "아 프리오리 120만 · 15일 13:00"
   ],
   "items": {
+    "케세라세라 300만 · 17일 08:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 케세라세라 』 300만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rRvumOvx21Y\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rRvumOvx21Y_3000000.jpg",
+      "file": "rRvumOvx21Y_3000000.jpg",
+      "at": "2026-11-17 08:00"
+    },
     "도쿄 테디베어 460만 · 17일 05:00": {
       "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 460만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4600000.jpg",
