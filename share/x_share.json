@@ -1,5 +1,6 @@
 {
   "order": [
+    "도쿄 테디베어 460만 · 17일 05:00",
     "제육감 220만 · 17일 04:00",
     "여우비 510만 · 17일 03:00",
     "로스트원의 호곡 170만 · 17일 03:00",
@@ -37,10 +38,15 @@
     "비행정 620만 · 15일 15:00",
     "All I Want For Christmas Is You 250만 · 15일 14:00",
     "TOMBOY 140만 · 15일 13:00",
-    "아 프리오리 120만 · 15일 13:00",
-    "Overdose 350만 · 15일 04:30"
+    "아 프리오리 120만 · 15일 13:00"
   ],
   "items": {
+    "도쿄 테디베어 460만 · 17일 05:00": {
+      "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 460만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4600000.jpg",
+      "file": "rKQptWhAvO0_4600000.jpg",
+      "at": "2026-11-17 05:00"
+    },
     "제육감 220만 · 17일 04:00": {
       "text": "\n#toazzang\n\n토아짱\n\n『 제육감 』 220만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=MZNKiadMo3U\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/MZNKiadMo3U_2200000.jpg",
@@ -268,12 +274,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/JLM7z8afU4s_1200000.jpg",
       "file": "JLM7z8afU4s_1200000.jpg",
       "at": "2026-11-15 13:00"
-    },
-    "Overdose 350만 · 15일 04:30": {
-      "text": "\n#happy_rin\n\n린~\n\n『 Overdose 』 350만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=pM8_wnJ7JsE\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/pM8_wnJ7JsE_3500000.jpg",
-      "file": "pM8_wnJ7JsE_3500000.jpg",
-      "at": "2026-11-15 04:30"
     }
   }
 }
