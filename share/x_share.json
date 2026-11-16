@@ -1,5 +1,6 @@
 {
   "order": [
+    "주름맞추기 250만 · 16일 10:00",
     "선잠 170만 · 16일 09:00",
     "Henceforth 270만 · 16일 05:00",
     "안녕, 또 언젠가！ 60만 · 16일 03:00",
@@ -29,6 +30,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "주름맞추기 250만 · 16일 10:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 주름맞추기 』 250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=cGjgCLuyAro\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/cGjgCLuyAro_2500000.jpg",
+      "file": "cGjgCLuyAro_2500000.jpg",
+      "at": "2026-11-16 10:00"
+    },
     "선잠 170만 · 16일 09:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 선잠 』 170만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=dxsiVSbpm8k\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/dxsiVSbpm8k_1700000.jpg",
