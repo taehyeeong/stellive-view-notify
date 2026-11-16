@@ -1,5 +1,6 @@
 {
   "order": [
+    "사신 270만 · 16일 22:00",
     "낙향 830만 · 16일 21:00",
     "댄스홀 230만 · 16일 20:00",
     "✧Alice in Musicland✧ 230만 · 16일 20:00",
@@ -34,6 +35,12 @@
     "로스트원의 호곡 150만 · 14일 23:00"
   ],
   "items": {
+    "사신 270만 · 16일 22:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 사신 』 270만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=jyU6GkzD2CA\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/jyU6GkzD2CA_2700000.jpg",
+      "file": "jyU6GkzD2CA_2700000.jpg",
+      "at": "2026-11-16 22:00"
+    },
     "낙향 830만 · 16일 21:00": {
       "text": "\n#daily_hina\n\n히나야\n\n『 낙향 』 830만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=gBWIv6NvLcU\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/gBWIv6NvLcU_8300000.jpg",
