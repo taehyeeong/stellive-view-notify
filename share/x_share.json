@@ -1,5 +1,7 @@
 {
   "order": [
+    "Drowning 1250만 · 17일 01:00",
+    "Bunny Girl 260만 · 17일 01:00",
     "사신 270만 · 16일 22:00",
     "낙향 830만 · 16일 21:00",
     "댄스홀 230만 · 16일 20:00",
@@ -31,10 +33,21 @@
     "All I Want For Christmas Is You 250만 · 15일 14:00",
     "TOMBOY 140만 · 15일 13:00",
     "아 프리오리 120만 · 15일 13:00",
-    "Overdose 350만 · 15일 04:30",
-    "로스트원의 호곡 150만 · 14일 23:00"
+    "Overdose 350만 · 15일 04:30"
   ],
   "items": {
+    "Drowning 1250만 · 17일 01:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 Drowning 』 1250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CyOAmEihVHs\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CyOAmEihVHs_12500000.jpg",
+      "file": "CyOAmEihVHs_12500000.jpg",
+      "at": "2026-11-17 01:00"
+    },
+    "Bunny Girl 260만 · 17일 01:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 Bunny Girl 』 260만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=SIBtVNjRois\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/SIBtVNjRois_2600000.jpg",
+      "file": "SIBtVNjRois_2600000.jpg",
+      "at": "2026-11-17 01:00"
+    },
     "사신 270만 · 16일 22:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 사신 』 270만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=jyU6GkzD2CA\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/jyU6GkzD2CA_2700000.jpg",
@@ -226,12 +239,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/pM8_wnJ7JsE_3500000.jpg",
       "file": "pM8_wnJ7JsE_3500000.jpg",
       "at": "2026-11-15 04:30"
-    },
-    "로스트원의 호곡 150만 · 14일 23:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1500000.jpg",
-      "file": "liPEQZJLQh4_1500000.jpg",
-      "at": "2026-11-14 23:00"
     }
   }
 }
