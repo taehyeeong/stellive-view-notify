@@ -1,5 +1,6 @@
 {
   "order": [
+    "생명에게 미움받고 있어 350만 · 16일 17:00",
     "Festa! 160만 · 16일 16:00",
     "주름맞추기 250만 · 16일 10:00",
     "선잠 170만 · 16일 09:00",
@@ -31,6 +32,12 @@
     "연예인 110만 · 14일 20:00"
   ],
   "items": {
+    "생명에게 미움받고 있어 350만 · 16일 17:00": {
+      "text": "\n#for_shibuki\n\n부킈키\n\n『 생명에게 미움받고 있어 』 350만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=bJqdy8925Oc\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bJqdy8925Oc_3500000.jpg",
+      "file": "bJqdy8925Oc_3500000.jpg",
+      "at": "2026-11-16 17:00"
+    },
     "Festa! 160만 · 16일 16:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 Festa! 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=3_0Ut2tlxLM\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3_0Ut2tlxLM_1600000.jpg",
