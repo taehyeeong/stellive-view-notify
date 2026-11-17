@@ -1,5 +1,6 @@
 {
   "order": [
+    "발랄라이카 50만 · 17일 10:00",
     "라일락 120만 · 17일 09:00",
     "Loveit? 90만 · 17일 09:00",
     "케세라세라 300만 · 17일 08:00",
@@ -38,10 +39,15 @@
     "Stellar Stellar 110만 · 15일 17:00",
     "Loveit? 30만 · 15일 16:00",
     "취한 줄을 모르고 260만 · 15일 16:00",
-    "비행정 620만 · 15일 15:00",
-    "All I Want For Christmas Is You 250만 · 15일 14:00"
+    "비행정 620만 · 15일 15:00"
   ],
   "items": {
+    "발랄라이카 50만 · 17일 10:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 50만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_500000.jpg",
+      "file": "8lD-6Xyq4Lg_500000.jpg",
+      "at": "2026-11-17 10:00"
+    },
     "라일락 120만 · 17일 09:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 라일락 』 120만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=yuxa6o1_scc\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/yuxa6o1_scc_1200000.jpg",
@@ -275,12 +281,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/YC-QnlIEbJU_6200000.jpg",
       "file": "YC-QnlIEbJU_6200000.jpg",
       "at": "2026-11-15 15:00"
-    },
-    "All I Want For Christmas Is You 250만 · 15일 14:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 All I Want For Christmas Is You 』 250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=zHbh6KO1dFo\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/zHbh6KO1dFo_2500000.jpg",
-      "file": "zHbh6KO1dFo_2500000.jpg",
-      "at": "2026-11-15 14:00"
     }
   }
 }
