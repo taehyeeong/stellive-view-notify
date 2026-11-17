@@ -1,5 +1,6 @@
 {
   "order": [
+    "걘 아니야 Pt.2 320만 · 18일 01:00",
     "사랑 감기에 실려 320만 · 17일 21:00",
     "여름밤 감성 자극 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭🌙 150만 · 17일 21:00",
     "타상연화 60만 · 17일 20:00",
@@ -31,14 +32,15 @@
     "선잠 170만 · 16일 09:00",
     "Henceforth 270만 · 16일 05:00",
     "안녕, 또 언젠가！ 60만 · 16일 03:00",
-    "로스트원의 호곡 160만 · 16일 01:00",
-    "Ref:rain 130만 · 16일 00:00",
-    "호랑풍류가 160만 · 15일 23:00",
-    "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00",
-    "STAR TRAIL 270만 · 15일 22:00",
-    "Surges 530만 · 15일 22:00"
+    "로스트원의 호곡 160만 · 16일 01:00"
   ],
   "items": {
+    "걘 아니야 Pt.2 320만 · 18일 01:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 걘 아니야 Pt.2 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=cu9oCSWGFIM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/cu9oCSWGFIM_3200000.jpg",
+      "file": "cu9oCSWGFIM_3200000.jpg",
+      "at": "2026-11-18 01:00"
+    },
     "사랑 감기에 실려 320만 · 17일 21:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 사랑 감기에 실려 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=-a6y64hn4DA\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/-a6y64hn4DA_3200000.jpg",
@@ -230,36 +232,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1600000.jpg",
       "file": "liPEQZJLQh4_1600000.jpg",
       "at": "2026-11-16 01:00"
-    },
-    "Ref:rain 130만 · 16일 00:00": {
-      "text": "\n#luv_tabi\n\n타비야\n\n『 Ref:rain 』 130만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=1HCo6-YL9AY\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/1HCo6-YL9AY_1300000.jpg",
-      "file": "1HCo6-YL9AY_1300000.jpg",
-      "at": "2026-11-16 00:00"
-    },
-    "호랑풍류가 160만 · 15일 23:00": {
-      "text": "\n#Rang_log\n\n랑아가\n\n『 호랑풍류가 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=iAoU1UGPoXc\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/iAoU1UGPoXc_1600000.jpg",
-      "file": "iAoU1UGPoXc_1600000.jpg",
-      "at": "2026-11-15 23:00"
-    },
-    "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00": {
-      "text": "\n#riko_diary\n\n리코야!\n\n『 힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 』 90만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=X7pjwim9NHE\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/X7pjwim9NHE_900000.jpg",
-      "file": "X7pjwim9NHE_900000.jpg",
-      "at": "2026-11-15 22:00"
-    },
-    "STAR TRAIL 270만 · 15일 22:00": {
-      "text": "\n#스텔라이브\n\n얘들아 !!\n\n『 STAR TRAIL 』 270만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=v094-E3Pmtk\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/v094-E3Pmtk_2700000.jpg",
-      "file": "v094-E3Pmtk_2700000.jpg",
-      "at": "2026-11-15 22:00"
-    },
-    "Surges 530만 · 15일 22:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 Surges 』 530만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=q2uHl6EJh-k\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/q2uHl6EJh-k_5300000.jpg",
-      "file": "q2uHl6EJh-k_5300000.jpg",
-      "at": "2026-11-15 22:00"
     }
   }
 }
