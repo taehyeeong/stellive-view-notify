@@ -1,5 +1,6 @@
 {
   "order": [
+    "타상연화 60만 · 17일 20:00",
     "사랑하고 있는거야 150만 · 17일 18:00",
     "발묘 1710만 · 17일 18:00",
     "오네가이 달링 50만 · 17일 14:00",
@@ -34,14 +35,15 @@
     "힘들고 지칠 때 듣고 싶은 새벽 감성 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭 90만 · 15일 22:00",
     "STAR TRAIL 270만 · 15일 22:00",
     "Surges 530만 · 15일 22:00",
-    "Universe 210만 · 15일 20:00",
-    "도쿄 테디베어 450만 · 15일 19:00",
-    "수평선 240만 · 15일 19:00",
-    "발랄라이카 40만 · 15일 19:00",
-    "Stand By You 190만 · 15일 18:00",
-    "발묘 1700만 · 15일 18:00"
+    "Universe 210만 · 15일 20:00"
   ],
   "items": {
+    "타상연화 60만 · 17일 20:00": {
+      "text": "\n#daily_hina #happy_rin\n\n히나야 린~\n\n『 타상연화 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=LmOl01G4DR4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/LmOl01G4DR4_600000.jpg",
+      "file": "LmOl01G4DR4_600000.jpg",
+      "at": "2026-11-17 20:00"
+    },
     "사랑하고 있는거야 150만 · 17일 18:00": {
       "text": "\n#dayshiro #luv_tabi\n\n찌로야 타비야\n\n『 사랑하고 있는거야 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=tmk0qlr4AeM\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/tmk0qlr4AeM_1500000.jpg",
@@ -251,36 +253,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CbuiRlGeA-g_2100000.jpg",
       "file": "CbuiRlGeA-g_2100000.jpg",
       "at": "2026-11-15 20:00"
-    },
-    "도쿄 테디베어 450만 · 15일 19:00": {
-      "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 450만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4500000.jpg",
-      "file": "rKQptWhAvO0_4500000.jpg",
-      "at": "2026-11-15 19:00"
-    },
-    "수평선 240만 · 15일 19:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 수평선 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=lZHyUw7LWSw\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/lZHyUw7LWSw_2400000.jpg",
-      "file": "lZHyUw7LWSw_2400000.jpg",
-      "at": "2026-11-15 19:00"
-    },
-    "발랄라이카 40만 · 15일 19:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 40만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_400000.jpg",
-      "file": "8lD-6Xyq4Lg_400000.jpg",
-      "at": "2026-11-15 19:00"
-    },
-    "Stand By You 190만 · 15일 18:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 Stand By You 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=RpX0r_l7FzI\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/RpX0r_l7FzI_1900000.jpg",
-      "file": "RpX0r_l7FzI_1900000.jpg",
-      "at": "2026-11-15 18:00"
-    },
-    "발묘 1700만 · 15일 18:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1700만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17000000.jpg",
-      "file": "R_B4tmy2DVA_17000000.jpg",
-      "at": "2026-11-15 18:00"
     }
   }
 }
