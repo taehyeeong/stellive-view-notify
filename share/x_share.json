@@ -1,5 +1,6 @@
 {
   "order": [
+    "오네가이 달링 50만 · 17일 14:00",
     "Oh... 150만 · 17일 12:00",
     "발랄라이카 50만 · 17일 10:00",
     "라일락 120만 · 17일 09:00",
@@ -38,10 +39,15 @@
     "Stand By You 190만 · 15일 18:00",
     "발묘 1700만 · 15일 18:00",
     "Stellar Stellar 110만 · 15일 17:00",
-    "Loveit? 30만 · 15일 16:00",
-    "취한 줄을 모르고 260만 · 15일 16:00"
+    "Loveit? 30만 · 15일 16:00"
   ],
   "items": {
+    "오네가이 달링 50만 · 17일 14:00": {
+      "text": "\n#yunikki\n\n유니찌\n\n『 오네가이 달링 』 50만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=bRa_zAaaCCE\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bRa_zAaaCCE_500000.jpg",
+      "file": "bRa_zAaaCCE_500000.jpg",
+      "at": "2026-11-17 14:00"
+    },
     "Oh... 150만 · 17일 12:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 Oh... 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=RLKm8ymJPlo\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/RLKm8ymJPlo_1500000.jpg",
@@ -274,12 +280,6 @@
       "text": "\n#riko_diary\n\n리코야!\n\n『 Loveit? 』 30만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=TM-uVDKQxhg\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/TM-uVDKQxhg_300000.jpg",
       "file": "TM-uVDKQxhg_300000.jpg",
-      "at": "2026-11-15 16:00"
-    },
-    "취한 줄을 모르고 260만 · 15일 16:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 취한 줄을 모르고 』 260만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=209_dJOJa0Y\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/209_dJOJa0Y_2600000.jpg",
-      "file": "209_dJOJa0Y_2600000.jpg",
       "at": "2026-11-15 16:00"
     }
   }
