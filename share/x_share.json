@@ -1,5 +1,7 @@
 {
   "order": [
+    "사랑하고 있는거야 150만 · 17일 18:00",
+    "발묘 1710만 · 17일 18:00",
     "오네가이 달링 50만 · 17일 14:00",
     "Oh... 150만 · 17일 12:00",
     "발랄라이카 50만 · 17일 10:00",
@@ -37,11 +39,21 @@
     "수평선 240만 · 15일 19:00",
     "발랄라이카 40만 · 15일 19:00",
     "Stand By You 190만 · 15일 18:00",
-    "발묘 1700만 · 15일 18:00",
-    "Stellar Stellar 110만 · 15일 17:00",
-    "Loveit? 30만 · 15일 16:00"
+    "발묘 1700만 · 15일 18:00"
   ],
   "items": {
+    "사랑하고 있는거야 150만 · 17일 18:00": {
+      "text": "\n#dayshiro #luv_tabi\n\n찌로야 타비야\n\n『 사랑하고 있는거야 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=tmk0qlr4AeM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/tmk0qlr4AeM_1500000.jpg",
+      "file": "tmk0qlr4AeM_1500000.jpg",
+      "at": "2026-11-17 18:00"
+    },
+    "발묘 1710만 · 17일 18:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1710만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17100000.jpg",
+      "file": "R_B4tmy2DVA_17100000.jpg",
+      "at": "2026-11-17 18:00"
+    },
     "오네가이 달링 50만 · 17일 14:00": {
       "text": "\n#yunikki\n\n유니찌\n\n『 오네가이 달링 』 50만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=bRa_zAaaCCE\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bRa_zAaaCCE_500000.jpg",
@@ -269,18 +281,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17000000.jpg",
       "file": "R_B4tmy2DVA_17000000.jpg",
       "at": "2026-11-15 18:00"
-    },
-    "Stellar Stellar 110만 · 15일 17:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 Stellar Stellar 』 110만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=DHG3s8GF1DM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/DHG3s8GF1DM_1100000.jpg",
-      "file": "DHG3s8GF1DM_1100000.jpg",
-      "at": "2026-11-15 17:00"
-    },
-    "Loveit? 30만 · 15일 16:00": {
-      "text": "\n#riko_diary\n\n리코야!\n\n『 Loveit? 』 30만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=TM-uVDKQxhg\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/TM-uVDKQxhg_300000.jpg",
-      "file": "TM-uVDKQxhg_300000.jpg",
-      "at": "2026-11-15 16:00"
     }
   }
 }
