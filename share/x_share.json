@@ -1,5 +1,6 @@
 {
   "order": [
+    "Oh... 150만 · 17일 12:00",
     "발랄라이카 50만 · 17일 10:00",
     "라일락 120만 · 17일 09:00",
     "Loveit? 90만 · 17일 09:00",
@@ -38,10 +39,15 @@
     "발묘 1700만 · 15일 18:00",
     "Stellar Stellar 110만 · 15일 17:00",
     "Loveit? 30만 · 15일 16:00",
-    "취한 줄을 모르고 260만 · 15일 16:00",
-    "비행정 620만 · 15일 15:00"
+    "취한 줄을 모르고 260만 · 15일 16:00"
   ],
   "items": {
+    "Oh... 150만 · 17일 12:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 Oh... 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=RLKm8ymJPlo\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/RLKm8ymJPlo_1500000.jpg",
+      "file": "RLKm8ymJPlo_1500000.jpg",
+      "at": "2026-11-17 12:00"
+    },
     "발랄라이카 50만 · 17일 10:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 50만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_500000.jpg",
@@ -275,12 +281,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/209_dJOJa0Y_2600000.jpg",
       "file": "209_dJOJa0Y_2600000.jpg",
       "at": "2026-11-15 16:00"
-    },
-    "비행정 620만 · 15일 15:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 비행정 』 620만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=YC-QnlIEbJU\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/YC-QnlIEbJU_6200000.jpg",
-      "file": "YC-QnlIEbJU_6200000.jpg",
-      "at": "2026-11-15 15:00"
     }
   }
 }
