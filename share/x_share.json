@@ -1,5 +1,6 @@
 {
   "order": [
+    "로스트원의 호곡 180만 · 18일 06:00",
     "걘 아니야 Pt.2 320만 · 18일 01:00",
     "사랑 감기에 실려 320만 · 17일 21:00",
     "여름밤 감성 자극 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭🌙 150만 · 17일 21:00",
@@ -29,12 +30,15 @@
     "생명에게 미움받고 있어 350만 · 16일 17:00",
     "Festa! 160만 · 16일 16:00",
     "주름맞추기 250만 · 16일 10:00",
-    "선잠 170만 · 16일 09:00",
-    "Henceforth 270만 · 16일 05:00",
-    "안녕, 또 언젠가！ 60만 · 16일 03:00",
-    "로스트원의 호곡 160만 · 16일 01:00"
+    "선잠 170만 · 16일 09:00"
   ],
   "items": {
+    "로스트원의 호곡 180만 · 18일 06:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 180만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1800000.jpg",
+      "file": "liPEQZJLQh4_1800000.jpg",
+      "at": "2026-11-18 06:00"
+    },
     "걘 아니야 Pt.2 320만 · 18일 01:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 걘 아니야 Pt.2 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=cu9oCSWGFIM\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/cu9oCSWGFIM_3200000.jpg",
@@ -214,24 +218,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/dxsiVSbpm8k_1700000.jpg",
       "file": "dxsiVSbpm8k_1700000.jpg",
       "at": "2026-11-16 09:00"
-    },
-    "Henceforth 270만 · 16일 05:00": {
-      "text": "\n#riko_diary\n\n리코야!\n\n『 Henceforth 』 270만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=apj5_-osMd4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/apj5_-osMd4_2700000.jpg",
-      "file": "apj5_-osMd4_2700000.jpg",
-      "at": "2026-11-16 05:00"
-    },
-    "안녕, 또 언젠가！ 60만 · 16일 03:00": {
-      "text": "\n#dayshiro #luv_tabi\n\n찌로야 타비야\n\n『 안녕, 또 언젠가！ 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CmaLZo-DTlU\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CmaLZo-DTlU_600000.jpg",
-      "file": "CmaLZo-DTlU_600000.jpg",
-      "at": "2026-11-16 03:00"
-    },
-    "로스트원의 호곡 160만 · 16일 01:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1600000.jpg",
-      "file": "liPEQZJLQh4_1600000.jpg",
-      "at": "2026-11-16 01:00"
     }
   }
 }
