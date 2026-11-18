@@ -1,5 +1,6 @@
 {
   "order": [
+    "PLAY 460만 · 18일 12:00",
     "히로인 360만 · 18일 10:00",
     "선잠 660만 · 18일 10:00",
     "Grand Escape 190만 · 18일 09:00",
@@ -31,10 +32,15 @@
     "Deja vu 50만 · 16일 19:00",
     "Mela! 40만 · 16일 19:00",
     "생명에게 미움받고 있어 350만 · 16일 17:00",
-    "Festa! 160만 · 16일 16:00",
-    "주름맞추기 250만 · 16일 10:00"
+    "Festa! 160만 · 16일 16:00"
   ],
   "items": {
+    "PLAY 460만 · 18일 12:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 PLAY 』 460만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Bhe35DpMlzk\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Bhe35DpMlzk_4600000.jpg",
+      "file": "Bhe35DpMlzk_4600000.jpg",
+      "at": "2026-11-18 12:00"
+    },
     "히로인 360만 · 18일 10:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 히로인 』 360만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=qao2gYtY7bs\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qao2gYtY7bs_3600000.jpg",
@@ -226,12 +232,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3_0Ut2tlxLM_1600000.jpg",
       "file": "3_0Ut2tlxLM_1600000.jpg",
       "at": "2026-11-16 16:00"
-    },
-    "주름맞추기 250만 · 16일 10:00": {
-      "text": "\n#riko_diary\n\n리코야!\n\n『 주름맞추기 』 250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=cGjgCLuyAro\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/cGjgCLuyAro_2500000.jpg",
-      "file": "cGjgCLuyAro_2500000.jpg",
-      "at": "2026-11-16 10:00"
     }
   }
 }
