@@ -1,5 +1,6 @@
 {
   "order": [
+    "Pale 240만 · 19일 04:00",
     "발랄라이카 60만 · 19일 02:00",
     "불가행력 130만 · 19일 02:00",
     "To. X 500만 · 19일 01:00",
@@ -28,13 +29,15 @@
     "Loveit? 90만 · 17일 09:00",
     "케세라세라 300만 · 17일 08:00",
     "도쿄 테디베어 460만 · 17일 05:00",
-    "제육감 220만 · 17일 04:00",
-    "여우비 510만 · 17일 03:00",
-    "로스트원의 호곡 170만 · 17일 03:00",
-    "유령도쿄 550만 · 17일 02:00",
-    "내일의 밤하늘 초계반 1150만 · 17일 02:00"
+    "제육감 220만 · 17일 04:00"
   ],
   "items": {
+    "Pale 240만 · 19일 04:00": {
+      "text": "\n#dayshiro\n\n찌로야\n\n『 Pale 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=pnU-h63twZM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/pnU-h63twZM_2400000.jpg",
+      "file": "pnU-h63twZM_2400000.jpg",
+      "at": "2026-11-19 04:00"
+    },
     "발랄라이카 60만 · 19일 02:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_600000.jpg",
@@ -208,30 +211,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/MZNKiadMo3U_2200000.jpg",
       "file": "MZNKiadMo3U_2200000.jpg",
       "at": "2026-11-17 04:00"
-    },
-    "여우비 510만 · 17일 03:00": {
-      "text": "\n#for_shibuki\n\n부킈키\n\n『 여우비 』 510만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=sWZoIawG0tA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/sWZoIawG0tA_5100000.jpg",
-      "file": "sWZoIawG0tA_5100000.jpg",
-      "at": "2026-11-17 03:00"
-    },
-    "로스트원의 호곡 170만 · 17일 03:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 170만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1700000.jpg",
-      "file": "liPEQZJLQh4_1700000.jpg",
-      "at": "2026-11-17 03:00"
-    },
-    "유령도쿄 550만 · 17일 02:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 유령도쿄 』 550만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=UWa_OiXDiQA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/UWa_OiXDiQA_5500000.jpg",
-      "file": "UWa_OiXDiQA_5500000.jpg",
-      "at": "2026-11-17 02:00"
-    },
-    "내일의 밤하늘 초계반 1150만 · 17일 02:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 내일의 밤하늘 초계반 』 1150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=fTqvR0U0EC4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/fTqvR0U0EC4_11500000.jpg",
-      "file": "fTqvR0U0EC4_11500000.jpg",
-      "at": "2026-11-17 02:00"
     }
   }
 }
