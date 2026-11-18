@@ -1,5 +1,7 @@
 {
   "order": [
+    "발랄라이카 60만 · 19일 02:00",
+    "불가행력 130만 · 19일 02:00",
     "To. X 500만 · 19일 01:00",
     "혁명도중 90만 · 19일 00:00",
     "Summer 240만 · 18일 20:00",
@@ -30,11 +32,21 @@
     "여우비 510만 · 17일 03:00",
     "로스트원의 호곡 170만 · 17일 03:00",
     "유령도쿄 550만 · 17일 02:00",
-    "내일의 밤하늘 초계반 1150만 · 17일 02:00",
-    "Drowning 1250만 · 17일 01:00",
-    "Bunny Girl 260만 · 17일 01:00"
+    "내일의 밤하늘 초계반 1150만 · 17일 02:00"
   ],
   "items": {
+    "발랄라이카 60만 · 19일 02:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_600000.jpg",
+      "file": "8lD-6Xyq4Lg_600000.jpg",
+      "at": "2026-11-19 02:00"
+    },
+    "불가행력 130만 · 19일 02:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 불가행력 』 130만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Qi_JLmXBFFo\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Qi_JLmXBFFo_1300000.jpg",
+      "file": "Qi_JLmXBFFo_1300000.jpg",
+      "at": "2026-11-19 02:00"
+    },
     "To. X 500만 · 19일 01:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 To. X 』 500만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ItUC9TPcb08\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ItUC9TPcb08_5000000.jpg",
@@ -220,18 +232,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/fTqvR0U0EC4_11500000.jpg",
       "file": "fTqvR0U0EC4_11500000.jpg",
       "at": "2026-11-17 02:00"
-    },
-    "Drowning 1250만 · 17일 01:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 Drowning 』 1250만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=CyOAmEihVHs\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/CyOAmEihVHs_12500000.jpg",
-      "file": "CyOAmEihVHs_12500000.jpg",
-      "at": "2026-11-17 01:00"
-    },
-    "Bunny Girl 260만 · 17일 01:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 Bunny Girl 』 260만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=SIBtVNjRois\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/SIBtVNjRois_2600000.jpg",
-      "file": "SIBtVNjRois_2600000.jpg",
-      "at": "2026-11-17 01:00"
     }
   }
 }
