@@ -1,5 +1,6 @@
 {
   "order": [
+    "Summer 240만 · 18일 20:00",
     "도쿄 테디베어 470만 · 18일 17:00",
     "STAY 420만 · 18일 16:00",
     "괴물 790만 · 18일 16:00",
@@ -33,12 +34,15 @@
     "사신 270만 · 16일 22:00",
     "낙향 830만 · 16일 21:00",
     "댄스홀 230만 · 16일 20:00",
-    "✧Alice in Musicland✧ 230만 · 16일 20:00",
-    "Deja vu 50만 · 16일 19:00",
-    "Mela! 40만 · 16일 19:00",
-    "생명에게 미움받고 있어 350만 · 16일 17:00"
+    "✧Alice in Musicland✧ 230만 · 16일 20:00"
   ],
   "items": {
+    "Summer 240만 · 18일 20:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 Summer 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=xlXotzq2NqM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/xlXotzq2NqM_2400000.jpg",
+      "file": "xlXotzq2NqM_2400000.jpg",
+      "at": "2026-11-18 20:00"
+    },
     "도쿄 테디베어 470만 · 18일 17:00": {
       "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 470만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4700000.jpg",
@@ -242,24 +246,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/DMk4_4Xytz4_2300000.jpg",
       "file": "DMk4_4Xytz4_2300000.jpg",
       "at": "2026-11-16 20:00"
-    },
-    "Deja vu 50만 · 16일 19:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 Deja vu 』 50만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=KmH0RhhenzE\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/KmH0RhhenzE_500000.jpg",
-      "file": "KmH0RhhenzE_500000.jpg",
-      "at": "2026-11-16 19:00"
-    },
-    "Mela! 40만 · 16일 19:00": {
-      "text": "\n#daily_hina\n\n히나야\n\n『 Mela! 』 40만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=LOD3cnxgoZ0\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/LOD3cnxgoZ0_400000.jpg",
-      "file": "LOD3cnxgoZ0_400000.jpg",
-      "at": "2026-11-16 19:00"
-    },
-    "생명에게 미움받고 있어 350만 · 16일 17:00": {
-      "text": "\n#for_shibuki\n\n부킈키\n\n『 생명에게 미움받고 있어 』 350만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=bJqdy8925Oc\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bJqdy8925Oc_3500000.jpg",
-      "file": "bJqdy8925Oc_3500000.jpg",
-      "at": "2026-11-16 17:00"
     }
   }
 }
