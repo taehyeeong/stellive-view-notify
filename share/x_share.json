@@ -1,5 +1,6 @@
 {
   "order": [
+    "Grand Escape 190만 · 18일 09:00",
     "로스트원의 호곡 180만 · 18일 06:00",
     "걘 아니야 Pt.2 320만 · 18일 01:00",
     "사랑 감기에 실려 320만 · 17일 21:00",
@@ -33,6 +34,12 @@
     "선잠 170만 · 16일 09:00"
   ],
   "items": {
+    "Grand Escape 190만 · 18일 09:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 Grand Escape 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=L-GJ9pYICDM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/L-GJ9pYICDM_1900000.jpg",
+      "file": "L-GJ9pYICDM_1900000.jpg",
+      "at": "2026-11-18 09:00"
+    },
     "로스트원의 호곡 180만 · 18일 06:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 180만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1800000.jpg",
