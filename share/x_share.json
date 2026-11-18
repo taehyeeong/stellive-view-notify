@@ -1,5 +1,6 @@
 {
   "order": [
+    "Some Like It Hot!! 460만 · 18일 15:00",
     "SUPADOPA 620만 · 18일 13:00",
     "PLAY 460만 · 18일 12:00",
     "히로인 360만 · 18일 10:00",
@@ -36,6 +37,12 @@
     "Festa! 160만 · 16일 16:00"
   ],
   "items": {
+    "Some Like It Hot!! 460만 · 18일 15:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 Some Like It Hot!! 』 460만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=qpBCZ6kYVb4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qpBCZ6kYVb4_4600000.jpg",
+      "file": "qpBCZ6kYVb4_4600000.jpg",
+      "at": "2026-11-18 15:00"
+    },
     "SUPADOPA 620만 · 18일 13:00": {
       "text": "\n#yunikki\n\n유니찌\n\n『 SUPADOPA 』 620만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_RAWjqdgTs\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_RAWjqdgTs_6200000.jpg",
