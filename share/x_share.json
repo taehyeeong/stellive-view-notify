@@ -1,5 +1,6 @@
 {
   "order": [
+    "도쿄 테디베어 470만 · 18일 17:00",
     "STAY 420만 · 18일 16:00",
     "괴물 790만 · 18일 16:00",
     "Some Like It Hot!! 460만 · 18일 15:00",
@@ -35,10 +36,15 @@
     "✧Alice in Musicland✧ 230만 · 16일 20:00",
     "Deja vu 50만 · 16일 19:00",
     "Mela! 40만 · 16일 19:00",
-    "생명에게 미움받고 있어 350만 · 16일 17:00",
-    "Festa! 160만 · 16일 16:00"
+    "생명에게 미움받고 있어 350만 · 16일 17:00"
   ],
   "items": {
+    "도쿄 테디베어 470만 · 18일 17:00": {
+      "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 470만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4700000.jpg",
+      "file": "rKQptWhAvO0_4700000.jpg",
+      "at": "2026-11-18 17:00"
+    },
     "STAY 420만 · 18일 16:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 STAY 』 420만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=KSCTkOn5Niw\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/KSCTkOn5Niw_4200000.jpg",
@@ -254,12 +260,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bJqdy8925Oc_3500000.jpg",
       "file": "bJqdy8925Oc_3500000.jpg",
       "at": "2026-11-16 17:00"
-    },
-    "Festa! 160만 · 16일 16:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 Festa! 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=3_0Ut2tlxLM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3_0Ut2tlxLM_1600000.jpg",
-      "file": "3_0Ut2tlxLM_1600000.jpg",
-      "at": "2026-11-16 16:00"
     }
   }
 }
