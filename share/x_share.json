@@ -1,5 +1,6 @@
 {
   "order": [
+    "혁명도중 90만 · 19일 00:00",
     "Summer 240만 · 18일 20:00",
     "도쿄 테디베어 470만 · 18일 17:00",
     "STAY 420만 · 18일 16:00",
@@ -30,13 +31,15 @@
     "유령도쿄 550만 · 17일 02:00",
     "내일의 밤하늘 초계반 1150만 · 17일 02:00",
     "Drowning 1250만 · 17일 01:00",
-    "Bunny Girl 260만 · 17일 01:00",
-    "사신 270만 · 16일 22:00",
-    "낙향 830만 · 16일 21:00",
-    "댄스홀 230만 · 16일 20:00",
-    "✧Alice in Musicland✧ 230만 · 16일 20:00"
+    "Bunny Girl 260만 · 17일 01:00"
   ],
   "items": {
+    "혁명도중 90만 · 19일 00:00": {
+      "text": "\n#for_shibuki\n\n부킈키\n\n『 혁명도중 』 90만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=3Xf1Wt7Z-RY\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3Xf1Wt7Z-RY_900000.jpg",
+      "file": "3Xf1Wt7Z-RY_900000.jpg",
+      "at": "2026-11-19 00:00"
+    },
     "Summer 240만 · 18일 20:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 Summer 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=xlXotzq2NqM\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/xlXotzq2NqM_2400000.jpg",
@@ -222,30 +225,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/SIBtVNjRois_2600000.jpg",
       "file": "SIBtVNjRois_2600000.jpg",
       "at": "2026-11-17 01:00"
-    },
-    "사신 270만 · 16일 22:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 사신 』 270만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=jyU6GkzD2CA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/jyU6GkzD2CA_2700000.jpg",
-      "file": "jyU6GkzD2CA_2700000.jpg",
-      "at": "2026-11-16 22:00"
-    },
-    "낙향 830만 · 16일 21:00": {
-      "text": "\n#daily_hina\n\n히나야\n\n『 낙향 』 830만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=gBWIv6NvLcU\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/gBWIv6NvLcU_8300000.jpg",
-      "file": "gBWIv6NvLcU_8300000.jpg",
-      "at": "2026-11-16 21:00"
-    },
-    "댄스홀 230만 · 16일 20:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 댄스홀 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=jTUOSAmCqeI\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/jTUOSAmCqeI_2300000.jpg",
-      "file": "jTUOSAmCqeI_2300000.jpg",
-      "at": "2026-11-16 20:00"
-    },
-    "✧Alice in Musicland✧ 230만 · 16일 20:00": {
-      "text": "\n#daily_hina\n\n히나야\n\n『 ✧Alice in Musicland✧ 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=DMk4_4Xytz4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/DMk4_4Xytz4_2300000.jpg",
-      "file": "DMk4_4Xytz4_2300000.jpg",
-      "at": "2026-11-16 20:00"
     }
   }
 }
