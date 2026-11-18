@@ -1,5 +1,6 @@
 {
   "order": [
+    "To. X 500만 · 19일 01:00",
     "혁명도중 90만 · 19일 00:00",
     "Summer 240만 · 18일 20:00",
     "도쿄 테디베어 470만 · 18일 17:00",
@@ -34,6 +35,12 @@
     "Bunny Girl 260만 · 17일 01:00"
   ],
   "items": {
+    "To. X 500만 · 19일 01:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 To. X 』 500만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ItUC9TPcb08\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ItUC9TPcb08_5000000.jpg",
+      "file": "ItUC9TPcb08_5000000.jpg",
+      "at": "2026-11-19 01:00"
+    },
     "혁명도중 90만 · 19일 00:00": {
       "text": "\n#for_shibuki\n\n부킈키\n\n『 혁명도중 』 90만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=3Xf1Wt7Z-RY\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3Xf1Wt7Z-RY_900000.jpg",
