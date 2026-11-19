@@ -1,5 +1,6 @@
 {
   "order": [
+    "발묘 1720만 · 19일 20:00",
     "BUMPA 20만 · 19일 15:00",
     "카가리비토 100만 · 19일 15:00",
     "피날레 510만 · 19일 13:00",
@@ -25,11 +26,15 @@
     "걘 아니야 Pt.2 320만 · 18일 01:00",
     "사랑 감기에 실려 320만 · 17일 21:00",
     "여름밤 감성 자극 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭🌙 150만 · 17일 21:00",
-    "타상연화 60만 · 17일 20:00",
-    "사랑하고 있는거야 150만 · 17일 18:00",
-    "발묘 1710만 · 17일 18:00"
+    "타상연화 60만 · 17일 20:00"
   ],
   "items": {
+    "발묘 1720만 · 19일 20:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1720만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17200000.jpg",
+      "file": "R_B4tmy2DVA_17200000.jpg",
+      "at": "2026-11-19 20:00"
+    },
     "BUMPA 20만 · 19일 15:00": {
       "text": "\n#dayshiro\n\n찌로야\n\n『 BUMPA 』 20만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Z5N_XqM9Nl8\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Z5N_XqM9Nl8_200000.jpg",
@@ -185,18 +190,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/LmOl01G4DR4_600000.jpg",
       "file": "LmOl01G4DR4_600000.jpg",
       "at": "2026-11-17 20:00"
-    },
-    "사랑하고 있는거야 150만 · 17일 18:00": {
-      "text": "\n#dayshiro #luv_tabi\n\n찌로야 타비야\n\n『 사랑하고 있는거야 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=tmk0qlr4AeM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/tmk0qlr4AeM_1500000.jpg",
-      "file": "tmk0qlr4AeM_1500000.jpg",
-      "at": "2026-11-17 18:00"
-    },
-    "발묘 1710만 · 17일 18:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1710만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17100000.jpg",
-      "file": "R_B4tmy2DVA_17100000.jpg",
-      "at": "2026-11-17 18:00"
     }
   }
 }
