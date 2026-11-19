@@ -1,5 +1,6 @@
 {
   "order": [
+    "피날레 510만 · 19일 13:00",
     "로스트원의 호곡 190만 · 19일 12:00",
     "안녕, 꽃도둑씨 140만 · 19일 11:00",
     "セカイ(SEKAI) 180만 · 19일 06:00",
@@ -25,10 +26,15 @@
     "타상연화 60만 · 17일 20:00",
     "사랑하고 있는거야 150만 · 17일 18:00",
     "발묘 1710만 · 17일 18:00",
-    "오네가이 달링 50만 · 17일 14:00",
-    "Oh... 150만 · 17일 12:00"
+    "오네가이 달링 50만 · 17일 14:00"
   ],
   "items": {
+    "피날레 510만 · 19일 13:00": {
+      "text": "\n#daily_hina\n\n히나야\n\n『 피날레 』 510만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=_-uHa5KiR90\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/_-uHa5KiR90_5100000.jpg",
+      "file": "_-uHa5KiR90_5100000.jpg",
+      "at": "2026-11-19 13:00"
+    },
     "로스트원의 호곡 190만 · 19일 12:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1900000.jpg",
@@ -184,12 +190,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bRa_zAaaCCE_500000.jpg",
       "file": "bRa_zAaaCCE_500000.jpg",
       "at": "2026-11-17 14:00"
-    },
-    "Oh... 150만 · 17일 12:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 Oh... 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=RLKm8ymJPlo\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/RLKm8ymJPlo_1500000.jpg",
-      "file": "RLKm8ymJPlo_1500000.jpg",
-      "at": "2026-11-17 12:00"
     }
   }
 }
