@@ -1,5 +1,6 @@
 {
   "order": [
+    "제육감 230만 · 20일 05:00",
     "가짜 얼굴 370만 · 19일 23:00",
     "Enemy 470만 · 19일 23:00",
     "발묘 1720만 · 19일 20:00",
@@ -24,10 +25,15 @@
     "히로인 360만 · 18일 10:00",
     "선잠 660만 · 18일 10:00",
     "Grand Escape 190만 · 18일 09:00",
-    "로스트원의 호곡 180만 · 18일 06:00",
-    "걘 아니야 Pt.2 320만 · 18일 01:00"
+    "로스트원의 호곡 180만 · 18일 06:00"
   ],
   "items": {
+    "제육감 230만 · 20일 05:00": {
+      "text": "\n#toazzang\n\n토아짱\n\n『 제육감 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=MZNKiadMo3U\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/MZNKiadMo3U_2300000.jpg",
+      "file": "MZNKiadMo3U_2300000.jpg",
+      "at": "2026-11-20 05:00"
+    },
     "가짜 얼굴 370만 · 19일 23:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 가짜 얼굴 』 370만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=v7UNI2YuqFc\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/v7UNI2YuqFc_3700000.jpg",
@@ -177,12 +183,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1800000.jpg",
       "file": "liPEQZJLQh4_1800000.jpg",
       "at": "2026-11-18 06:00"
-    },
-    "걘 아니야 Pt.2 320만 · 18일 01:00": {
-      "text": "\n#riko_diary\n\n리코야!\n\n『 걘 아니야 Pt.2 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=cu9oCSWGFIM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/cu9oCSWGFIM_3200000.jpg",
-      "file": "cu9oCSWGFIM_3200000.jpg",
-      "at": "2026-11-18 01:00"
     }
   }
 }
