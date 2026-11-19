@@ -1,5 +1,6 @@
 {
   "order": [
+    "유령이 되고싶어 150만 · 20일 08:00",
     "Maid My Way 260만 · 20일 07:00",
     "악마의 아이 180만 · 20일 07:00",
     "도쿄 테디베어 480만 · 20일 06:00",
@@ -30,6 +31,12 @@
     "Grand Escape 190만 · 18일 09:00"
   ],
   "items": {
+    "유령이 되고싶어 150만 · 20일 08:00": {
+      "text": "\n#hiyorizori\n\n요리야\n\n『 유령이 되고싶어 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ouKcRBeyKbk\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ouKcRBeyKbk_1500000.jpg",
+      "file": "ouKcRBeyKbk_1500000.jpg",
+      "at": "2026-11-20 08:00"
+    },
     "Maid My Way 260만 · 20일 07:00": {
       "text": "\n#happy_rin\n\n린~\n\n『 Maid My Way 』 260만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ZYSQLv_L26Y\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ZYSQLv_L26Y_2600000.jpg",
