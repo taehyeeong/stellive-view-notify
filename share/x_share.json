@@ -1,5 +1,6 @@
 {
   "order": [
+    "로스트원의 호곡 190만 · 19일 12:00",
     "안녕, 꽃도둑씨 140만 · 19일 11:00",
     "セカイ(SEKAI) 180만 · 19일 06:00",
     "Pale 240만 · 19일 04:00",
@@ -28,6 +29,12 @@
     "Oh... 150만 · 17일 12:00"
   ],
   "items": {
+    "로스트원의 호곡 190만 · 19일 12:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1900000.jpg",
+      "file": "liPEQZJLQh4_1900000.jpg",
+      "at": "2026-11-19 12:00"
+    },
     "안녕, 꽃도둑씨 140만 · 19일 11:00": {
       "text": "\n#dayshiro\n\n찌로야\n\n『 안녕, 꽃도둑씨 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=sEYBQaw1vRs\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/sEYBQaw1vRs_1400000.jpg",
