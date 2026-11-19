@@ -1,5 +1,7 @@
 {
   "order": [
+    "Maid My Way 260만 · 20일 07:00",
+    "악마의 아이 180만 · 20일 07:00",
     "도쿄 테디베어 480만 · 20일 06:00",
     "제육감 230만 · 20일 05:00",
     "가짜 얼굴 370만 · 19일 23:00",
@@ -25,10 +27,21 @@
     "PLAY 460만 · 18일 12:00",
     "히로인 360만 · 18일 10:00",
     "선잠 660만 · 18일 10:00",
-    "Grand Escape 190만 · 18일 09:00",
-    "로스트원의 호곡 180만 · 18일 06:00"
+    "Grand Escape 190만 · 18일 09:00"
   ],
   "items": {
+    "Maid My Way 260만 · 20일 07:00": {
+      "text": "\n#happy_rin\n\n린~\n\n『 Maid My Way 』 260만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ZYSQLv_L26Y\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ZYSQLv_L26Y_2600000.jpg",
+      "file": "ZYSQLv_L26Y_2600000.jpg",
+      "at": "2026-11-20 07:00"
+    },
+    "악마의 아이 180만 · 20일 07:00": {
+      "text": "\n#daily_hina\n\n히나야\n\n『 악마의 아이 』 180만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=B5tz8rOMPlU\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/B5tz8rOMPlU_1800000.jpg",
+      "file": "B5tz8rOMPlU_1800000.jpg",
+      "at": "2026-11-20 07:00"
+    },
     "도쿄 테디베어 480만 · 20일 06:00": {
       "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 480만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4800000.jpg",
@@ -184,12 +197,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/L-GJ9pYICDM_1900000.jpg",
       "file": "L-GJ9pYICDM_1900000.jpg",
       "at": "2026-11-18 09:00"
-    },
-    "로스트원의 호곡 180만 · 18일 06:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 180만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1800000.jpg",
-      "file": "liPEQZJLQh4_1800000.jpg",
-      "at": "2026-11-18 06:00"
     }
   }
 }
