@@ -1,5 +1,7 @@
 {
   "order": [
+    "가짜 얼굴 370만 · 19일 23:00",
+    "Enemy 470만 · 19일 23:00",
     "발묘 1720만 · 19일 20:00",
     "BUMPA 20만 · 19일 15:00",
     "카가리비토 100만 · 19일 15:00",
@@ -23,12 +25,21 @@
     "선잠 660만 · 18일 10:00",
     "Grand Escape 190만 · 18일 09:00",
     "로스트원의 호곡 180만 · 18일 06:00",
-    "걘 아니야 Pt.2 320만 · 18일 01:00",
-    "사랑 감기에 실려 320만 · 17일 21:00",
-    "여름밤 감성 자극 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭🌙 150만 · 17일 21:00",
-    "타상연화 60만 · 17일 20:00"
+    "걘 아니야 Pt.2 320만 · 18일 01:00"
   ],
   "items": {
+    "가짜 얼굴 370만 · 19일 23:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 가짜 얼굴 』 370만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=v7UNI2YuqFc\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/v7UNI2YuqFc_3700000.jpg",
+      "file": "v7UNI2YuqFc_3700000.jpg",
+      "at": "2026-11-19 23:00"
+    },
+    "Enemy 470만 · 19일 23:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 Enemy 』 470만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8vQfO5tT85k\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8vQfO5tT85k_4700000.jpg",
+      "file": "8vQfO5tT85k_4700000.jpg",
+      "at": "2026-11-19 23:00"
+    },
     "발묘 1720만 · 19일 20:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1720만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17200000.jpg",
@@ -172,24 +183,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/cu9oCSWGFIM_3200000.jpg",
       "file": "cu9oCSWGFIM_3200000.jpg",
       "at": "2026-11-18 01:00"
-    },
-    "사랑 감기에 실려 320만 · 17일 21:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 사랑 감기에 실려 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=-a6y64hn4DA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/-a6y64hn4DA_3200000.jpg",
-      "file": "-a6y64hn4DA_3200000.jpg",
-      "at": "2026-11-17 21:00"
-    },
-    "여름밤 감성 자극 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭🌙 150만 · 17일 21:00": {
-      "text": "\n#daily_hina\n\n히나야\n\n『 여름밤 감성 자극 𝐏𝐥𝐚𝐲𝐥𝐢𝐬𝐭🌙 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=WXVKnntJSrY\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/WXVKnntJSrY_1500000.jpg",
-      "file": "WXVKnntJSrY_1500000.jpg",
-      "at": "2026-11-17 21:00"
-    },
-    "타상연화 60만 · 17일 20:00": {
-      "text": "\n#daily_hina #happy_rin\n\n히나야 린~\n\n『 타상연화 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=LmOl01G4DR4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/LmOl01G4DR4_600000.jpg",
-      "file": "LmOl01G4DR4_600000.jpg",
-      "at": "2026-11-17 20:00"
     }
   }
 }
