@@ -1,5 +1,6 @@
 {
   "order": [
+    "절대적대완전싫어 320만 · 21일 00:00",
     "괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 80만 · 20일 19:00",
     "계절범죄 160만 · 20일 19:00",
     "심월과 달의 노래 60만 · 20일 17:00",
@@ -27,10 +28,15 @@
     "발랄라이카 60만 · 19일 02:00",
     "불가행력 130만 · 19일 02:00",
     "To. X 500만 · 19일 01:00",
-    "혁명도중 90만 · 19일 00:00",
-    "Summer 240만 · 18일 20:00"
+    "혁명도중 90만 · 19일 00:00"
   ],
   "items": {
+    "절대적대완전싫어 320만 · 21일 00:00": {
+      "text": "\n#for_shibuki #riko_diary\n\n부킈키 리코야!\n\n『 절대적대완전싫어 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=PBh8a0GaNFs\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/PBh8a0GaNFs_3200000.jpg",
+      "file": "PBh8a0GaNFs_3200000.jpg",
+      "at": "2026-11-21 00:00"
+    },
     "괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 80만 · 20일 19:00": {
       "text": "\n#스텔라이브\n\n얘들아 !!\n\n『 괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 』 80만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=qNOFi7GzpfM\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qNOFi7GzpfM_800000.jpg",
@@ -198,12 +204,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3Xf1Wt7Z-RY_900000.jpg",
       "file": "3Xf1Wt7Z-RY_900000.jpg",
       "at": "2026-11-19 00:00"
-    },
-    "Summer 240만 · 18일 20:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 Summer 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=xlXotzq2NqM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/xlXotzq2NqM_2400000.jpg",
-      "file": "xlXotzq2NqM_2400000.jpg",
-      "at": "2026-11-18 20:00"
     }
   }
 }
