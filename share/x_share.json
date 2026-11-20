@@ -1,5 +1,6 @@
 {
   "order": [
+    "목마름을 외치다 240만 · 20일 09:00",
     "유령이 되고싶어 150만 · 20일 08:00",
     "Maid My Way 260만 · 20일 07:00",
     "악마의 아이 180만 · 20일 07:00",
@@ -31,6 +32,12 @@
     "Grand Escape 190만 · 18일 09:00"
   ],
   "items": {
+    "목마름을 외치다 240만 · 20일 09:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 목마름을 외치다 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=eYaX9aDtlmA\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/eYaX9aDtlmA_2400000.jpg",
+      "file": "eYaX9aDtlmA_2400000.jpg",
+      "at": "2026-11-20 09:00"
+    },
     "유령이 되고싶어 150만 · 20일 08:00": {
       "text": "\n#hiyorizori\n\n요리야\n\n『 유령이 되고싶어 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ouKcRBeyKbk\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ouKcRBeyKbk_1500000.jpg",
