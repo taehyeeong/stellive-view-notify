@@ -1,5 +1,6 @@
 {
   "order": [
+    "심월과 달의 노래 60만 · 20일 17:00",
     "J-POP Mashup! 230만 · 20일 16:00",
     "로스트원의 호곡 200만 · 20일 16:00",
     "BLACKHOLE 30만 · 20일 14:00",
@@ -26,11 +27,15 @@
     "To. X 500만 · 19일 01:00",
     "혁명도중 90만 · 19일 00:00",
     "Summer 240만 · 18일 20:00",
-    "도쿄 테디베어 470만 · 18일 17:00",
-    "STAY 420만 · 18일 16:00",
-    "괴물 790만 · 18일 16:00"
+    "도쿄 테디베어 470만 · 18일 17:00"
   ],
   "items": {
+    "심월과 달의 노래 60만 · 20일 17:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 심월과 달의 노래 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=FzefgoF26Ac\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/FzefgoF26Ac_600000.jpg",
+      "file": "FzefgoF26Ac_600000.jpg",
+      "at": "2026-11-20 17:00"
+    },
     "J-POP Mashup! 230만 · 20일 16:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 J-POP Mashup! 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=090EFw_FDjU\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/090EFw_FDjU_2300000.jpg",
@@ -192,18 +197,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4700000.jpg",
       "file": "rKQptWhAvO0_4700000.jpg",
       "at": "2026-11-18 17:00"
-    },
-    "STAY 420만 · 18일 16:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 STAY 』 420만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=KSCTkOn5Niw\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/KSCTkOn5Niw_4200000.jpg",
-      "file": "KSCTkOn5Niw_4200000.jpg",
-      "at": "2026-11-18 16:00"
-    },
-    "괴물 790만 · 18일 16:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 괴물 』 790만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=naWmFCbwi3M\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/naWmFCbwi3M_7900000.jpg",
-      "file": "naWmFCbwi3M_7900000.jpg",
-      "at": "2026-11-18 16:00"
     }
   }
 }
