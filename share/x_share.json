@@ -1,5 +1,7 @@
 {
   "order": [
+    "비행정 60만 · 21일 08:00",
+    "아틀란티스 소녀 70만 · 21일 08:00",
     "절대적대완전싫어 320만 · 21일 00:00",
     "괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 80만 · 20일 19:00",
     "계절범죄 160만 · 20일 19:00",
@@ -22,15 +24,21 @@
     "카가리비토 100만 · 19일 15:00",
     "피날레 510만 · 19일 13:00",
     "로스트원의 호곡 190만 · 19일 12:00",
-    "안녕, 꽃도둑씨 140만 · 19일 11:00",
-    "セカイ(SEKAI) 180만 · 19일 06:00",
-    "Pale 240만 · 19일 04:00",
-    "발랄라이카 60만 · 19일 02:00",
-    "불가행력 130만 · 19일 02:00",
-    "To. X 500만 · 19일 01:00",
-    "혁명도중 90만 · 19일 00:00"
+    "안녕, 꽃도둑씨 140만 · 19일 11:00"
   ],
   "items": {
+    "비행정 60만 · 21일 08:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 비행정 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Rkd03AguDJ4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Rkd03AguDJ4_600000.jpg",
+      "file": "Rkd03AguDJ4_600000.jpg",
+      "at": "2026-11-21 08:00"
+    },
+    "아틀란티스 소녀 70만 · 21일 08:00": {
+      "text": "\n#daily_hina\n\n히나야\n\n『 아틀란티스 소녀 』 70만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ekINzN4PQmo\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ekINzN4PQmo_700000.jpg",
+      "file": "ekINzN4PQmo_700000.jpg",
+      "at": "2026-11-21 08:00"
+    },
     "절대적대완전싫어 320만 · 21일 00:00": {
       "text": "\n#for_shibuki #riko_diary\n\n부킈키 리코야!\n\n『 절대적대완전싫어 』 320만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=PBh8a0GaNFs\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/PBh8a0GaNFs_3200000.jpg",
@@ -168,42 +176,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/sEYBQaw1vRs_1400000.jpg",
       "file": "sEYBQaw1vRs_1400000.jpg",
       "at": "2026-11-19 11:00"
-    },
-    "セカイ(SEKAI) 180만 · 19일 06:00": {
-      "text": "\n#스텔라이브\n\n얘들아 !!\n\n『 セカイ(SEKAI) 』 180만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=hGzklPRul4w\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/hGzklPRul4w_1800000.jpg",
-      "file": "hGzklPRul4w_1800000.jpg",
-      "at": "2026-11-19 06:00"
-    },
-    "Pale 240만 · 19일 04:00": {
-      "text": "\n#dayshiro\n\n찌로야\n\n『 Pale 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=pnU-h63twZM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/pnU-h63twZM_2400000.jpg",
-      "file": "pnU-h63twZM_2400000.jpg",
-      "at": "2026-11-19 04:00"
-    },
-    "발랄라이카 60만 · 19일 02:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_600000.jpg",
-      "file": "8lD-6Xyq4Lg_600000.jpg",
-      "at": "2026-11-19 02:00"
-    },
-    "불가행력 130만 · 19일 02:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 불가행력 』 130만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Qi_JLmXBFFo\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Qi_JLmXBFFo_1300000.jpg",
-      "file": "Qi_JLmXBFFo_1300000.jpg",
-      "at": "2026-11-19 02:00"
-    },
-    "To. X 500만 · 19일 01:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 To. X 』 500만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=ItUC9TPcb08\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/ItUC9TPcb08_5000000.jpg",
-      "file": "ItUC9TPcb08_5000000.jpg",
-      "at": "2026-11-19 01:00"
-    },
-    "혁명도중 90만 · 19일 00:00": {
-      "text": "\n#for_shibuki\n\n부킈키\n\n『 혁명도중 』 90만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=3Xf1Wt7Z-RY\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/3Xf1Wt7Z-RY_900000.jpg",
-      "file": "3Xf1Wt7Z-RY_900000.jpg",
-      "at": "2026-11-19 00:00"
     }
   }
 }
