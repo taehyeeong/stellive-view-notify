@@ -297,7 +297,8 @@ UNITS = {
                     "PL3HtH_xx9h_7ZGoZ9zMUQ-MPumwe21_cc"  # 노래
                 ],
                 "videos": [
-                    "https://youtu.be/CGYa8wsbii4?si=txa6asnJPGx2Py3z" # SUPERPOWER 발로 챔피언 테마곡
+                    "https://youtu.be/CGYa8wsbii4?si=txa6asnJPGx2Py3z", # SUPERPOWER 발로 챔피언 테마곡
+                    "https://youtu.be/lae-GcDKZjo?si=ovkNCNxz7Z3DtyJr"  # 자그만 기적 - 호랑이 들어와요 2 OP
                 ]
             },
             "사키하네 후야": {
