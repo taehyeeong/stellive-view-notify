@@ -1,5 +1,7 @@
 {
   "order": [
+    "J-POP Mashup! 230만 · 20일 16:00",
+    "로스트원의 호곡 200만 · 20일 16:00",
     "BLACKHOLE 30만 · 20일 14:00",
     "숨바꼭질 330만 · 20일 11:00",
     "러브레터 110만 · 20일 11:00",
@@ -26,10 +28,21 @@
     "Summer 240만 · 18일 20:00",
     "도쿄 테디베어 470만 · 18일 17:00",
     "STAY 420만 · 18일 16:00",
-    "괴물 790만 · 18일 16:00",
-    "Some Like It Hot!! 460만 · 18일 15:00"
+    "괴물 790만 · 18일 16:00"
   ],
   "items": {
+    "J-POP Mashup! 230만 · 20일 16:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 J-POP Mashup! 』 230만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=090EFw_FDjU\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/090EFw_FDjU_2300000.jpg",
+      "file": "090EFw_FDjU_2300000.jpg",
+      "at": "2026-11-20 16:00"
+    },
+    "로스트원의 호곡 200만 · 20일 16:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 200만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_2000000.jpg",
+      "file": "liPEQZJLQh4_2000000.jpg",
+      "at": "2026-11-20 16:00"
+    },
     "BLACKHOLE 30만 · 20일 14:00": {
       "text": "\n#daily_hina #dayshiro #Lize_daze #luv_tabi\n\n얘들아 !!\n\n『 BLACKHOLE 』 30만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=_BrWJ31tzYs\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/_BrWJ31tzYs_300000.jpg",
@@ -191,12 +204,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/naWmFCbwi3M_7900000.jpg",
       "file": "naWmFCbwi3M_7900000.jpg",
       "at": "2026-11-18 16:00"
-    },
-    "Some Like It Hot!! 460만 · 18일 15:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 Some Like It Hot!! 』 460만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=qpBCZ6kYVb4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qpBCZ6kYVb4_4600000.jpg",
-      "file": "qpBCZ6kYVb4_4600000.jpg",
-      "at": "2026-11-18 15:00"
     }
   }
 }
