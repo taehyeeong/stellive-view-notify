@@ -1,5 +1,7 @@
 {
   "order": [
+    "괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 80만 · 20일 19:00",
+    "계절범죄 160만 · 20일 19:00",
     "심월과 달의 노래 60만 · 20일 17:00",
     "J-POP Mashup! 230만 · 20일 16:00",
     "로스트원의 호곡 200만 · 20일 16:00",
@@ -26,10 +28,21 @@
     "불가행력 130만 · 19일 02:00",
     "To. X 500만 · 19일 01:00",
     "혁명도중 90만 · 19일 00:00",
-    "Summer 240만 · 18일 20:00",
-    "도쿄 테디베어 470만 · 18일 17:00"
+    "Summer 240만 · 18일 20:00"
   ],
   "items": {
+    "괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 80만 · 20일 19:00": {
+      "text": "\n#스텔라이브\n\n얘들아 !!\n\n『 괴도 F의 대본 ~사라진 다이아몬드의 수수께끼~ 』 80만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=qNOFi7GzpfM\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qNOFi7GzpfM_800000.jpg",
+      "file": "qNOFi7GzpfM_800000.jpg",
+      "at": "2026-11-20 19:00"
+    },
+    "계절범죄 160만 · 20일 19:00": {
+      "text": "\n#daily_hina\n\n히나야\n\n『 계절범죄 』 160만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=7idkUwtf-0I\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/7idkUwtf-0I_1600000.jpg",
+      "file": "7idkUwtf-0I_1600000.jpg",
+      "at": "2026-11-20 19:00"
+    },
     "심월과 달의 노래 60만 · 20일 17:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 심월과 달의 노래 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=FzefgoF26Ac\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/FzefgoF26Ac_600000.jpg",
@@ -191,12 +204,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/xlXotzq2NqM_2400000.jpg",
       "file": "xlXotzq2NqM_2400000.jpg",
       "at": "2026-11-18 20:00"
-    },
-    "도쿄 테디베어 470만 · 18일 17:00": {
-      "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 470만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4700000.jpg",
-      "file": "rKQptWhAvO0_4700000.jpg",
-      "at": "2026-11-18 17:00"
     }
   }
 }
