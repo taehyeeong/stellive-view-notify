@@ -1,5 +1,6 @@
 {
   "order": [
+    "BLACKHOLE 30만 · 20일 14:00",
     "숨바꼭질 330만 · 20일 11:00",
     "러브레터 110만 · 20일 11:00",
     "목마름을 외치다 240만 · 20일 09:00",
@@ -26,11 +27,15 @@
     "도쿄 테디베어 470만 · 18일 17:00",
     "STAY 420만 · 18일 16:00",
     "괴물 790만 · 18일 16:00",
-    "Some Like It Hot!! 460만 · 18일 15:00",
-    "SUPADOPA 620만 · 18일 13:00",
-    "PLAY 460만 · 18일 12:00"
+    "Some Like It Hot!! 460만 · 18일 15:00"
   ],
   "items": {
+    "BLACKHOLE 30만 · 20일 14:00": {
+      "text": "\n#daily_hina #dayshiro #Lize_daze #luv_tabi\n\n얘들아 !!\n\n『 BLACKHOLE 』 30만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=_BrWJ31tzYs\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/_BrWJ31tzYs_300000.jpg",
+      "file": "_BrWJ31tzYs_300000.jpg",
+      "at": "2026-11-20 14:00"
+    },
     "숨바꼭질 330만 · 20일 11:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 숨바꼭질 』 330만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=fLLX2R-RwVE\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/fLLX2R-RwVE_3300000.jpg",
@@ -192,18 +197,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qpBCZ6kYVb4_4600000.jpg",
       "file": "qpBCZ6kYVb4_4600000.jpg",
       "at": "2026-11-18 15:00"
-    },
-    "SUPADOPA 620만 · 18일 13:00": {
-      "text": "\n#yunikki\n\n유니찌\n\n『 SUPADOPA 』 620만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_RAWjqdgTs\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_RAWjqdgTs_6200000.jpg",
-      "file": "R_RAWjqdgTs_6200000.jpg",
-      "at": "2026-11-18 13:00"
-    },
-    "PLAY 460만 · 18일 12:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 PLAY 』 460만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Bhe35DpMlzk\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Bhe35DpMlzk_4600000.jpg",
-      "file": "Bhe35DpMlzk_4600000.jpg",
-      "at": "2026-11-18 12:00"
     }
   }
 }
