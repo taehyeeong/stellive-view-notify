@@ -1,5 +1,7 @@
 {
   "order": [
+    "숨바꼭질 330만 · 20일 11:00",
+    "러브레터 110만 · 20일 11:00",
     "목마름을 외치다 240만 · 20일 09:00",
     "유령이 되고싶어 150만 · 20일 08:00",
     "Maid My Way 260만 · 20일 07:00",
@@ -26,12 +28,21 @@
     "괴물 790만 · 18일 16:00",
     "Some Like It Hot!! 460만 · 18일 15:00",
     "SUPADOPA 620만 · 18일 13:00",
-    "PLAY 460만 · 18일 12:00",
-    "히로인 360만 · 18일 10:00",
-    "선잠 660만 · 18일 10:00",
-    "Grand Escape 190만 · 18일 09:00"
+    "PLAY 460만 · 18일 12:00"
   ],
   "items": {
+    "숨바꼭질 330만 · 20일 11:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 숨바꼭질 』 330만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=fLLX2R-RwVE\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/fLLX2R-RwVE_3300000.jpg",
+      "file": "fLLX2R-RwVE_3300000.jpg",
+      "at": "2026-11-20 11:00"
+    },
+    "러브레터 110만 · 20일 11:00": {
+      "text": "\n#for_shibuki\n\n부킈키\n\n『 러브레터 』 110만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=vD5g9qVz4zg\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/vD5g9qVz4zg_1100000.jpg",
+      "file": "vD5g9qVz4zg_1100000.jpg",
+      "at": "2026-11-20 11:00"
+    },
     "목마름을 외치다 240만 · 20일 09:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 목마름을 외치다 』 240만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=eYaX9aDtlmA\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/eYaX9aDtlmA_2400000.jpg",
@@ -193,24 +204,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Bhe35DpMlzk_4600000.jpg",
       "file": "Bhe35DpMlzk_4600000.jpg",
       "at": "2026-11-18 12:00"
-    },
-    "히로인 360만 · 18일 10:00": {
-      "text": "\n#riko_diary\n\n리코야!\n\n『 히로인 』 360만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=qao2gYtY7bs\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/qao2gYtY7bs_3600000.jpg",
-      "file": "qao2gYtY7bs_3600000.jpg",
-      "at": "2026-11-18 10:00"
-    },
-    "선잠 660만 · 18일 10:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 선잠 』 660만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=t6EzltrzGNo\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/t6EzltrzGNo_6600000.jpg",
-      "file": "t6EzltrzGNo_6600000.jpg",
-      "at": "2026-11-18 10:00"
-    },
-    "Grand Escape 190만 · 18일 09:00": {
-      "text": "\n#nanaiary\n\n나나야\n\n『 Grand Escape 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=L-GJ9pYICDM\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/L-GJ9pYICDM_1900000.jpg",
-      "file": "L-GJ9pYICDM_1900000.jpg",
-      "at": "2026-11-18 09:00"
     }
   }
 }
