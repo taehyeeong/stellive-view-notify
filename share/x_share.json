@@ -1,5 +1,6 @@
 {
   "order": [
+    "신의 뜻대로 140만 · 21일 13:00",
     "자그만 기적 10만 · 21일 12:00",
     "별이 시작되는 곳 150만 · 21일 12:00",
     "발랄라이카 70만 · 21일 12:00",
@@ -26,10 +27,15 @@
     "발묘 1720만 · 19일 20:00",
     "BUMPA 20만 · 19일 15:00",
     "카가리비토 100만 · 19일 15:00",
-    "피날레 510만 · 19일 13:00",
-    "로스트원의 호곡 190만 · 19일 12:00"
+    "피날레 510만 · 19일 13:00"
   ],
   "items": {
+    "신의 뜻대로 140만 · 21일 13:00": {
+      "text": "\n#for_shibuki #happy_rin #nanaiary #riko_diary\n\n얘들아 !!\n\n『 신의 뜻대로 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=So0ba8NuUq0\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/So0ba8NuUq0_1400000.jpg",
+      "file": "So0ba8NuUq0_1400000.jpg",
+      "at": "2026-11-21 13:00"
+    },
     "자그만 기적 10만 · 21일 12:00": {
       "text": "\n#yunikki\n\n유니찌\n\n『 자그만 기적 』 10만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=lae-GcDKZjo\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/lae-GcDKZjo_100000.jpg",
@@ -191,12 +197,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/_-uHa5KiR90_5100000.jpg",
       "file": "_-uHa5KiR90_5100000.jpg",
       "at": "2026-11-19 13:00"
-    },
-    "로스트원의 호곡 190만 · 19일 12:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 190만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1900000.jpg",
-      "file": "liPEQZJLQh4_1900000.jpg",
-      "at": "2026-11-19 12:00"
     }
   }
 }
