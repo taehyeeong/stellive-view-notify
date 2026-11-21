@@ -1,5 +1,6 @@
 {
   "order": [
+    "Surges 540만 · 21일 14:00",
     "신의 뜻대로 140만 · 21일 13:00",
     "자그만 기적 10만 · 21일 12:00",
     "별이 시작되는 곳 150만 · 21일 12:00",
@@ -26,10 +27,15 @@
     "Enemy 470만 · 19일 23:00",
     "발묘 1720만 · 19일 20:00",
     "BUMPA 20만 · 19일 15:00",
-    "카가리비토 100만 · 19일 15:00",
-    "피날레 510만 · 19일 13:00"
+    "카가리비토 100만 · 19일 15:00"
   ],
   "items": {
+    "Surges 540만 · 21일 14:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 Surges 』 540만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=q2uHl6EJh-k\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/q2uHl6EJh-k_5400000.jpg",
+      "file": "q2uHl6EJh-k_5400000.jpg",
+      "at": "2026-11-21 14:00"
+    },
     "신의 뜻대로 140만 · 21일 13:00": {
       "text": "\n#for_shibuki #happy_rin #nanaiary #riko_diary\n\n얘들아 !!\n\n『 신의 뜻대로 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=So0ba8NuUq0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/So0ba8NuUq0_1400000.jpg",
@@ -191,12 +197,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Nmkp68aUw1o_1000000.jpg",
       "file": "Nmkp68aUw1o_1000000.jpg",
       "at": "2026-11-19 15:00"
-    },
-    "피날레 510만 · 19일 13:00": {
-      "text": "\n#daily_hina\n\n히나야\n\n『 피날레 』 510만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=_-uHa5KiR90\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/_-uHa5KiR90_5100000.jpg",
-      "file": "_-uHa5KiR90_5100000.jpg",
-      "at": "2026-11-19 13:00"
     }
   }
 }
