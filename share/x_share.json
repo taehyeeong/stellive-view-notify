@@ -1,5 +1,6 @@
 {
   "order": [
+    "Hollowness 100만 · 21일 21:00",
     "도쿄 테디베어 490만 · 21일 20:00",
     "로스트원의 호곡 210만 · 21일 19:00",
     "케세라세라 370만 · 21일 16:00",
@@ -27,10 +28,15 @@
     "도쿄 테디베어 480만 · 20일 06:00",
     "제육감 230만 · 20일 05:00",
     "가짜 얼굴 370만 · 19일 23:00",
-    "Enemy 470만 · 19일 23:00",
-    "발묘 1720만 · 19일 20:00"
+    "Enemy 470만 · 19일 23:00"
   ],
   "items": {
+    "Hollowness 100만 · 21일 21:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 Hollowness 』 100만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=L-pn_xrqQkQ\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/L-pn_xrqQkQ_1000000.jpg",
+      "file": "L-pn_xrqQkQ_1000000.jpg",
+      "at": "2026-11-21 21:00"
+    },
     "도쿄 테디베어 490만 · 21일 20:00": {
       "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 490만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4900000.jpg",
@@ -198,12 +204,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8vQfO5tT85k_4700000.jpg",
       "file": "8vQfO5tT85k_4700000.jpg",
       "at": "2026-11-19 23:00"
-    },
-    "발묘 1720만 · 19일 20:00": {
-      "text": "\n#Lize_daze\n\n리제야\n\n『 발묘 』 1720만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=R_B4tmy2DVA\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17200000.jpg",
-      "file": "R_B4tmy2DVA_17200000.jpg",
-      "at": "2026-11-19 20:00"
     }
   }
 }
