@@ -1,5 +1,6 @@
 {
   "order": [
+    "도쿄 테디베어 490만 · 21일 20:00",
     "로스트원의 호곡 210만 · 21일 19:00",
     "케세라세라 370만 · 21일 16:00",
     "Surges 540만 · 21일 14:00",
@@ -30,6 +31,12 @@
     "발묘 1720만 · 19일 20:00"
   ],
   "items": {
+    "도쿄 테디베어 490만 · 21일 20:00": {
+      "text": "\n#mary_review\n\n메릿치 !\n\n『 도쿄 테디베어 』 490만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=rKQptWhAvO0\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/rKQptWhAvO0_4900000.jpg",
+      "file": "rKQptWhAvO0_4900000.jpg",
+      "at": "2026-11-21 20:00"
+    },
     "로스트원의 호곡 210만 · 21일 19:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 210만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_2100000.jpg",
