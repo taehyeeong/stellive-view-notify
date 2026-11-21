@@ -1,5 +1,6 @@
 {
   "order": [
+    "케세라세라 370만 · 21일 16:00",
     "Surges 540만 · 21일 14:00",
     "신의 뜻대로 140만 · 21일 13:00",
     "자그만 기적 10만 · 21일 12:00",
@@ -25,11 +26,15 @@
     "제육감 230만 · 20일 05:00",
     "가짜 얼굴 370만 · 19일 23:00",
     "Enemy 470만 · 19일 23:00",
-    "발묘 1720만 · 19일 20:00",
-    "BUMPA 20만 · 19일 15:00",
-    "카가리비토 100만 · 19일 15:00"
+    "발묘 1720만 · 19일 20:00"
   ],
   "items": {
+    "케세라세라 370만 · 21일 16:00": {
+      "text": "\n#riko_diary\n\n리코야!\n\n『 케세라세라 』 370만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=J49wnPBsyrU\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/J49wnPBsyrU_3700000.jpg",
+      "file": "J49wnPBsyrU_3700000.jpg",
+      "at": "2026-11-21 16:00"
+    },
     "Surges 540만 · 21일 14:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 Surges 』 540만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=q2uHl6EJh-k\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/q2uHl6EJh-k_5400000.jpg",
@@ -185,18 +190,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/R_B4tmy2DVA_17200000.jpg",
       "file": "R_B4tmy2DVA_17200000.jpg",
       "at": "2026-11-19 20:00"
-    },
-    "BUMPA 20만 · 19일 15:00": {
-      "text": "\n#dayshiro\n\n찌로야\n\n『 BUMPA 』 20만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Z5N_XqM9Nl8\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Z5N_XqM9Nl8_200000.jpg",
-      "file": "Z5N_XqM9Nl8_200000.jpg",
-      "at": "2026-11-19 15:00"
-    },
-    "카가리비토 100만 · 19일 15:00": {
-      "text": "\n#happy_rin\n\n린~\n\n『 카가리비토 』 100만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Nmkp68aUw1o\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Nmkp68aUw1o_1000000.jpg",
-      "file": "Nmkp68aUw1o_1000000.jpg",
-      "at": "2026-11-19 15:00"
     }
   }
 }
