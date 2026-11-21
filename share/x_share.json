@@ -1,5 +1,6 @@
 {
   "order": [
+    "브레인 롯 100만 · 21일 11:00",
     "비행정 60만 · 21일 08:00",
     "아틀란티스 소녀 70만 · 21일 08:00",
     "절대적대완전싫어 320만 · 21일 00:00",
@@ -27,6 +28,12 @@
     "안녕, 꽃도둑씨 140만 · 19일 11:00"
   ],
   "items": {
+    "브레인 롯 100만 · 21일 11:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 브레인 롯 』 100만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=bmFg-paLaMI\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bmFg-paLaMI_1000000.jpg",
+      "file": "bmFg-paLaMI_1000000.jpg",
+      "at": "2026-11-21 11:00"
+    },
     "비행정 60만 · 21일 08:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 비행정 』 60만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=Rkd03AguDJ4\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/Rkd03AguDJ4_600000.jpg",
