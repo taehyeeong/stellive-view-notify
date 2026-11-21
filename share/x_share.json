@@ -1,5 +1,8 @@
 {
   "order": [
+    "자그만 기적 10만 · 21일 12:00",
+    "별이 시작되는 곳 150만 · 21일 12:00",
+    "발랄라이카 70만 · 21일 12:00",
     "브레인 롯 100만 · 21일 11:00",
     "비행정 60만 · 21일 08:00",
     "아틀란티스 소녀 70만 · 21일 08:00",
@@ -24,10 +27,27 @@
     "BUMPA 20만 · 19일 15:00",
     "카가리비토 100만 · 19일 15:00",
     "피날레 510만 · 19일 13:00",
-    "로스트원의 호곡 190만 · 19일 12:00",
-    "안녕, 꽃도둑씨 140만 · 19일 11:00"
+    "로스트원의 호곡 190만 · 19일 12:00"
   ],
   "items": {
+    "자그만 기적 10만 · 21일 12:00": {
+      "text": "\n#yunikki\n\n유니찌\n\n『 자그만 기적 』 10만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=lae-GcDKZjo\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/lae-GcDKZjo_100000.jpg",
+      "file": "lae-GcDKZjo_100000.jpg",
+      "at": "2026-11-21 12:00"
+    },
+    "별이 시작되는 곳 150만 · 21일 12:00": {
+      "text": "\n#toazzang #Rang_log #hiyorizori #mary_review\n\n얘들아 !!\n\n『 별이 시작되는 곳 』 150만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=EKEts5IShas\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/EKEts5IShas_1500000.jpg",
+      "file": "EKEts5IShas_1500000.jpg",
+      "at": "2026-11-21 12:00"
+    },
+    "발랄라이카 70만 · 21일 12:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 발랄라이카 』 70만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=8lD-6Xyq4Lg\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/8lD-6Xyq4Lg_700000.jpg",
+      "file": "8lD-6Xyq4Lg_700000.jpg",
+      "at": "2026-11-21 12:00"
+    },
     "브레인 롯 100만 · 21일 11:00": {
       "text": "\n#nanaiary\n\n나나야\n\n『 브레인 롯 』 100만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=bmFg-paLaMI\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/bmFg-paLaMI_1000000.jpg",
@@ -177,12 +197,6 @@
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_1900000.jpg",
       "file": "liPEQZJLQh4_1900000.jpg",
       "at": "2026-11-19 12:00"
-    },
-    "안녕, 꽃도둑씨 140만 · 19일 11:00": {
-      "text": "\n#dayshiro\n\n찌로야\n\n『 안녕, 꽃도둑씨 』 140만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=sEYBQaw1vRs\n",
-      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/sEYBQaw1vRs_1400000.jpg",
-      "file": "sEYBQaw1vRs_1400000.jpg",
-      "at": "2026-11-19 11:00"
     }
   }
 }
