@@ -1,5 +1,6 @@
 {
   "order": [
+    "로스트원의 호곡 210만 · 21일 19:00",
     "케세라세라 370만 · 21일 16:00",
     "Surges 540만 · 21일 14:00",
     "신의 뜻대로 140만 · 21일 13:00",
@@ -29,6 +30,12 @@
     "발묘 1720만 · 19일 20:00"
   ],
   "items": {
+    "로스트원의 호곡 210만 · 21일 19:00": {
+      "text": "\n#Lize_daze\n\n리제야\n\n『 로스트원의 호곡 』 210만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=liPEQZJLQh4\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/liPEQZJLQh4_2100000.jpg",
+      "file": "liPEQZJLQh4_2100000.jpg",
+      "at": "2026-11-21 19:00"
+    },
     "케세라세라 370만 · 21일 16:00": {
       "text": "\n#riko_diary\n\n리코야!\n\n『 케세라세라 』 370만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=J49wnPBsyrU\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/J49wnPBsyrU_3700000.jpg",
