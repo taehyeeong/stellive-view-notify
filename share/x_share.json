@@ -1,5 +1,7 @@
 {
   "order": [
+    "자그만 기적 20만 · 21일 23:00",
+    "걘 아니야 Pt.1 310만 · 21일 23:00",
     "Hollowness 100만 · 21일 21:00",
     "도쿄 테디베어 490만 · 21일 20:00",
     "로스트원의 호곡 210만 · 21일 19:00",
@@ -31,6 +33,18 @@
     "Enemy 470만 · 19일 23:00"
   ],
   "items": {
+    "자그만 기적 20만 · 21일 23:00": {
+      "text": "\n#yunikki\n\n유니찌\n\n『 자그만 기적 』 20만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=lae-GcDKZjo\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/lae-GcDKZjo_200000.jpg",
+      "file": "lae-GcDKZjo_200000.jpg",
+      "at": "2026-11-21 23:00"
+    },
+    "걘 아니야 Pt.1 310만 · 21일 23:00": {
+      "text": "\n#nanaiary\n\n나나야\n\n『 걘 아니야 Pt.1 』 310만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=KJzmhOkm4-E\n",
+      "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/KJzmhOkm4-E_3100000.jpg",
+      "file": "KJzmhOkm4-E_3100000.jpg",
+      "at": "2026-11-21 23:00"
+    },
     "Hollowness 100만 · 21일 21:00": {
       "text": "\n#Lize_daze\n\n리제야\n\n『 Hollowness 』 100만 축하해 !!\n\nFull : https://www.youtube.com/watch?v=L-pn_xrqQkQ\n",
       "image": "https://raw.githubusercontent.com/taehyeeong/stellive-view-notify/main/share/L-pn_xrqQkQ_1000000.jpg",
